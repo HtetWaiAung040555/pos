@@ -22,14 +22,13 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Invalid credentials',
                 'isSuccess' => false
-            ], 401);
+            ]);
         }
 
         // Return user info (for now, without token)
         return response()->json([
             'message' => 'Login successful',
             'user' => $user,
-            'token' => $user->createToken('auth_token')->plainTextToken, // Assuming you are using Laravel Sanctum
             'isSuccess' => true
         ]);
     }
