@@ -4,22 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Resources\StatusResource;
 use App\Models\Status;
 
 class StatusesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
-        $statuses = Status::with('createdBy', 'updatedBy')->get();
-        return response()->json($statuses);
+        $statuses = Status::with(['createdBy', 'updatedBy'])->get();
+        return StatusResource::collection($statuses);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -43,21 +40,17 @@ class StatusesController extends Controller
             'updated_by' => $updatedBy
         ]);
 
-        return response()->json($status, 201);
+        return new StatusResource($status->fresh(['createdBy', 'updatedBy']));
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         $status = Status::with('createdBy', 'updatedBy')->find($id);
-        return response()->json($status);
+        return new StatusResource($status);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, string $id)
     {
         $status = Status::with('createdBy', 'updatedBy')->findOrFail($id);
@@ -81,12 +74,10 @@ class StatusesController extends Controller
             $status->update($data);
         }
 
-        return response()->json($status->fresh(['createdBy', 'updatedBy']));
+        return new StatusResource($status->fresh(['createdBy', 'updatedBy']));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(string $id)
     {
         $status = Status::with('createdBy', 'updatedBy')->findOrFail($id);
