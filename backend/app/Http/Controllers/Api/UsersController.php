@@ -9,7 +9,8 @@ use App\Models\User;
 class UsersController extends Controller
 {
     public function index(){
-        return User::all();
+        $users = User::all();
+        return response()->json($users);
     }
 
     public function store(Request $request){
