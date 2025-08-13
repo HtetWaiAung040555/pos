@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    // Login
     public function login(Request $request)
     {
         $request->validate([
@@ -22,13 +24,28 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Invalid credentials',
                 'isSuccess' => false
-            ]);
+            ], 401);
         }
 
-        // Return user info (for now, without token)
+        // Create a Sanctum token
+        $token = $user->createToken('api-token')->plainTextToken;
+
         return response()->json([
             'message' => 'Login successful',
             'user' => $user,
+            'token' => $token,
+            'isSuccess' => true
+        ]);
+    }
+
+    // Logout
+    public function logout(Request $request)
+    {
+        // Delete the current access token
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully',
             'isSuccess' => true
         ]);
     }
