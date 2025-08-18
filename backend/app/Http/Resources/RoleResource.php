@@ -5,20 +5,14 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class BranchResource extends JsonResource
+class RoleResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'phone' => $this->phone,
-            'location' => $this->location,
+            'desc' => $this->desc,
 
             'status' => [
                 'id' => $this->status->id ?? null,
@@ -29,7 +23,7 @@ class BranchResource extends JsonResource
                 'id' => $this->createdBy->id ?? null,
                 'name' => $this->createdBy->name ?? null,
             ],
-            
+
             'updated_by' => [
                 'id' => $this->updatedBy->id ?? null,
                 'name' => $this->updatedBy->name ?? null,

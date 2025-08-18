@@ -5,16 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Branch extends Model
+class Role extends Model
 {
     use HasFactory;
 
-    protected $table = 'branches';
+    protected $table = 'roles';
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'phone',
-        'location',
+        'desc',
         'status_id',
         'created_by',
         'updated_by'
@@ -31,4 +30,14 @@ class Branch extends Model
     public function updatedBy() { 
         return $this->belongsTo(User::class, 'updated_by'); 
     }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'role_permission');
+    }
+
+    public function users() {
+        return $this->belongsToMany(User::class, 'user_role', 'role_id', 'user_id');
+    }
+    
 }

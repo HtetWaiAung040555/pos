@@ -21,6 +21,7 @@ class BranchesController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:50',
             'location' => 'required|string|max:255',
             'status_id' => 'required|exists:statuses,id',
             'created_by' => 'required|exists:users,id',
@@ -29,6 +30,7 @@ class BranchesController extends Controller
     
         $branch = Branch::create([
             'name' => $request->name,
+            'phone' => $request->phone,
             'location' => $request->location,
             'status_id' => $request->status_id,
             'created_by' => $request->created_by,
@@ -52,12 +54,13 @@ class BranchesController extends Controller
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
+            'phone' => 'sometimes|required|string|max:50',
             'location' => 'sometimes|required|string|max:255',
             'status_id' => 'sometimes|required|exists:statuses,id',
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        $data = $request->only(['name', 'location', 'status_id', 'updated_by']);
+        $data = $request->only(['name', 'phone', 'location', 'status_id', 'updated_by']);
 
         $branch->update($data);
 
