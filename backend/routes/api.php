@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BranchesController;
 use App\Http\Controllers\Api\CountersController;
+use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\StatusesController;
@@ -26,17 +27,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Route::put('/users/{id}', [UsersController::class, 'update']);
     // Route::delete('/users/{id}', [UsersController::class, 'destroy']);
 
-    // Route::resource('/statuses', StatusesController::class);
+    // Route::apiResource('/statuses', StatusesController::class);
 
-    // Route::resource('/branches', BranchesController::class);
+    // Route::apiResource('/branches', BranchesController::class);
 
-    // Route::resource('/counters', CountersController::class);
+    // Route::apiResource('/counters', CountersController::class);
 
-    // Route::resource('/roles', RolesController::class);
+    // Route::apiResource('/roles', RolesController::class);
 
 });
 
-
+    
 
     Route::get('/users', [UsersController::class, 'index']);
     Route::get('/users/{id}', [UsersController::class, 'show']);
@@ -44,10 +45,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/users/{id}', [UsersController::class, 'update']);
     Route::delete('/users/{id}', [UsersController::class, 'destroy']);
 
-    Route::resource('/statuses', StatusesController::class);
+    Route::apiResource('/roles', RolesController::class);
 
-    Route::resource('/branches', BranchesController::class);
+    Route::apiResource('/permissions', PermissionsController::class);
 
-    Route::resource('/counters', CountersController::class);
+    // User Role Management
+    Route::post('/users/{user}/roles/{role}', [UsersController::class, 'assignRole']);
+    Route::delete('/users/{user}/roles/{role}', [UsersController::class, 'removeRole']);
 
-    Route::resource('/roles', RolesController::class);
+    // Role Permission Management
+    Route::post('/roles/{role}/permissions/{permission}', [RolesController::class, 'assignPermission']);
+    Route::delete('/roles/{role}/permissions/{permission}', [RolesController::class, 'removePermission']);
+
+    // Check Permission for User
+    Route::get('/users/{user}/permissions/{permission}', [UsersController::class, 'hasPermission']);
+
+    Route::apiResource('/branches', BranchesController::class);
+
+    Route::apiResource('/counters', CountersController::class);
+
+    Route::apiResource('/statuses', StatusesController::class);
+

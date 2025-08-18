@@ -5,23 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Role extends Model
+class Permission extends Model
 {
     use HasFactory;
 
-    protected $table = 'roles';
+    protected $table = 'permissions';
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
+        'action',
         'desc',
-        'status_id',
         'created_by',
         'updated_by'
     ];
-
-    public function status() {
-        return $this->belongsTo(Status::class);
-    }
 
     public function createdBy() { 
         return $this->belongsTo(User::class, 'created_by'); 
@@ -31,13 +27,9 @@ class Role extends Model
         return $this->belongsTo(User::class, 'updated_by'); 
     }
 
-    public function permissions()
+    public function roles()
     {
-        return $this->belongsToMany(Permission::class, 'role_permission');
-    }
-
-    public function users() {
-        return $this->belongsToMany(User::class, 'user_role', 'role_id', 'user_id');
+        return $this->belongsToMany(Role::class, 'role_permission');
     }
     
 }

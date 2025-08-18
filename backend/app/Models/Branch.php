@@ -13,6 +13,7 @@ class Branch extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
+        'phone',
         'location',
         'status_id',
         'created_by',
