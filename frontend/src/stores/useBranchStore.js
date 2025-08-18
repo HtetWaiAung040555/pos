@@ -4,37 +4,38 @@ import { API_URL } from "@/utils/config";
 
 const api_url = API_URL;
 
-export const useUserStore = defineStore('user', {
+export const useBranchStore = defineStore('branch', {
     state: () => ({
-        users: [],
-        userData: [],
+        branchList: [],
         loading: false,
         error: null,
     }),
 
     actions: {
-        async fetchAllUsers() {
+        async fetchAllBranch() {
             this.loading = true
             this.error = null
             try {
-                const response = await axios.get(`${api_url}/users`);
-                this.users = JSON.stringify(response.data);
+                const response = await axios.get(`${api_url}/branches`);
+                this.branchList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
+                console.log("store/branch:"+ this.branchList )
             }
         },
-        async loginUser(formData) {
+        async fetchBranch(branchId) {
             this.loading = true
             this.error = null
             try {
-                const response = await axios.post(`${api_url}/login`, formData);
-                this.userData = JSON.stringify(response.data);
+                const response = await axios.get(`${api_url}/branches/${branchId}`);
+                this.branchList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
+                console.log("store/updatebranch:"+ this.branchList )
             }
         }
     }

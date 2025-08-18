@@ -2,8 +2,11 @@
     import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
     import { ref, onMounted } from 'vue';
     import { useUserStore } from '@/stores/useUserStore';
+    import { useRouter } from 'vue-router';
 
     const userStore = useUserStore();
+
+    const router = useRouter();
 
     onMounted(() => {
       userStore.fetchAllUsers();
@@ -24,9 +27,16 @@
     }
 
     async function formSubmit() {
-      console.log({email: formData.value.email, password: formData.value.password})
-      await userStore.loginUser({email: formData.value.email, password: formData.value.password})
-      console.log(userStore.loginUser);
+      await userStore.loginUser({email: formData.value.email, password: formData.value.password});
+      const response = JSON.parse(userStore.userData);
+      if (response.isSuccess) {
+        console.log("success");
+        localStorage.setItem("auth", "true");
+        router.push("/");
+      }
+      
+      
+      
     }
 
 </script>
@@ -80,7 +90,7 @@
           </div>
         </div>
         <!-- Login Button -->
-        <button class="bg-black mt-12 p-3 rounded-xl text-lg mx-12" @click="formSubmit" >
+        <button class="bg-black mt-12 p-3 rounded-xl text-lg mx-12 cursor-pointer" @click="formSubmit" >
           Login
         </button>
       </div>

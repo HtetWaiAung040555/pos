@@ -1,5 +1,9 @@
+<script setup>
+    import PageTitle from '@/components/PageTitle.vue'; 
+</script>
+
 <template>
-    <div class="sales">
-        <p>Sales page</p>
+    <div class="p-4">
+        <PageTitle title="Sales" />
     </div>
 </template>
