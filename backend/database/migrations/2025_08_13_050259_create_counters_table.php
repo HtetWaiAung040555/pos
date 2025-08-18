@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('desc')->nullable();;
-            $table->unsignedBigInteger('branch_id');
-            $table->unsignedBigInteger('status_id');
+            $table->foreignId('branch_id')->constrained('branches')->restrictOnDelete();
+            $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
             $table->timestamps();

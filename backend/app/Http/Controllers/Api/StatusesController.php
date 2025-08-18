@@ -33,7 +33,7 @@ class StatusesController extends Controller
 
     public function show(string $id)
     {
-        $status = Status::findofFail($id);
+        $status = Status::findorFail($id);
         return new StatusResource($status);
     }
 

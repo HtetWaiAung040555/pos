@@ -12,16 +12,10 @@ class StatusResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-
-            'created_by' => [
-                'id' => $this->createdBy->id ?? null,
-                'name' => $this->createdBy->name ?? null,
-            ],
             
-            'updated_by' => [
-                'id' => $this->updatedBy->id ?? null,
-                'name' => $this->updatedBy->name ?? null,
-            ],
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
+
         ];
     }
 }
