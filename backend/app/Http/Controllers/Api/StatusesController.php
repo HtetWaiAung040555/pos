@@ -12,7 +12,7 @@ class StatusesController extends Controller
 
     public function index()
     {
-        $statuses = Status::with(['createdBy', 'updatedBy'])->get();
+        $statuses = Status::all();
         return StatusResource::collection($statuses);
     }
 
@@ -21,43 +21,29 @@ class StatusesController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:statuses,name',
-            'created_by' => 'nullable|integer|exists:users,id',
-            'updated_by' => 'nullable|integer|exists:users,id',
         ]);
-
-        $createdBy = $request->input('created_by');
-        $updatedBy = $request->input('updated_by', $createdBy);
-
-        if ($createdBy === null) {
-            return response()->json([
-                'message' => 'created_by or user_id is required',
-            ], 422);
-        }
 
         $status = Status::create([
             'name' => $request->input('name'),
-            'created_by' => $createdBy,
-            'updated_by' => $updatedBy
         ]);
 
-        return new StatusResource($status->fresh(['createdBy', 'updatedBy']));
+        return new StatusResource($status);
     }
 
 
     public function show(string $id)
     {
-        $status = Status::with('createdBy', 'updatedBy')->find($id);
+        $status = Status::findofFail($id);
         return new StatusResource($status);
     }
 
     
     public function update(Request $request, string $id)
     {
-        $status = Status::with('createdBy', 'updatedBy')->findOrFail($id);
+        $status = Status::findOrFail($id);
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255|unique:statuses,name,' . $status->id,
-            'updated_by' => 'nullable|integer|exists:users,id',
         ]);
 
         $updatedBy = $request->input('updated_by');
@@ -66,21 +52,18 @@ class StatusesController extends Controller
         if ($request->has('name')) {
             $data['name'] = $request->input('name');
         }
-        if ($updatedBy !== null) {
-            $data['updated_by'] = $updatedBy;
-        }
 
         if (!empty($data)) {
             $status->update($data);
         }
 
-        return new StatusResource($status->fresh(['createdBy', 'updatedBy']));
+        return new StatusResource($status);
     }
 
 
     public function destroy(string $id)
     {
-        $status = Status::with('createdBy', 'updatedBy')->findOrFail($id);
+        $status = Status::findOrFail($id);
         $status->delete();
         return response()->json(null, 204);
     }

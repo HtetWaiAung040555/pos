@@ -14,8 +14,6 @@ class Status extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'created_by',
-        'updated_by'
     ];
 
     public function createdBy() { 
