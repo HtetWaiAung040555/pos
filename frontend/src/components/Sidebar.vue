@@ -1,0 +1,166 @@
+<script setup>
+  import { useCollapseSidebar } from '@/stores/collapseSidebar';
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+
+  const collapseSidebar = useCollapseSidebar();
+
+  const router = useRouter();
+
+  function toggleCollapse() {
+      isCollapsed.value = !isCollapsed.value;
+  }
+
+  // Example menu items
+  const menuItems = [
+      { 
+        name: 'Dashboard', 
+        icon: 'fas fa-tachometer-alt',
+        pathname: '/'
+      },
+      { 
+        name: 'Sales', 
+        icon: 'fas fa-chart-line',
+        children: [
+          { 
+            name: 'User', 
+            icon: 'fas fa-user',
+            pathname: '/sales'
+          },
+          { name: 'Role & Permission', icon: 'fas fa-chart-line' },
+        ],
+        pathname: '/sales'
+      },
+      { 
+        name: 'Products', 
+        icon: 'fas fa-box-open',
+        pathname: ""
+      },
+      { 
+        name: 'Settings', 
+        icon: 'fas fa-cogs',
+        pathname: ""
+      },
+      { 
+        name: 'User Role', 
+        icon: 'fas fa-users',
+        children: [
+          { 
+            name: 'User', 
+            icon: 'fas fa-user-tie',
+            pathname: '/users'
+          },
+          { 
+            name: 'Role & Permission', 
+            icon: 'fas fa-sitemap',
+            pathname: ""
+          },
+          { 
+            name: 'Branch', 
+            icon: 'fas fa-warehouse',
+            pathname: '/branch'
+          },
+          { 
+            name: 'Counter', 
+            icon: 'fas fa-computer',
+            pathname: "/counter"
+          },
+        ],
+        pathname: ""
+      }
+  ];
+
+  // Track which dropdowns are open
+  const openDropdown = ref(null);
+
+  function toggleDropdown(itemName) {
+    openDropdown.value = openDropdown.value === itemName ? null : itemName;
+  }
+
+  function changeRoute(name) {
+    if (!name) return;
+    router.push(name);
+  }
+
+</script>
+
+<template>
+    <!-- Sidebar -->
+    <div :class="[
+        'sidebar-bg text-white transition-all duration-300 text-sm font-semibold pt-2',
+        collapseSidebar.isSidebarCollapsed ? 'w-16' : 'w-64',
+        'md:group-hover:w-64',
+      ]"
+      class="relative group">
+
+      <div 
+        :class="collapseSidebar.isSidebarCollapsed? 'justify-center items-center': 'px-2 gap-2'" 
+        class="flex items-center transition-all"
+        @click="collapseSidebar.toggleSidebar"
+      >
+        <img src="../assets/images/logo.png" :class="collapseSidebar.isSidebarCollapsed? 'w-10 h-10' : 'w-10 h-10'" alt="Fusion Mart" />
+        <div class="flex flex-col">
+          <span v-show="!collapseSidebar.isSidebarCollapsed" class="text-white text-lg font-semibold transition-all duration-300 origin-left">Fusion Mart</span>
+          <span v-show="!collapseSidebar.isSidebarCollapsed" class="text-gray-300 text-[11px] transition-all duration-300 origin-left">POS System</span>
+        </div>
+      </div>
+
+      <!-- Menu -->
+      <nav class="mt-4 flex flex-col gap-2">
+        <div
+          v-for="item in menuItems"
+          :key="item.name"
+          class="items-center hover:bg-[#F8FAFC] hover:text-black transition-all cursor-pointer"
+        >
+          <div
+            class="flex justify-between items-center py-3 px-4 hover:bg-[#F8FAFC] hover:text-black transition-all cursor-pointer"
+            @click="item.children ? toggleDropdown(item.name) : changeRoute(item.pathname)"
+          >
+            <div class="flex items-center gap-4">
+              <i :class="item.icon" class="text-lg"></i>
+              <span
+                v-show="!collapseSidebar.isSidebarCollapsed"
+                class="transition-all duration-300 origin-left"
+              >
+                {{ item.name }}
+              </span>
+            </div>
+            <!-- Chevron Icon for Dropdown -->
+            <i
+              v-if="item.children"
+              class="fas fa-chevron-right transition-transform"
+              :class="{ 'rotate-90': openDropdown === item.name }"
+            ></i>
+            <!-- If sidebar is collapsed, show floating dropdown -->
+          </div>
+          <div
+            v-if="item.children && openDropdown === item.name"
+            :class="[
+              collapseSidebar.isSidebarCollapsed 
+                ? 'bg-[#fff] text-black rounded shadow-lg z-10'
+                : 'bg-[#fff] text-black'
+            ]"
+          >
+            <div
+              v-for="sub in item.children"
+              :key="sub.name"
+              class="flex pl-8 items-center py-3 gap-4 hover:bg-[#F8FAFC] hover:text-black cursor-pointer transition-all"
+              @click="changeRoute(sub.pathname)"
+            >
+              <i :class="sub.icon" class="text-lg"></i>
+              <span>
+                {{ sub.name }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+      </nav>
+    </div>
+</template>
+
+<style>
+  .sidebar-bg {
+    background-color: #206DBA;
+  }
+</style>
