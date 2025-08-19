@@ -8,7 +8,8 @@ const props = defineProps({
   variant: { type: String, default: 'solid' }, // solid, outlined, text
   rounded: { type: Boolean, default: false },
   size: { type: String, default: 'md' }, // sm, md, lg
-  disabled: { type: Boolean, default: false }
+  disabled: { type: Boolean, default: false },
+  isLoading: {type: Boolean, default: false},
 });
 
 const emits = defineEmits(['click']);
@@ -67,7 +68,7 @@ const baseClass = computed(() => {
     :disabled="disabled"
     @click="$emit('click')"
   >
-    <i v-if="icon" :class="[icon, label ? 'mr-2' : '']"></i>
+    <i v-if="icon" :class="[icon, label? isLoading? 'mr-2 animate-spin' : 'mr-2' : '']"></i>
     <span v-if="label">{{ label }}</span>
   </button>
 </template>

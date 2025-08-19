@@ -21,10 +21,10 @@ class UsersController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'branch_id'  => 'exists:branches,id',
+            'branch_id'  => 'nullable|exists:branches,id',
             'counter_id' => 'nullable|exists:counters,id',
             'status_id'  => 'exists:statuses,id',
-            'created_by' => 'required|exists:users,id',
+            'created_by' => 'nullable|exists:users,id',
             'roles' => 'array|exists:roles,id'
         ]);
 
