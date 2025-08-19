@@ -15,11 +15,11 @@ class UserFactory extends Factory
 
     public function definition()
     {
-        User::first()?->id ?? User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('password123'),
-        ]);
+        // User::first()?->id ?? User::factory()->create([
+        //     'name' => 'Admin',
+        //     'email' => 'admin@gmail.com',
+        //     'password' => Hash::make('password123'),
+        // ]);
 
         return [
             'name' => $this->faker->name(),

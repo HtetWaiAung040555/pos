@@ -70,8 +70,11 @@ class BranchesController extends Controller
     
     public function destroy(string $id)
     {
-        $branch = Branch::findOrFail($id);
-        $branch->delete();
-        return response()->json(null, 204);
+        try {
+            Branch::findOrFail($id)->delete();
+            return response()->json(['message' => 'Deleted Successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Branch cannot be deleted'], 400);
+        }
     }
 }

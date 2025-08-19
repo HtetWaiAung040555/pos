@@ -78,11 +78,15 @@ class RolesController extends Controller
 
     public function destroy(string $id)
     {
-        $role = Role::findOrFail($id);
-        $role->permissions()->detach();
-        $role->delete();
+        try {
+            $role = Role::findOrFail($id);
+            $role->permissions()->detach();
+            $role->delete();
 
-        return response()->json(null, 204);
+            return response()->json(['message' => 'Deleted'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Role cannot be deleted'], 400);
+        }
     }
 
     public function assignPermission(Role $role, Permission $permission)

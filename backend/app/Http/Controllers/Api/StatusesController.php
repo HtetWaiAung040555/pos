@@ -63,8 +63,11 @@ class StatusesController extends Controller
 
     public function destroy(string $id)
     {
-        $status = Status::findOrFail($id);
-        $status->delete();
-        return response()->json(null, 204);
+        try {
+            Status::findOrFail($id)->delete();
+            return response()->json(['message' => 'Deleted Successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Status cannot be deleted'], 400);
+        }
     }
 }
