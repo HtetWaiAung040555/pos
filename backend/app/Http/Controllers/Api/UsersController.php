@@ -82,10 +82,13 @@ class UsersController extends Controller
         return new UserResource($user->fresh(['branch','counter','status','roles','createdBy','updatedBy']));
     }
 
-    public function destroy($id){
-        $user = User::findOrFail($id);
-        $user->delete();
-        return response()->json(null, 204);
+    public function destroy($id) {
+        try {
+            User::findOrFail($id)->delete();
+            return response()->json(['message' => 'Deleted Successfully'], 200);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return response()->json(['error' => 'User is referenced, cannot delete'], 400);
+        }
     }
 
     public function assignRole(User $user, Role $role)
