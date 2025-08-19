@@ -64,8 +64,12 @@ class CountersController extends Controller
 
     public function destroy(string $id)
     {
-        $counter = Counter::findOrFail($id);
-        $counter->delete();
-        return response()->json(null, 204);
+        try {
+            Counter::findOrFail($id)->delete();
+            return response()->json(['message' => 'Deleted Successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Counter cannot be deleted'], 400);
+        }
     }
+    
 }
