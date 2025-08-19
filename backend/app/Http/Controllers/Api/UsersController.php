@@ -23,7 +23,7 @@ class UsersController extends Controller
             'password' => 'required|string|min:8',
             'branch_id'  => 'nullable|exists:branches,id',
             'counter_id' => 'nullable|exists:counters,id',
-            'status_id'  => 'exists:statuses,id',
+            'status_id'  => 'nullable|exists:statuses,id',
             'created_by' => 'nullable|exists:users,id',
             'roles' => 'array|exists:roles,id'
         ]);

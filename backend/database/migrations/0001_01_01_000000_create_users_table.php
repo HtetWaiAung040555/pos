@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedBigInteger('branch_id');
-            $table->unsignedBigInteger('counter_id')->nullable();
-            $table->unsignedBigInteger('status_id');
+            $table->foreignId('branch_id')->constrained('branches')->restrictOnDelete();
+            $table->foreignId('counter_id')->nullable()->constrained('counters')->restrictOnDelete();
+            $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
             $table->rememberToken();

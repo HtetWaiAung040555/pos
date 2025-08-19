@@ -112,7 +112,7 @@ const paginationPages = computed(() => {
       </slot>
     </div>
 
-    <div class="flex flex-col h-[250px] overflow-hidden">
+    <div class="flex flex-col max-h-[250px] overflow-hidden">
 
       <!-- Table -->
       <div class="flex-1 overflow-y-auto">
