@@ -15,6 +15,7 @@ import Users from './views/Users.vue';
 import Branch from './views/Branch/Branch.vue';
 import CreateBranch from './views/Branch/CreateBranch.vue';
 import UpdateBranch from './views/Branch/UpdateBranch.vue';
+import ToastService from 'primevue/toastservice';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -49,4 +50,5 @@ app.use(PrimeVue, {
         preset: Aura,
     }
 });
+app.use(ToastService);
 app.mount('#app');

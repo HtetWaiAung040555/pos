@@ -5,7 +5,7 @@
 </script>
 
 <template>
-    <span class="text-sm text-black">
+    <span class="text-sm font-medium text-black">
         {{ label }}
     </span>
 </template>
