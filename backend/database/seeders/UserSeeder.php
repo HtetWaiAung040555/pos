@@ -8,8 +8,9 @@ use App\Models\Role;
 
 class UserSeeder extends Seeder
 {
-    public function run():void{
-        User::factory(50)->create();
+    public function run():void
+    {
+        User::factory(9)->create();
     }
 }
 
