@@ -14,7 +14,7 @@ class RolesController extends Controller
 
     public function index()
     {
-        $roles = Role::with(['status', 'createdBy', 'updatedBy', 'premissions'])->get();
+        $roles = Role::with(['status', 'createdBy', 'updatedBy', 'permissions'])->get();
         return RoleResource::collection($roles);
     }
 
@@ -27,7 +27,7 @@ class RolesController extends Controller
             'status_id' => 'required|exists:statuses,id',
             'created_by' => 'required|exists:users,id',
             'updated_by' => 'nullable|exists:users,id',
-            'permissions' => 'array|exists:permissnos,id',
+            'permissions' => 'array|exists:permissions,id',
         ]);
 
         $role = Role::create([
@@ -72,7 +72,7 @@ class RolesController extends Controller
             $role->permissions()->sync($request->permissions);
         }
 
-        return new RoleResource($role->fresh(['status', 'createdBy', 'updatedBy', 'premissions']));
+        return new RoleResource($role->fresh(['status', 'createdBy', 'updatedBy', 'permissions']));
     }
 
 
@@ -89,23 +89,23 @@ class RolesController extends Controller
         }
     }
 
-    public function assignPermission(Role $role, Permission $permission)
-    {
-        $role->permissions()->attach($permission->id);
-        return response()->json([
-            'message' => 'Permission assigned successfully',
-            'role' => $role->load('permissions')
-        ]);
-    }
+    // public function assignPermission(Role $role, Permission $permission)
+    // {
+    //     $role->permissions()->attach($permission->id);
+    //     return response()->json([
+    //         'message' => 'Permission assigned successfully',
+    //         'role' => $role->load('permissions')
+    //     ]);
+    // }
 
-    public function removePermission(Role $role, Permission $permission)
-    {
-        $role->permissions()->detach($permission->id);
-        return response()->json([
-            'message' => 'Permission removed successfully',
-            'role' => $role->load('permissions')
-        ]);
-    }
+    // public function removePermission(Role $role, Permission $permission)
+    // {
+    //     $role->permissions()->detach($permission->id);
+    //     return response()->json([
+    //         'message' => 'Permission removed successfully',
+    //         'role' => $role->load('permissions')
+    //     ]);
+    // }
 
 
 }

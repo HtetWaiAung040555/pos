@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -30,9 +31,11 @@ class AuthController extends Controller
         // Create a Sanctum token
         $token = $user->createToken('api-token')->plainTextToken;
 
+        $userData = new UserResource($user->fresh(['branch', 'counter', 'role' , 'status', 'createdBy', 'updatedBy']));
+
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user,
+            'user' => $userData,
             'token' => $token,
             'isSuccess' => true
         ]);

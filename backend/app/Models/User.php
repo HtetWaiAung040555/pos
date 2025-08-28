@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'branch_id',
         'counter_id',
+        'role_id',
         'status_id',
         'created_by',
         'updated_by'
@@ -64,6 +65,12 @@ class User extends Authenticatable
         return $this->belongsTo(Counter::class, 'counter_id');
     }
 
+    // Role
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
     // Status
     public function status()
     {
@@ -81,7 +88,10 @@ class User extends Authenticatable
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function roles() {
-        return $this->belongsToMany(Role::class, 'user_role', 'user_id', 'role_id');
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id','action');
     }
+
+    
 }
