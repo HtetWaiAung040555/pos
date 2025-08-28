@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->foreignId('branch_id')->constrained('branches')->restrictOnDelete();
             $table->foreignId('counter_id')->nullable()->constrained('counters')->restrictOnDelete();
+            $table->foreignId('role_id')->nullable()->constrained('roles')->restrictOnDelete();
             $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');

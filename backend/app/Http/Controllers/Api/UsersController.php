@@ -24,8 +24,8 @@ class UsersController extends Controller
             'branch_id'  => 'nullable|exists:branches,id',
             'counter_id' => 'nullable|exists:counters,id',
             'status_id'  => 'nullable|exists:statuses,id',
-            'created_by' => 'nullable|exists:users,id',
-            'roles' => 'array|exists:roles,id'
+            'roles' => 'nullable|array|exists:roles,id',
+            'created_by' => 'nullable|exists:users,id'
         ]);
 
         $user = User::create([
@@ -34,16 +34,13 @@ class UsersController extends Controller
             'password'   => bcrypt($request->password),
             'branch_id'  => $request->branch_id,
             'counter_id' => $request->counter_id,
+            'role_id'    => $request->role_id,
             'status_id'  => $request->status_id,
             'created_by' => $request->created_by,
             'updated_by' => $request->updated_by ?? $request->created_by,
         ]);
 
-        if ($request->roles) {
-            $user->roles()->attach($request->roles);
-        }
-
-        return new UserResource($user->fresh(['branch', 'counter', 'status', 'createdBy', 'updatedBy']));
+        return new UserResource($user->fresh(['branch', 'counter', 'role' , 'status', 'createdBy', 'updatedBy']));
     }
 
     public function show($id){
@@ -61,12 +58,12 @@ class UsersController extends Controller
             'password'   => 'sometimes|string|min:8',
             'branch_id'  => 'exists:branches,id',
             'counter_id' => 'nullable|exists:counters,id',
+            'role_id'    => 'sometimes|exists:role,id',
             'status_id'  => 'exists:statuses,id',
             'updated_by' => 'required|exists:users,id',
-            'roles'      => 'sometimes|array|exists:roles,id',
         ]);
 
-        $data = $request->only(['name', 'email', 'password', 'branch_id', 'counter_id', 'status_id']);
+        $data = $request->only(['name', 'email', 'password', 'branch_id', 'counter_id', 'role_id' , 'status_id']);
 
         if ($request->password) {
             $data['password'] = bcrypt($request->password);
@@ -74,12 +71,7 @@ class UsersController extends Controller
 
         $user->update($data);
 
-        // Sync roles if provided
-        if ($request->has('roles')) {
-            $user->roles()->sync($request->roles);
-        }
-
-        return new UserResource($user->fresh(['branch','counter','status','roles','createdBy','updatedBy']));
+        return new UserResource($user->fresh(['branch','counter','role','status','createdBy','updatedBy']));
     }
 
     public function destroy($id) {
@@ -91,38 +83,38 @@ class UsersController extends Controller
         }
     }
 
-    public function assignRole(User $user, Role $role)
-    {
-        $user->roles()->attach($role->id);
-        return response()->json([
-            'message' => 'Role assigned successfully',
-            'user' => $user->load('roles')
-        ]);
-    }
+    // public function assignRole(User $user, Role $role)
+    // {
+    //     $user->roles()->attach($role->id);
+    //     return response()->json([
+    //         'message' => 'Role assigned successfully',
+    //         'user' => $user->load('roles')
+    //     ]);
+    // }
 
-    public function removeRole(User $user, Role $role)
-    {
-        $user->roles()->detach($role->id);
-        return response()->json([
-            'message' => 'Role removed successfully',
-            'user' => $user->load('roles')
-        ]);
-    }
+    // public function removeRole(User $user, Role $role)
+    // {
+    //     $user->roles()->detach($role->id);
+    //     return response()->json([
+    //         'message' => 'Role removed successfully',
+    //         'user' => $user->load('roles')
+    //     ]);
+    // }
 
-    public function hasPermission(User $user, Permission $permission)
-    {
-        $hasPermission = $user->roles()
-            ->with('permissions')
-            ->get()
-            ->pluck('permissions')
-            ->flatten()
-            ->contains('id', $permission->id);
+    // public function hasPermission(User $user, Permission $permission)
+    // {
+    //     $hasPermission = $user->roles()
+    //         ->with('permissions')
+    //         ->get()
+    //         ->pluck('permissions')
+    //         ->flatten()
+    //         ->contains('id', $permission->id);
 
-        return response()->json([
-            'user_id' => $user->id,
-            'permission_id' => $permission->id,
-            'has_permission' => $hasPermission
-        ]);
-    }
+    //     return response()->json([
+    //         'user_id' => $user->id,
+    //         'permission_id' => $permission->id,
+    //         'has_permission' => $hasPermission
+    //     ]);
+    // }
 
 }
