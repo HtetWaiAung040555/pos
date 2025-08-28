@@ -8,6 +8,8 @@ export const useBranchStore = defineStore('branch', {
     state: () => ({
         branchList: null,
         loading: false,
+        deleteLoading: false,
+        data: null,
         error: null,
     }),
 
@@ -16,7 +18,7 @@ export const useBranchStore = defineStore('branch', {
             this.loading = true
             this.error = null
             try {
-                const response = await axios.get(`${api_url}/branches`);
+                const response = await axios.get(`/branches`);
                 this.branchList = response.data.data;
             } catch (err) {
                 this.error = err.message;
@@ -26,33 +28,32 @@ export const useBranchStore = defineStore('branch', {
             }
         },
         async fetchBranch(branchId) {
-            this.loading = true
-            this.error = null
+            this.loading = true;
+            this.error = null;
             try {
-                const response = await axios.get(`${api_url}/branches/${branchId}`);
+                const response = await axios.get(`/branches/${branchId}`);
                 this.branchList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
-                console.log("store/updatebranch:"+ this.branchList )
             }
         },
         async addBranch(formData) {
-            this.loading = true,
-            this.error = null
+            this.loading = true;
+            this.error = null;
             try {
                 console.log(formData);
-                const response = await axios.post(`${api_url}/branches`, formData)
-                this.branchList = response.data.data
+                const response = await axios.post(`/branches`, formData);
+                this.branchList = response.data.data;
             } catch (err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
+                    console.log("Hello: "+JSON.stringify(err.response.data))
                 }
                 
             } finally {
                 this.loading = false;
-                console.log("store/createBranch:" + this.branchList);
             }
         },
         async editBranch(formData, branchId) {
@@ -60,7 +61,7 @@ export const useBranchStore = defineStore('branch', {
             this.error = null
             try {
                 console.log(branchId);
-                const response = await axios.put(`${api_url}/branches/${branchId}`, formData)
+                const response = await axios.put(`/branches/${branchId}`, formData)
                 this.branchList = response.data.data
             } catch (err) {
                 if (err.response && err.response.status === 422) {
@@ -69,8 +70,24 @@ export const useBranchStore = defineStore('branch', {
                 
             } finally {
                 this.loading = false;
-                console.log("store/createBranch:" + this.branchList);
+            }
+        },
+        async deleteBranch(branchId) {
+            this.deleteLoading = true,
+            this.error = null
+            try {
+                console.log(branchId);
+                const response = await axios.delete(`/branches/${branchId}`);
+                this.data = response;
+            } catch (err) {
+                if (err.response && err.response.status === 422) {
+                    this.error = err.response.data;
+                } else if (err.response && err.response.status === 400) {
+                    this.error = err.response.data.error;
+                } 
+            } finally {
+                this.deleteLoading = false;
             }
         }
     }
-})
+});

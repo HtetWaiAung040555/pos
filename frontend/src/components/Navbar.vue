@@ -1,29 +1,34 @@
 <script setup>
   import Button from 'primevue/button';
   import { useCollapseSidebar } from '@/stores/collapseSidebar';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import BaseButton from './BaseButton.vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/useUserStore';
 
   const collapseSidebar = useCollapseSidebar();
-
   const openDropdown = ref(false);
-
   const router = useRouter();
+  const useUser = useUserStore();
+  const userData = ref({});
+
+  onMounted(() => {
+    userData.value = JSON.parse(localStorage.getItem('user'));
+  })
 
   function toggleDropdown() {
     openDropdown.value = !openDropdown.value;
   }
 
-  function logout() {
-    localStorage.removeItem("auth");
+  async function logout() {
+    await useUser.logout();
     router.push('/login');
   }
 
 </script>
 
 <template>
-  <div class="w-full h-16 shadow flex items-center px-6 justify-between bg-[#ffffff]">
+  <div class="w-full h-16 shadow flex items-center px-6 justify-between bg-[#ffffff] sticky top-0 z-10">
     <!-- Collapse Button -->
     <div class="flex justify-end ml-[-20px]">
       <Button severity="contrast" variant="text" @click="collapseSidebar.toggleSidebar" icon="pi pi-bars" rounded />
@@ -41,7 +46,7 @@ import { useRouter } from 'vue-router';
             <span
               class="text-sm transition-all duration-300 origin-left"
             >
-              Htet Wai Aung
+              {{ userData.name }}
             </span>
             <!-- <i :class="openDropdown? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="text-sm"></i> -->
           </div>

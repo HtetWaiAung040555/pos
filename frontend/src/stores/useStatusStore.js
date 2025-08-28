@@ -1,8 +1,5 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { API_URL } from "@/utils/config";
-
-const api_url = API_URL;
 
 export const useStatusStore = defineStore('status', {
     state: () => ({
@@ -13,17 +10,15 @@ export const useStatusStore = defineStore('status', {
 
     actions: {
         async fetchAllStatus() {
-            this.loading = true
-            this.error = null
+            this.loading = true;
             try {
-                const response = await axios.get(`${api_url}/status`);
+                const response = await axios.get(`/status`);
                 this.statusList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
-                console.log("store/status:"+ this.statusList )
             }
         },
     }
-})
+});

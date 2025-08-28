@@ -53,7 +53,7 @@
           { 
             name: 'Role & Permission', 
             icon: 'fas fa-sitemap',
-            pathname: ""
+            pathname: "/role"
           },
           { 
             name: 'Branch', 
@@ -87,7 +87,7 @@
 <template>
     <!-- Sidebar -->
     <div :class="[
-        'sidebar-bg text-white transition-all duration-300 text-sm font-semibold pt-2',
+        'sidebar-bg text-white transition-all duration-300 text-sm font-semibold pt-2 h-screen',
         collapseSidebar.isSidebarCollapsed ? 'w-16' : 'w-64',
         'md:group-hover:w-64',
       ]"

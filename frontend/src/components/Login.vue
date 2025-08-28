@@ -4,14 +4,8 @@
     import { useUserStore } from '@/stores/useUserStore';
     import { useRouter } from 'vue-router';
 
-    const userStore = useUserStore();
-
+    const useUser = useUserStore();
     const router = useRouter();
-
-    onMounted(() => {
-      userStore.fetchAllUsers();
-    });
-
     const showPass = ref(false);
     const formData = ref(
       {
@@ -22,21 +16,13 @@
 
     function toggleShowPassword() {
       showPass.value = !showPass.value;
-      console.log(userStore.users);
+      console.log(useUser.users);
       console.log(formData);
     }
 
     async function formSubmit() {
-      await userStore.loginUser({email: formData.value.email, password: formData.value.password});
-      const response = JSON.parse(userStore.userData);
-      if (response.isSuccess) {
-        console.log("success");
-        localStorage.setItem("auth", "true");
-        router.push("/");
-      }
-      
-      
-      
+      await useUser.loginUser({email: formData.value.email, password: formData.value.password});
+      router.push("/");
     }
 
 </script>
@@ -91,6 +77,7 @@
         </div>
         <!-- Login Button -->
         <button class="bg-black mt-12 p-3 rounded-xl text-lg mx-12 cursor-pointer" @click="formSubmit" >
+          <i v-if="useUser.loading" class="fa fa-spinner animate-spin"></i>
           Login
         </button>
       </div>

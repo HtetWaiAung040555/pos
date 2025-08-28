@@ -17,7 +17,7 @@
 
 <template>
 
-    <div class="flex items-start justify-between gap-x-4 ">
+    <div class="flex items-start justify-between gap-x-4">
         <div>
             <!-- Page Title -->
             <p class="text-black font-semibold text-xl">{{ title }}</p>

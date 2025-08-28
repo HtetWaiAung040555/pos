@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import BaseButton from './BaseButton.vue';
 import { useRouter } from 'vue-router';
 import Loading from './Loading.vue';
+import Dialog from 'primevue/dialog';
 
 const props = defineProps({
   columns: { type: Array, required: true }, // [{ key: 'name', label: 'Name' }]
@@ -11,15 +12,20 @@ const props = defineProps({
   isAction: {type: Boolean, default: true},
   editPath: {type: String, default: ""},
   deletePath: {type: String, default: ""},
-  isLoading: {type: Boolean, default: false}
+  isLoading: {type: Boolean, default: false},
+  defaultSort: {type: Object, default: () => ({key: null, order: 'desc'})}
 });
+
+const emit = defineEmits(['delete']);
 
 const router = useRouter();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
-const sortKey = ref(null);
-const sortOrder = ref('asc'); // 'asc' or 'desc'
+const sortKey = ref(props.defaultSort.key);
+const sortOrder = ref(props.defaultSort.order); // 'asc' or 'desc'
+const visible = ref(false);
+const rowId = ref('')
 
 // Filtered rows by search
 const filteredRows = computed(() => {
@@ -43,14 +49,6 @@ const sortedRows = computed(() => {
   });
 });
 
-// Paginated rows
-const paginatedRows = computed(() => {
-  const start = (currentPage.value - 1) * props.pageSize;
-  return sortedRows.value.slice(start, start + props.pageSize);
-});
-
-const totalPages = computed(() => Math.ceil(sortedRows.value.length / props.pageSize));
-
 function changeSort(key) {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
@@ -65,6 +63,15 @@ function changePage(page) {
     currentPage.value = page;
   }
 }
+
+// Pagination
+const totalPages = computed(() => Math.ceil(sortedRows.value.length / props.pageSize));
+
+// Paginated rows
+const paginatedRows = computed(() => {
+  const start = (currentPage.value - 1) * props.pageSize;
+  return sortedRows.value.slice(start, start + props.pageSize);
+});
 
 // Pagination Pages Array
 const paginationPages = computed(() => {
@@ -91,14 +98,22 @@ const paginationPages = computed(() => {
   return pages;
 });
 
-// function changeRoute(pathname, id) {
-//   router.push({name: '/branch/update', params:{"branchId": id}});
-// }
+// Open delete modal function
+function openModal(id) {
+  visible.value = !visible.value;
+  rowId.value = id;
+}
+
+// Confirm delete function
+function confirmDelete() {
+  emit('delete', rowId.value);
+  visible.value = !visible.value;
+}
 
 </script>
 
 <template>
-  <div class="bg-white text-black rounded-lg shadow p-4">
+  <div class="bg-white text-black rounded-lg shadow p-4 mt-3">
     <!-- Search -->
     <div class="mb-3">
       <slot name="filters">
@@ -150,6 +165,7 @@ const paginationPages = computed(() => {
               </td>
             </tr>
             <tr
+              v-else
               v-for="(row, idx) in paginatedRows"
               :key="idx"
               class="hover:bg-gray-50 text-[13px]"
@@ -165,9 +181,7 @@ const paginationPages = computed(() => {
                 <router-link :to="{name: props.editPath, query: {id: row.id}}">
                   <BaseButton icon="fa fa-pencil" variant="text" severity="info" size="sm" />
                 </router-link>
-                <router-link :to="{name: props.deletePath, query: {id: row.id}}">
-                  <BaseButton icon="fa fa-trash" variant="text" severity="danger" size="sm" />
-                </router-link>
+                <BaseButton icon="fa fa-trash" variant="text" severity="danger" size="sm" @click="openModal(row.id)" />
               </td>
             </tr>
           </tbody>
@@ -219,6 +233,24 @@ const paginationPages = computed(() => {
           />
         </div>
       </div>
+
     </div>
+
   </div>
+
+  <Dialog v-model:visible="visible" :style="{ width: '300px', height: '100px' }" :modal="true" :draggable="false" :position="'center'">
+    <template #container="{ closeCallback }">
+      <div class="flex flex-col gap-y-4 p-4">
+        <p class="m-0 text-black text-center">
+          Are you sure you want to delete?
+        </p>
+        <div class="flex justify-center items-center gap-x-4">
+          <BaseButton size="sm" label="Cancel" severity="danger" @click="openModal" />
+          <BaseButton size="sm" label="Okay" severity="primary" @click="confirmDelete"  />
+        </div>
+      </div>
+    </template>
+    
+  </Dialog>
+
 </template>

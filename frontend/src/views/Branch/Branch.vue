@@ -5,11 +5,19 @@
     import BaseButton from '@/components/BaseButton.vue';
     import { useRouter } from 'vue-router';
     import { useBranchStore } from '@/stores/useBranchStore';
-    import { onMounted, ref } from 'vue';
+    import { onMounted, ref, computed } from 'vue';
+    import { useToast } from 'primevue';
+    import moment from 'moment'
+    import { useFilterStore } from '@/stores/filterStore';
 
     const router = useRouter();
-
     const useBranch = useBranchStore();
+    const toast = useToast();
+    const filter = useFilterStore();
+    const searchValue = ref('');
+    const startDate = ref('');
+    const endDate = ref('');
+    
 
     let branchList = ref([]);
 
@@ -18,8 +26,6 @@
       branchList.value = useBranch.branchList
       
     });
-
-    console.log(branchList.value);
 
     const columns = [
         { key: 'id', label: 'ID' },
@@ -31,13 +37,37 @@
             return `<span class="text-white px-2 py-1 rounded ${color}">${row.status.name}</span>`;
         } },
         { key: 'created_by.name', label: 'Created By', formatter: (row) => row.created_by.name },
+        { key: 'created_at', label: 'Created At', formatter: (row) => moment(row.created_at).format('DD-MM-YY hh:mm') },
         { key: 'updated_by.name', label: 'Updated By', formatter: (row) => row.updated_by.name },
+        { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
     ];
-
-    console.log(branchList);
 
     function changeRoute(pathname) {
         router.push(pathname);
+    }
+
+    const filteredRows = computed(() => {
+        const searchedData = filter.searchFunction(branchList.value, searchValue.value, [
+            "name",
+            "phone",
+            "location"
+        ]);
+        return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value })
+    });
+
+    async function deleteHandle(id) {
+        console.log("deleted ID:" + JSON.stringify(id));
+        await useBranch.deleteBranch(id);
+        if(useBranch.error) {
+            console.log("Api Error:" + JSON.stringify(useBranch.error));
+            toast.add({ severity: 'error', summary: 'Error Message', detail: useBranch.error, life: 3000 });
+            return
+        }
+        if (useBranch.data.status === 200) {
+            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Branch deleted successfully.', life: 3000 });
+            await useBranch.fetchAllBranch();
+            branchList.value = useBranch.branchList
+        }
     }
 
 </script>
@@ -51,19 +81,28 @@
                 </div>
             </template>
         </PageTitle>
-        <DataTable class="mt-3" :columns="columns" :rows="branchList" :pageSize="5" :editPath="'Update Branch'" :isLoading="useBranch.loading">
-            <!-- <template #filters>
+        <DataTable 
+            :columns="columns" 
+            :rows="filteredRows" 
+            :pageSize="5" 
+            :editPath="'Update Branch'" 
+            :isLoading="useBranch.loading" 
+            @delete="deleteHandle"
+            :defaultSort="{key: 'created_at', order: 'desc'}"
+        >
+            <template #filters>
+
                 <div class="flex gap-2">
-                <input type="date" class="border rounded px-2 py-1" />
-                <input type="date" class="border rounded px-2 py-1" />
-                <input
-                    type="text"
-                    v-model="searchQuery"
-                    placeholder="Search..."
-                    class="border rounded px-2 py-1"
-                />
+                    <input v-model="startDate" type="date" class="border rounded px-2 py-1" />
+                    <input v-model="endDate" type="date" class="border rounded px-2 py-1" />
+                    <input
+                        type="text"
+                        v-model="searchValue"
+                        placeholder="Search..."
+                        class="border rounded px-2 py-1"
+                    />
                 </div>
-            </template> -->
+            </template>
         </DataTable>
     </div>
 </template>

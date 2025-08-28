@@ -16,6 +16,12 @@ import Branch from './views/Branch/Branch.vue';
 import CreateBranch from './views/Branch/CreateBranch.vue';
 import UpdateBranch from './views/Branch/UpdateBranch.vue';
 import ToastService from 'primevue/toastservice';
+import { useUserStore } from './stores/useUserStore';
+import { API_URL } from './utils/config';
+import axios from "axios";
+import Role from './views/User_Role/Role.vue';
+import CreateRole from './views/User_Role/CreateRole.vue';
+import UpdateRole from './views/User_Role/UpdateRole.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -28,18 +34,37 @@ const router = createRouter({
         {path: '/branch', name: 'Branch', component: Branch, meta: { requiresAuth: true }},
         {path: '/branch/create', name: 'Create Branch', component: CreateBranch, meta: { requiresAuth: true }},
         {path: '/branch/update', name: 'Update Branch', component: UpdateBranch, meta: { requiresAuth: true }},
+        {path: '/role', name: 'Role', component: Role, meta: { requiresAuth: true }},
+        {path: '/role/create', name: 'Create Role', component: CreateRole, meta: { requiresAuth: true }},
+        {path: '/role/update', name: 'Update Role', component: UpdateRole, meta: { requiresAuth: true }},
         { path: '/', redirect: '/login' }
     ]
-})
+});
+
+// -----------------------------
+// Axios Interceptor
+// -----------------------------
+axios.defaults.baseURL = API_URL;
+
+// Attach token to requests
+axios.interceptors.request.use((config) => {
+    const userStore = useUserStore();
+    if (userStore.token) {
+        config.headers.Authorization = `Bearer ${userStore.token}`;
+    }
+    return config;
+}, (error) => Promise.reject(error));
 
 router.beforeEach((to, from, next) => {
-    const isAuthenticated = localStorage.getItem('auth') === 'true';
+    
+    const useUser = useUserStore();
 
-    if (to.meta.requiresAuth && !isAuthenticated) {
+    if (to.meta.requiresAuth && !useUser.isAuthenticated) {
         next('/login');
     } else {
         next();
     }
+
 });
 
 const app = createApp(App)

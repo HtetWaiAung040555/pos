@@ -1,0 +1,104 @@
+<script setup>
+
+    import PageTitle from '@/components/PageTitle.vue';
+    import DataTable from '@/components/DataTable.vue';
+    import BaseButton from '@/components/BaseButton.vue';
+    import { useRouter } from 'vue-router';
+    import { onMounted, ref, computed } from 'vue';
+    import { useToast } from 'primevue';
+    import moment from 'moment'
+    import { useFilterStore } from '@/stores/filterStore';
+    import { useUserRoleStore } from '@/stores/useUserRoleStore';
+
+    const router = useRouter();
+    const useRole = useUserRoleStore();
+    const toast = useToast();
+    const filter = useFilterStore();
+    const searchValue = ref('');
+    const startDate = ref('');
+    const endDate = ref('');
+    const roleList = ref([]);
+
+    onMounted(async () => {
+      await useRole.fetchAllRole();
+      roleList.value = useRole.roleList;
+    });
+
+    const columns = [
+        { key: 'id', label: 'ID' },
+        { key: 'name', label: 'Name' },
+        { key: 'desc', label: 'Description' },
+        { key: 'status', label: 'Status', formatter: (row) => {
+            const color = row.status.name === 'Active' ? 'bg-green-500 text-white rounded-md py-1 px-2' : 'bg-red-500 text-white rounded-md py-1 px-2';
+            return `<span class="text-white px-2 py-1 rounded ${color}">${row.status.name}</span>`;
+        } },
+        { key: 'created_by.name', label: 'Created By', formatter: (row) => row.created_by.name },
+        { key: 'created_at', label: 'Created At', formatter: (row) => moment(row.created_at).format('DD-MM-YY hh:mm') },
+        { key: 'updated_by.name', label: 'Updated By', formatter: (row) => row.updated_by.name },
+        { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
+    ];
+
+    function changeRoute(pathname) {
+        router.push(pathname);
+    }
+
+    const filteredRows = computed(() => {
+        const searchedData = filter.searchFunction(roleList.value, searchValue.value, [
+            "name",
+            "phone",
+            "location"
+        ]);
+        return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value })
+    });
+
+    async function deleteHandle(id) {
+        console.log("deleted ID:" + JSON.stringify(id));
+        await useRole.deleteRole(id);
+        if(useRole.error) {
+            console.log("Api Error:" + JSON.stringify(useRole.error));
+            toast.add({ severity: 'error', summary: 'Error Message', detail: useRole.error, life: 3000 });
+            return
+        }
+        if (useRole.data.status === 200) {
+            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Branch deleted successfully.', life: 3000 });
+            await useRole.fetchAllBranch();
+            roleList.value = useRole.roleList
+        }
+    }
+
+</script>
+
+<template>
+    <div class="p-4">
+        <PageTitle title="Role List">
+            <template #titleButtons>
+                <div class="flex gap-x-2 items-center">
+                    <BaseButton icon="fa fa-circle-plus" label="Create" severity="primary" @click="changeRoute('/role/create')"  />
+                </div>
+            </template>
+        </PageTitle>
+        <DataTable 
+            :columns="columns" 
+            :rows="filteredRows" 
+            :pageSize="5" 
+            :editPath="'Update Role'" 
+            :isLoading="useRole.loading" 
+            @delete="deleteHandle"
+            :defaultSort="{key: 'created_at', order: 'desc'}"
+        >
+            <template #filters>
+
+                <div class="flex gap-2">
+                    <input v-model="startDate" type="date" class="border rounded px-2 py-1" />
+                    <input v-model="endDate" type="date" class="border rounded px-2 py-1" />
+                    <input
+                        type="text"
+                        v-model="searchValue"
+                        placeholder="Search..."
+                        class="border rounded px-2 py-1"
+                    />
+                </div>
+            </template>
+        </DataTable>
+    </div>
+</template>
