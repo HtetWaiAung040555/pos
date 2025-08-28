@@ -44,7 +44,7 @@ class UsersController extends Controller
     }
 
     public function show($id){
-        $user = User::with(['branch','counter','status','roles','createdBy','updatedBy'])->findOrFail($id);
+        $user = User::with(['branch','counter','status','role','createdBy','updatedBy'])->findOrFail($id);
         return new UserResource($user);
     }
 

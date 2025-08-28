@@ -87,5 +87,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id','action');
+    }
+
     
 }
