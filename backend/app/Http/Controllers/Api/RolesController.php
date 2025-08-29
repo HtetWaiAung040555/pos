@@ -27,7 +27,8 @@ class RolesController extends Controller
             'status_id' => 'required|exists:statuses,id',
             'created_by' => 'required|exists:users,id',
             'updated_by' => 'nullable|exists:users,id',
-            'permissions' => 'array|exists:permissions,id',
+            'permissions' => 'array',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
         $role = Role::create([
@@ -62,7 +63,8 @@ class RolesController extends Controller
             'desc' => 'nullable|string|max:1000',
             'status_id' => 'sometimes|required|exists:statuses,id',
             'updated_by' => 'nullable|exists:users,id',
-            'permissions' => 'sometimes|array|exists:permissions,id'
+            'permissions' => 'sometimes|array',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
         $data = $request->only(['name', 'desc', 'status_id', 'updated_by']);
