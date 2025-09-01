@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import BaseButton from './BaseButton.vue';
 import { useRouter } from 'vue-router';
 import Loading from './Loading.vue';
@@ -25,7 +25,7 @@ const currentPage = ref(1);
 const sortKey = ref(props.defaultSort.key);
 const sortOrder = ref(props.defaultSort.order); // 'asc' or 'desc'
 const visible = ref(false);
-const rowId = ref('')
+const rowId = ref('');
 
 // Filtered rows by search
 const filteredRows = computed(() => {
@@ -40,6 +40,7 @@ const filteredRows = computed(() => {
 // Sorted rows
 const sortedRows = computed(() => {
   if (!sortKey.value) return filteredRows.value;
+  console.log(filteredRows);
   return [...filteredRows.value].sort((a, b) => {
     const aVal = a[sortKey.value];
     const bVal = b[sortKey.value];

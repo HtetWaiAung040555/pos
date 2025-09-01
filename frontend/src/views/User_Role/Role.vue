@@ -45,10 +45,8 @@
     const filteredRows = computed(() => {
         const searchedData = filter.searchFunction(roleList.value, searchValue.value, [
             "name",
-            "phone",
-            "location"
         ]);
-        return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value })
+        return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value });
     });
 
     async function deleteHandle(id) {

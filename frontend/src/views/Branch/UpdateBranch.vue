@@ -11,7 +11,7 @@
     import BaseLabel from '@/components/BaseLabel.vue';
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import SubTitle from '@/components/SubTitle.vue';
-import { useToast } from 'primevue';
+    import { useToast } from 'primevue';
 
     const router = useRouter();
     const route = useRoute();
@@ -19,6 +19,7 @@ import { useToast } from 'primevue';
     const toast = useToast();
     const formData = ref({});
     const branchStatus = ref(true);
+    const userData = ref({});
 
     function changeRoute(pathname) {
         router.push(pathname);
@@ -28,7 +29,7 @@ import { useToast } from 'primevue';
         await useBranch.fetchBranch(route.query.id);
         formData.value = useBranch.branchList;
         branchStatus.value = formData.value.status.id === 1 ? true : false;
-        console.log(formData.value);
+        userData.value = JSON.parse(localStorage.getItem('user'));
     })
 
     async function formSubmit() {
@@ -37,8 +38,7 @@ import { useToast } from 'primevue';
             phone: formData.value.phone,
             location: formData.value.location,
             status_id: branchStatus.value? '1' : '2',
-            created_by: formData.value.created_by.id,
-            updated_by: "1"
+            updated_by: userData.value.id
         }
         await useBranch.editBranch(updatedData, route.query.id);
         if(useBranch.error) {

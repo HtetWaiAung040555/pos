@@ -14,6 +14,8 @@ export const useFilterStore = defineStore('filter', {
     actions: {
         searchFunction(data, searchValue, fields) {
 
+            console.log(data);
+
             if (!searchValue) return data;
 
             const query = searchValue.toLowerCase();

@@ -14,19 +14,18 @@
     const useBranch = useBranchStore();
     const toast = useToast();
     const filter = useFilterStore();
+
     const searchValue = ref('');
     const startDate = ref('');
     const endDate = ref('');
-    
-
-    let branchList = ref([]);
+    const branchList = ref([]);
 
     onMounted(async () => {
-      await useBranch.fetchAllBranch();
-      branchList.value = useBranch.branchList
-      
+        await useBranch.fetchAllBranch();
+        branchList.value = useBranch.branchList;
     });
 
+    // Table headers
     const columns = [
         { key: 'id', label: 'ID' },
         { key: 'name', label: 'Name' },
@@ -42,10 +41,12 @@
         { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
     ];
 
+    // Route change function: need to pass route path.
     function changeRoute(pathname) {
         router.push(pathname);
     }
 
+    // Filter Function
     const filteredRows = computed(() => {
         const searchedData = filter.searchFunction(branchList.value, searchValue.value, [
             "name",
@@ -55,6 +56,7 @@
         return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value })
     });
 
+    // Branch delete function
     async function deleteHandle(id) {
         console.log("deleted ID:" + JSON.stringify(id));
         await useBranch.deleteBranch(id);
@@ -74,6 +76,7 @@
 
 <template>
     <div class="p-4">
+        <!-- Page Title -->
         <PageTitle title="Branch List">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
@@ -81,17 +84,18 @@
                 </div>
             </template>
         </PageTitle>
-        <DataTable 
-            :columns="columns" 
-            :rows="filteredRows" 
-            :pageSize="5" 
-            :editPath="'Update Branch'" 
-            :isLoading="useBranch.loading" 
+        <!-- DataTable -->
+        <DataTable
+            :columns="columns"
+            :rows="filteredRows"
+            :pageSize="5"
+            :editPath="'Update Branch'"
+            :isLoading="useBranch.loading"
             @delete="deleteHandle"
             :defaultSort="{key: 'created_at', order: 'desc'}"
         >
+            <!-- Filter Section -->
             <template #filters>
-
                 <div class="flex gap-2">
                     <input v-model="startDate" type="date" class="border rounded px-2 py-1" />
                     <input v-model="endDate" type="date" class="border rounded px-2 py-1" />

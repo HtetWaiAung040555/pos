@@ -7,7 +7,7 @@
     import { useRouter } from 'vue-router';
     import BaseInput from '@/components/BaseInput.vue';
     import BaseTextarea from '@/components/BaseTextarea.vue';
-    import { ref } from 'vue';
+    import { onMounted, ref } from 'vue';
     import { useBranchStore } from '@/stores/useBranchStore';
     import { useToast } from 'primevue/usetoast';
     import BaseSwitch from '@/components/BaseSwitch.vue';
@@ -15,11 +15,8 @@
     
 
     const router = useRouter();
-
     const toast = useToast();
-
     const useBranch = useBranchStore();
-
     const formData = ref(
       {
         name: "",
@@ -30,18 +27,23 @@
         updated_by: ""
       }
     )
-
     const branchStatus = ref(true);
+    const userData = ref({});
 
     function changeRoute(pathname) {
         router.push(pathname);
     }
+
+    onMounted(async() => {
+        userData.value = JSON.parse(localStorage.getItem('user'));
+    });
 
     async function formSubmit() {
         console.log(formData.value);
         console.log(branchStatus.value);
         formData.value = {
             ...formData.value,
+            created_by: userData.value.id,
             status_id: branchStatus.value? '1' : '2'
         };
         console.log("After:" + formData.value)

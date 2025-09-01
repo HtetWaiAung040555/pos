@@ -16,7 +16,8 @@ export const useUserRoleStore = defineStore('role', {
             this.error = null
             try {
                 const response = await axios.get(`/roles`);
-                this.statusList = response.data.data;
+                this.roleList = response.data.data;
+                console.log(response.data.data);
             } catch (err) {
                 this.error = err.message;
             } finally {
@@ -50,7 +51,7 @@ export const useUserRoleStore = defineStore('role', {
                 this.loading = false;
             }
         },
-        async editRole(roleId) {
+        async editRole(roleId, formData) {
             this.loading = true,
             this.error = null
             try {

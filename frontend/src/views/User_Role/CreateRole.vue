@@ -25,7 +25,8 @@
         desc: "",
         status_id: "1",
         created_by: "1",
-        updated_by: ""
+        updated_by: "",
+        permissions: [],
       }
     )
     const roleStatus = ref(true);
@@ -53,11 +54,9 @@
 
     function toggleCollapse(name) {
         collapsed.value[name] = !collapsed.value[name];
-        console.log(collapsed.value);
     }
 
     function togglePermission(id, checked) {
-        console.log(`id: ${id}, checked: ${checked}`);
         if (checked) {
             if (!selectedPermissions.value.includes(id)) {
                 selectedPermissions.value.push(id);
@@ -65,7 +64,6 @@
         } else {
             selectedPermissions.value = selectedPermissions.value.filter(p => p !== id);
         }
-        console.log(selectedPermissions.value);
     }
 
     // Check if all actions in a group are selected
@@ -106,7 +104,6 @@
         if (checked) {
             // Add all permissions
             selectedPermissions.value = Array.from(new Set([...selectedPermissions.value, ...allIds]));
-            console.log(selectedPermissions.value);
             for (const groupName in groupedPermissions.value) {
                 collapsed.value[groupName] = true;
             }
@@ -125,10 +122,10 @@
             ...formData.value,
             status_id: roleStatus.value? '1' : '2',
             created_by: userData.value.id,
+            permissions: [...selectedPermissions.value]
         };
         await useRole.addRole(formData.value);
         if(useRole.error) {
-            console.log("Api Error:" + JSON.stringify(useRole.error));
             Object.values(useRole.error).forEach((err) => {
                 err.forEach((msg) => {
                     toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });
@@ -140,10 +137,7 @@
             toast.add({ severity: 'success', summary: 'Success Message', detail: 'Role created successfully.', life: 3000 });
 
             router.push('/role');
-            console.log(useRole.roleList);
         }
-        
-
     }
 
 </script>
