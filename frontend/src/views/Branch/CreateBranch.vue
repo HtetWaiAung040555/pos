@@ -13,7 +13,6 @@
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import BaseLabel from '@/components/BaseLabel.vue';
     
-
     const router = useRouter();
     const toast = useToast();
     const useBranch = useBranchStore();
@@ -30,6 +29,7 @@
     const branchStatus = ref(true);
     const userData = ref({});
 
+    // Change route function
     function changeRoute(pathname) {
         router.push(pathname);
     }
@@ -38,9 +38,8 @@
         userData.value = JSON.parse(localStorage.getItem('user'));
     });
 
+    // Create branch function
     async function formSubmit() {
-        console.log(formData.value);
-        console.log(branchStatus.value);
         formData.value = {
             ...formData.value,
             created_by: userData.value.id,
@@ -61,14 +60,13 @@
             toast.add({ severity: 'success', summary: 'Success Message', detail: 'Branch created successfully.', life: 3000 });
             router.push('/branch');
         }
-        
-
     }
 
 </script>
 
 <template>
     <div class="p-4">
+        <!-- Page Title -->
         <PageTitle title="Create Branch">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
@@ -76,10 +74,13 @@
                 </div>
             </template>
         </PageTitle>
+        <!-- Form Section -->
         <BaseCard class="mt-3">
             <template #cardElements>
+                <!-- Form section subtitle -->
                 <SubTitle label="Basic Info" />
                 <div class="flex gap-x-4 mt-6">
+                    <!-- Branch Name Input -->
                     <BaseInput
                         size="sm"
                         v-model="formData.name"
@@ -88,13 +89,14 @@
                         width="300px"
                         height="h-[35px]"
                     />
+                    <!-- Branch Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
                         <BaseLabel label="Status" />
                         <BaseSwitch v-model="branchStatus" />
-
                     </div>
                 </div>
                 <div class="flex gap-x-4 mt-4">
+                    <!-- Phone number input -->
                     <BaseInput
                         size="sm"
                         v-model="formData.phone"
@@ -105,6 +107,7 @@
                     />
                 </div>
                 <div class="flex gap-x-4 mt-4">
+                    <!-- Address input -->
                     <BaseTextarea
                         v-model="formData.location"
                         label="Location"
@@ -113,7 +116,14 @@
                     />
                 </div>
                 <div class="flex justify-end mt-4">
-                    <BaseButton label="Save" :isLoading="useBranch.loading" :icon="useBranch.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" severity="primary" @click="formSubmit" :disabled="useBranch.loading"  />
+                    <!-- Save Button -->
+                    <BaseButton 
+                        label="Save" 
+                        :isLoading="useBranch.loading" :icon="useBranch.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" 
+                        severity="primary" 
+                        @click="formSubmit" 
+                        :disabled="useBranch.loading"  
+                    />
                 </div>
             </template>
         </BaseCard>

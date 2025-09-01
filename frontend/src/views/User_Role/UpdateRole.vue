@@ -39,6 +39,7 @@
         userData.value = JSON.parse(localStorage.getItem('user'));
     });
 
+    // group up permission
     const groupedPermissions = computed(() => {
         const grouped = {};
         permissionList.value.forEach((item) => {
@@ -50,10 +51,12 @@
         return grouped;
     });
 
+    // Dropdown collapse for each permission
     function toggleCollapse(name) {
         collapsed.value[name] = !collapsed.value[name];
     }
 
+    // Select permission function for each
     function togglePermission(id, checked) {
         if (checked) {
             if (!selectedPermissions.value.includes(id)) {
@@ -111,10 +114,12 @@
         }
     }
 
+    // Change route function
     function changeRoute(pathname) {
         router.push(pathname);
     }
 
+    // Update role function
     async function formSubmit() {
         let updatedData = {
             name: formData.value.name,
@@ -143,6 +148,7 @@
 
 <template>
     <div class="p-4">
+        <!-- Page title -->
         <PageTitle title="Create Role">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
@@ -150,10 +156,13 @@
                 </div>
             </template>
         </PageTitle>
+        <!-- Form section -->
         <BaseCard class="mt-3">
             <template #cardElements>
+                <!-- Basic info subtitle -->
                 <SubTitle label="Basic Info" />
                 <div class="flex gap-x-4 mt-6">
+                    <!-- Role name input -->
                     <BaseInput
                         size="sm"
                         v-model="formData.name"
@@ -162,13 +171,14 @@
                         width="300px"
                         height="h-[35px]"
                     />
+                    <!-- Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
                         <BaseLabel label="Status" />
                         <BaseSwitch v-model="roleStatus" />
-
                     </div>
                 </div>
                 <div class="flex gap-x-4 mt-4 pb-4 border-b border-b-gray-200">
+                    <!-- Role desc input -->
                     <BaseTextarea
                         v-model="formData.desc"
                         label="Description"
@@ -177,13 +187,16 @@
                     />
                 </div>
                 <div class="mt-4 flex items-center gap-x-2">
+                    <!-- permission subtitle -->
                     <SubTitle label="Permission" />
+                    <!-- Select all checkbox -->
                     <BaseCheckbox
                         :label="isAllSelectedGlobal ? 'Deselect All' : 'Select All'"
                         :model-value="isAllSelectedGlobal"
                         @update:modelValue="checked => toggleAllGlobal(checked)"
                     />
                 </div>
+                <!-- Display loading when the permissions are fetching -->
                 <div v-if="usePermission.loading" class="w-full rounded-md p-4">
                     <div class="flex animate-pulse space-x-4">
                         <div class="flex-1 space-y-6 py-1">
@@ -235,7 +248,14 @@
                     </div>
                 </div>
                 <div class="flex justify-end mt-4">
-                    <BaseButton label="Update" :isLoading="useRole.loading" :icon="useRole.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" severity="primary" @click="formSubmit" :disabled="useRole.loading"  />
+                    <!-- Save button -->
+                    <BaseButton label="Update"
+                        :isLoading="useRole.loading" 
+                        :icon="useRole.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" 
+                        severity="primary" 
+                        @click="formSubmit" 
+                        :disabled="useRole.loading"  
+                    />
                 </div>
             </template>
         </BaseCard>

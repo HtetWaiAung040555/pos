@@ -24,6 +24,7 @@
       roleList.value = useRole.roleList;
     });
 
+    // Table header
     const columns = [
         { key: 'id', label: 'ID' },
         { key: 'name', label: 'Name' },
@@ -38,10 +39,12 @@
         { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
     ];
 
+    // Change route function
     function changeRoute(pathname) {
         router.push(pathname);
     }
 
+    // Filter function
     const filteredRows = computed(() => {
         const searchedData = filter.searchFunction(roleList.value, searchValue.value, [
             "name",
@@ -49,6 +52,7 @@
         return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value });
     });
 
+    // Role delete function
     async function deleteHandle(id) {
         console.log("deleted ID:" + JSON.stringify(id));
         await useRole.deleteRole(id);
@@ -68,6 +72,7 @@
 
 <template>
     <div class="p-4">
+        <!-- Page title -->
         <PageTitle title="Role List">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
@@ -75,6 +80,7 @@
                 </div>
             </template>
         </PageTitle>
+        <!-- Displaying role data -->
         <DataTable 
             :columns="columns" 
             :rows="filteredRows" 

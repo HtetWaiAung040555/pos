@@ -21,6 +21,7 @@
     const branchStatus = ref(true);
     const userData = ref({});
 
+    // Change route function
     function changeRoute(pathname) {
         router.push(pathname);
     }
@@ -32,6 +33,7 @@
         userData.value = JSON.parse(localStorage.getItem('user'));
     })
 
+    // Update function
     async function formSubmit() {
         let updatedData = {
             name: formData.value.name,
@@ -60,6 +62,7 @@
 
 <template>
     <div class="p-4">
+        <!-- Page Title -->
         <PageTitle title="Update Branch">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
@@ -67,10 +70,13 @@
                 </div>
             </template>
         </PageTitle>
+        <!-- Form Section -->
         <BaseCard class="mt-3">
             <template #cardElements>
+                <!-- Form section subtitle -->
                 <SubTitle label="Basic Info" />
                 <div class="flex gap-x-4 mt-6">
+                    <!-- Branch name input -->
                     <BaseInput
                         size="sm"
                         v-model="formData.name"
@@ -79,13 +85,14 @@
                         width="300px"
                         height="h-[35px]"
                     />
+                    <!-- Branch status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
                         <BaseLabel label="Status" />
                         <BaseSwitch v-model="branchStatus" />
-
                     </div>
                 </div>
                 <div class="flex gap-x-4 mt-4">
+                    <!-- Phone number input -->
                     <BaseInput
                         size="sm"
                         v-model="formData.phone"
@@ -96,6 +103,7 @@
                     />
                 </div>
                 <div class="flex gap-x-4 mt-4">
+                    <!-- Address input -->
                     <BaseTextarea
                         v-model="formData.location"
                         label="Location"
@@ -104,7 +112,15 @@
                     />
                 </div>
                 <div class="flex justify-end mt-4">
-                    <BaseButton label="Update" :isLoading="useBranch.loading" :icon="useBranch.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" severity="primary" @click="formSubmit" :disabled="useBranch.loading"  />
+                    <!-- Save button -->
+                    <BaseButton 
+                        label="Update" 
+                        :isLoading="useBranch.loading" 
+                        :icon="useBranch.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" 
+                        severity="primary" 
+                        @click="formSubmit" 
+                        :disabled="useBranch.loading"  
+                    />
                 </div>
             </template>
         </BaseCard>
