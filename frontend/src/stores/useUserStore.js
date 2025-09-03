@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', {
     state: () => ({
         users: [],
         userData: [],
+        userPermission: [],
         token: localStorage.getItem("token") || null,
         loading: false,
         error: null,
@@ -36,12 +37,13 @@ export const useUserStore = defineStore('user', {
                 const response = await axios.post(`/login`, formData);
                 this.userData = JSON.stringify(response.data);
                 if (response.data.isSuccess) {
-                    console.log(response.data)
                     this.token = response.data.token;
+                    this.userPermission = [...response.data.user.role.permissions];
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify({
                         id: response.data.user.id,
-                        name: response.data.user.name
+                        name: response.data.user.name,
+                        permissions: [...response.data.user.role.permissions]
                     }));
                 }
             } catch (err) {

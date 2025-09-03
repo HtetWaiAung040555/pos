@@ -9,11 +9,13 @@
     import moment from 'moment'
     import { useFilterStore } from '@/stores/filterStore';
     import { useUserRoleStore } from '@/stores/useUserRoleStore';
+    import { usePermissionStore } from '@/stores/usePermissionStore';
 
     const router = useRouter();
     const useRole = useUserRoleStore();
     const toast = useToast();
     const filter = useFilterStore();
+    const usePermission = usePermissionStore();
     const searchValue = ref('');
     const startDate = ref('');
     const endDate = ref('');
@@ -54,10 +56,8 @@
 
     // Role delete function
     async function deleteHandle(id) {
-        console.log("deleted ID:" + JSON.stringify(id));
         await useRole.deleteRole(id);
         if(useRole.error) {
-            console.log("Api Error:" + JSON.stringify(useRole.error));
             toast.add({ severity: 'error', summary: 'Error Message', detail: useRole.error, life: 3000 });
             return
         }
@@ -76,7 +76,13 @@
         <PageTitle title="Role List">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
-                    <BaseButton icon="fa fa-circle-plus" label="Create" severity="primary" @click="changeRoute('/role/create')"  />
+                    <BaseButton 
+                        v-if="usePermission.can('Role', 'Create')"
+                        icon="fa fa-circle-plus" 
+                        label="Create" 
+                        severity="primary" 
+                        @click="changeRoute('/role/create')" 
+                    />
                 </div>
             </template>
         </PageTitle>
@@ -89,6 +95,8 @@
             :isLoading="useRole.loading" 
             @delete="deleteHandle"
             :defaultSort="{key: 'created_at', order: 'desc'}"
+            :isEdit="!usePermission.can('Role', 'Update')"
+            :isDelete="!usePermission.can('Role', 'Delete')"
         >
             <template #filters>
 

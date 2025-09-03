@@ -1,7 +1,6 @@
 <script setup>
     import Button from 'primevue/button';
     let loginUser = JSON.parse(localStorage.getItem('user'));
-    console.log(loginUser);
 </script>
 
 <template>

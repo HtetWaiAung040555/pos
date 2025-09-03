@@ -17,7 +17,6 @@ export const useUserRoleStore = defineStore('role', {
             try {
                 const response = await axios.get(`/roles`);
                 this.roleList = response.data.data;
-                console.log(response.data.data);
             } catch (err) {
                 this.error = err.message;
             } finally {
@@ -45,7 +44,6 @@ export const useUserRoleStore = defineStore('role', {
             } catch(err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
-                    console.log("Hello: "+JSON.stringify(err.response.data))
                 }
             } finally {
                 this.loading = false;

@@ -22,21 +22,23 @@ import axios from "axios";
 import Role from './views/User_Role/Role.vue';
 import CreateRole from './views/User_Role/CreateRole.vue';
 import UpdateRole from './views/User_Role/UpdateRole.vue';
+import Unauthorized from './views/Unauthorized.vue';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         {path: '/login', name: 'Login', component: Login},
         {path: '/register', name: 'Register', component: Register},
+        {path: '/unauthorized', name: 'Unauthorized', component: Unauthorized},
         {path: '/', name: 'Home', component: Home, meta: { requiresAuth: true }},
         {path: '/sales', name: 'Sales', component: Sales, meta: { requiresAuth: true }},
         {path: '/users', name: 'Users', component: Users, meta: { requiresAuth: true }},
-        {path: '/branch', name: 'Branch', component: Branch, meta: { requiresAuth: true }},
+        {path: '/branch', name: 'Branch', component: Branch, meta: { requiresAuth: true, permission: { resource: 'Branch', action: 'View' } }},
         {path: '/branch/create', name: 'Create Branch', component: CreateBranch, meta: { requiresAuth: true }},
         {path: '/branch/update', name: 'Update Branch', component: UpdateBranch, meta: { requiresAuth: true }},
-        {path: '/role', name: 'Role', component: Role, meta: { requiresAuth: true }},
-        {path: '/role/create', name: 'Create Role', component: CreateRole, meta: { requiresAuth: true }},
-        {path: '/role/update', name: 'Update Role', component: UpdateRole, meta: { requiresAuth: true }},
+        {path: '/role', name: 'Role', component: Role, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'View' } }},
+        {path: '/role/create', name: 'Create Role', component: CreateRole, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'Create' } }},
+        {path: '/role/update', name: 'Update Role', component: UpdateRole, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'Update' } }},
         { path: '/', redirect: '/login' }
     ]
 });
@@ -56,15 +58,21 @@ axios.interceptors.request.use((config) => {
 }, (error) => Promise.reject(error));
 
 router.beforeEach((to, from, next) => {
-    
     const useUser = useUserStore();
-
     if (to.meta.requiresAuth && !useUser.isAuthenticated) {
-        next('/login');
-    } else {
-        next();
+        return next('/login');
+    } 
+    if (to.meta.permission) {
+        const {resource, action} = to.meta.permission;
+        const user = JSON.parse(localStorage.getItem('user'));
+        const hasPermission = user.permissions?.some(
+            (p) => p.name === resource && p.action === action
+        );
+        if(!hasPermission) {
+            return next('/unauthorized')
+        }
     }
-
+    next();
 });
 
 const app = createApp(App)

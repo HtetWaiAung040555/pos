@@ -13,13 +13,8 @@ export const useFilterStore = defineStore('filter', {
     state: () => ({}),
     actions: {
         searchFunction(data, searchValue, fields) {
-
-            console.log(data);
-
             if (!searchValue) return data;
-
             const query = searchValue.toLowerCase();
-
             return data.filter(item =>
                 fields.some(field => {
                 const value = field.split(".").reduce((o, key) => o?.[key], item);

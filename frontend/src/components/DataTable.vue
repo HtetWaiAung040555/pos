@@ -13,7 +13,9 @@ const props = defineProps({
   editPath: {type: String, default: ""},
   deletePath: {type: String, default: ""},
   isLoading: {type: Boolean, default: false},
-  defaultSort: {type: Object, default: () => ({key: null, order: 'desc'})}
+  defaultSort: {type: Object, default: () => ({key: null, order: 'desc'})},
+  isEdit: {type: Boolean, default: true},
+  isDelete: {type: Boolean, default: true},
 });
 
 const emit = defineEmits(['delete']);
@@ -40,7 +42,6 @@ const filteredRows = computed(() => {
 // Sorted rows
 const sortedRows = computed(() => {
   if (!sortKey.value) return filteredRows.value;
-  console.log(filteredRows);
   return [...filteredRows.value].sort((a, b) => {
     const aVal = a[sortKey.value];
     const bVal = b[sortKey.value];
@@ -180,9 +181,22 @@ function confirmDelete() {
               </td>
               <td class="p-2 text-center w-[120px]" v-if="props.isAction">
                 <router-link :to="{name: props.editPath, query: {id: row.id}}">
-                  <BaseButton icon="fa fa-pencil" variant="text" severity="info" size="sm" />
+                  <BaseButton 
+                    icon="pi pi-pen-to-square" 
+                    variant="text" 
+                    severity="info" 
+                    size="sm" 
+                    :disabled="isEdit"
+                  />
                 </router-link>
-                <BaseButton icon="fa fa-trash" variant="text" severity="danger" size="sm" @click="openModal(row.id)" />
+                <BaseButton 
+                  icon="pi pi-trash" 
+                  variant="text" 
+                  severity="danger" 
+                  size="sm" 
+                  @click="openModal(row.id)" 
+                  :disabled="isDelete"
+                />
               </td>
             </tr>
           </tbody>

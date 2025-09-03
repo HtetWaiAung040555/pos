@@ -24,7 +24,6 @@ export const useBranchStore = defineStore('branch', {
                 this.error = err.message;
             } finally {
                 this.loading = false;
-                console.log("store/branch:"+ this.branchList )
             }
         },
         async fetchBranch(branchId) {
@@ -43,13 +42,11 @@ export const useBranchStore = defineStore('branch', {
             this.loading = true;
             this.error = null;
             try {
-                console.log(formData);
                 const response = await axios.post(`/branches`, formData);
                 this.branchList = response.data.data;
             } catch (err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
-                    console.log("Hello: "+JSON.stringify(err.response.data))
                 }
                 
             } finally {
@@ -60,7 +57,6 @@ export const useBranchStore = defineStore('branch', {
             this.loading = true,
             this.error = null
             try {
-                console.log(branchId);
                 const response = await axios.put(`/branches/${branchId}`, formData)
                 this.branchList = response.data.data
             } catch (err) {
@@ -76,7 +72,6 @@ export const useBranchStore = defineStore('branch', {
             this.deleteLoading = true,
             this.error = null
             try {
-                console.log(branchId);
                 const response = await axios.delete(`/branches/${branchId}`);
                 this.data = response;
             } catch (err) {

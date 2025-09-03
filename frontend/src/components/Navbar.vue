@@ -46,7 +46,7 @@ import { useUserStore } from '@/stores/useUserStore';
             <span
               class="text-sm transition-all duration-300 origin-left"
             >
-              {{ userData.name }}
+              {{ userData?.name }}
             </span>
             <!-- <i :class="openDropdown? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="text-sm"></i> -->
           </div>
@@ -57,18 +57,18 @@ import { useUserStore } from '@/stores/useUserStore';
             class="absolute right-0 mt-2 w-40 bg-white border-1 border-gray-100 text-black rounded shadow-lg z-10"
           >
             <div
-              class="flex px-2 items-center py-3 gap-4 hover:bg-blue-100 cursor-pointer transition-all"
+              class="flex px-2 items-center py-3 gap-3 hover:bg-blue-100 cursor-pointer transition-all"
             >
-              <i class="fa fa-user-gear text-lg"></i>
+              <i class="pi pi-user-edit" style="font-size: 1rem;"></i>
               <span>
                 Setting
               </span>
             </div>
             <div
-              class="flex px-2 items-center py-3 gap-4 hover:bg-blue-100 cursor-pointer transition-all"
+              class="flex px-2 items-center py-3 gap-3 hover:bg-blue-100 cursor-pointer transition-all"
               @click="logout"
             >
-              <i class="fa fa-right-to-bracket text-lg"></i>
+              <i class="pi pi-sign-out"></i>
               <span>
                 Logout
               </span>

@@ -138,7 +138,7 @@
             return
         }
         if (useRole.roleList) {
-            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Role created successfully.', life: 3000 });
+            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Role updated successfully.', life: 3000 });
 
             router.push('/role');
         }

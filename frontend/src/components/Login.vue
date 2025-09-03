@@ -16,8 +16,6 @@
 
     function toggleShowPassword() {
       showPass.value = !showPass.value;
-      console.log(useUser.users);
-      console.log(formData);
     }
 
     async function formSubmit() {

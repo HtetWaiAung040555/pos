@@ -16,6 +16,7 @@
     const router = useRouter();
     const toast = useToast();
     const useBranch = useBranchStore();
+
     const formData = ref(
       {
         name: "",
@@ -45,10 +46,8 @@
             created_by: userData.value.id,
             status_id: branchStatus.value? '1' : '2'
         };
-        console.log("After:" + formData.value)
         await useBranch.addBranch(formData.value);
         if(useBranch.error) {
-            console.log("Api Error:" + JSON.stringify(useBranch.error));
             Object.values(useBranch.error).forEach((err) => {
                 err.forEach((msg) => {
                     toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });

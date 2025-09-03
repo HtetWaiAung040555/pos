@@ -17,6 +17,7 @@
     const route = useRoute();
     const useBranch = useBranchStore();
     const toast = useToast();
+
     const formData = ref({});
     const branchStatus = ref(true);
     const userData = ref({});
@@ -44,7 +45,6 @@
         }
         await useBranch.editBranch(updatedData, route.query.id);
         if(useBranch.error) {
-            console.log("Api Error:" + JSON.stringify(useBranch.error));
             Object.values(useBranch.error).forEach((err) => {
                 err.forEach((msg) => {
                     toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });

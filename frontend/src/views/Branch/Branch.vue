@@ -9,11 +9,13 @@
     import { useToast } from 'primevue';
     import moment from 'moment'
     import { useFilterStore } from '@/stores/filterStore';
+    import { usePermissionStore } from '@/stores/usePermissionStore';
 
     const router = useRouter();
     const useBranch = useBranchStore();
     const toast = useToast();
     const filter = useFilterStore();
+    const usePermission = usePermissionStore();
 
     const searchValue = ref('');
     const startDate = ref('');
@@ -58,10 +60,8 @@
 
     // Branch delete function
     async function deleteHandle(id) {
-        console.log("deleted ID:" + JSON.stringify(id));
         await useBranch.deleteBranch(id);
         if(useBranch.error) {
-            console.log("Api Error:" + JSON.stringify(useBranch.error));
             toast.add({ severity: 'error', summary: 'Error Message', detail: useBranch.error, life: 3000 });
             return
         }
@@ -80,7 +80,13 @@
         <PageTitle title="Branch List">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
-                    <BaseButton icon="fa fa-circle-plus" label="Create" severity="primary" @click="changeRoute('/branch/create')"  />
+                    <BaseButton 
+                        v-if="usePermission.can('Branch', 'Create')"
+                        icon="fa fa-circle-plus" 
+                        label="Create" 
+                        severity="primary" 
+                        @click="changeRoute('/branch/create')"  
+                    />
                 </div>
             </template>
         </PageTitle>
@@ -93,6 +99,8 @@
             :isLoading="useBranch.loading"
             @delete="deleteHandle"
             :defaultSort="{key: 'created_at', order: 'desc'}"
+            :isEdit="!usePermission.can('Branch', 'Update')"
+            :isDelete="!usePermission.can('Branch', 'Delete')"
         >
             <!-- Filter Section -->
             <template #filters>
