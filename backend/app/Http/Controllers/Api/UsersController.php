@@ -12,7 +12,12 @@ use App\Models\Permission;
 class UsersController extends Controller
 {
     public function index(){
-        $users = User::with(['branch', 'counter', 'status', 'createdBy', 'updatedBy'])->get();
+        // $users = User::with(['branch', 'counter', 'status', 'createdBy', 'updatedBy'])->get();
+        
+        $users = User::with(['branch', 'counter', 'status', 'createdBy', 'updatedBy'])
+        ->where('status_id', '!=', 3) // exclude disabled
+        ->get();
+
         return UserResource::collection($users);
     }
 
@@ -44,7 +49,12 @@ class UsersController extends Controller
     }
 
     public function show($id){
-        $user = User::with(['branch','counter','status','role','createdBy','updatedBy'])->findOrFail($id);
+        // $user = User::with(['branch','counter','status','role','createdBy','updatedBy'])->findOrFail($id);
+
+        $user = User::with(['branch','counter','status','role','createdBy','updatedBy'])
+        ->where('status_id', '!=', 3)   // exclude disabled
+        ->findOrFail($id);
+
         return new UserResource($user);
     }
 
