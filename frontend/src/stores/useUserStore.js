@@ -8,8 +8,10 @@ export const useUserStore = defineStore('user', {
         users: [],
         userData: [],
         userPermission: [],
+        data: [],
         token: localStorage.getItem("token") || null,
         loading: false,
+        deleteLoading: false,
         error: null,
     }),
 
@@ -20,14 +22,67 @@ export const useUserStore = defineStore('user', {
     actions: {
         async fetchAllUsers() {
             this.loading = true;
-            this.error = null;
             try {
                 const response = await axios.get(`/users`);
-                this.users = JSON.stringify(response.data);
+                this.users = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
+            }
+        },
+        async fetchUser(userId) {
+            this.loading = true;
+            try {
+                const response = await axios.get(`/users/${userId}`);
+                this.users = response.data.data;
+            } catch (err) {
+                this.error = err.message
+            } finally {
+                this.loading = false;
+            }
+        },
+        async addUser(formData) {
+            this.loading = true;
+            try {
+                const response = await axios.post(`/users`, formData);
+                this.users = response.data.data;
+            } catch (err) {
+                if (err.response && err.response.status === 422) {
+                    this.error = err.response.data.errors;
+                }
+            } finally {
+                this.loading = false;
+            }
+        },
+        async editUser(formData, userId) {
+            this.loading = true;
+            console.log(formData);
+            console.log(userId);
+            try {
+                const response = await axios.put(`/users/${userId}`, formData);
+                this.users = response.data.data;
+            } catch (err) {
+                if (err.response && err.response.status === 422) {
+                    this.error = err.response.data.errors;
+                }
+            } finally {
+                this.loading = false;
+            }
+        },
+        async deleteUser(userId) {
+            this.deleteLoading = true;
+            try {
+                const response = await axios.delete(`/users/${userId}`);
+                this.data = response;
+            } catch (err) {
+                if (err.response && err.response.status === 422) {
+                    this.error = err.response.data;
+                } else if (err.response && err.response.status === 400) {
+                    this.error = err.response.data.error;
+                } 
+            } finally {
+                this.deleteLoading = false;
             }
         },
         async loginUser(formData) {
@@ -54,7 +109,6 @@ export const useUserStore = defineStore('user', {
         },
         async logout() {
             this.loading = true;
-            this.error = null;
             try {
                 const response = await axios.post(`/logout`);
                 if (response.data.isSuccess) {

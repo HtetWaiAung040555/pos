@@ -17,8 +17,8 @@ export const useFilterStore = defineStore('filter', {
             const query = searchValue.toLowerCase();
             return data.filter(item =>
                 fields.some(field => {
-                const value = field.split(".").reduce((o, key) => o?.[key], item);
-                return value?.toString().toLowerCase().includes(query);
+                    const value = field.split(".").reduce((o, key) => o?.[key], item);
+                    return value?.toString().toLowerCase().includes(query);
                 })
             );
         },

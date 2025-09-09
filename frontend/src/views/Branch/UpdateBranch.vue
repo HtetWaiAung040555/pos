@@ -32,7 +32,7 @@
         formData.value = useBranch.branchList;
         branchStatus.value = formData.value.status.id === 1 ? true : false;
         userData.value = JSON.parse(localStorage.getItem('user'));
-    })
+    });
 
     // Update function
     async function formSubmit() {

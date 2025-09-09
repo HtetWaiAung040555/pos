@@ -4,9 +4,9 @@ import { API_URL } from "@/utils/config";
 
 const api_url = API_URL;
 
-export const useBranchStore = defineStore('branch', {
+export const useCounterStore = defineStore('counter', {
     state: () => ({
-        branchList: null,
+        counterList: null,
         loading: false,
         deleteLoading: false,
         data: null,
@@ -14,33 +14,36 @@ export const useBranchStore = defineStore('branch', {
     }),
 
     actions: {
-        async fetchAllBranch() {
+        async fetchAllCounter() {
             this.loading = true
+            this.error = null
             try {
-                const response = await axios.get(`/branches`);
-                this.branchList = response.data.data;
+                const response = await axios.get(`/counters`);
+                this.counterList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
         },
-        async fetchBranch(branchId) {
+        async fetchCounter(counterId) {
             this.loading = true;
+            this.error = null;
             try {
-                const response = await axios.get(`/branches/${branchId}`);
-                this.branchList = response.data.data;
+                const response = await axios.get(`/counters/${counterId}`);
+                this.counterList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
         },
-        async addBranch(formData) {
+        async addCounter(formData) {
             this.loading = true;
+            this.error = null;
             try {
-                const response = await axios.post(`/branches`, formData);
-                this.branchList = response.data.data;
+                const response = await axios.post(`/counters`, formData);
+                this.counterList = response.data.data;
             } catch (err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
@@ -49,23 +52,26 @@ export const useBranchStore = defineStore('branch', {
                 this.loading = false;
             }
         },
-        async editBranch(formData, branchId) {
-            this.loading = true;
+        async editCounter(formData, counterId) {
+            this.loading = true,
+            this.error = null
             try {
-                const response = await axios.put(`/branches/${branchId}`, formData);
-                this.branchList = response.data.data;
+                const response = await axios.put(`/counters/${counterId}`, formData)
+                this.counterList = response.data.data
             } catch (err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
                 }
+                
             } finally {
                 this.loading = false;
             }
         },
-        async deleteBranch(branchId) {
-            this.deleteLoading = true;
+        async deleteBranch(counterId) {
+            this.deleteLoading = true,
+            this.error = null
             try {
-                const response = await axios.delete(`/branches/${branchId}`);
+                const response = await axios.delete(`/counters/${counterId}`);
                 this.data = response;
             } catch (err) {
                 if (err.response && err.response.status === 422) {

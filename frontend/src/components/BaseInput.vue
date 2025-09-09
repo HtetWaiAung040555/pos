@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { ref, computed } from "vue";
 
 const props = defineProps({
   modelValue: {
@@ -20,7 +20,7 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: "text",
+    default: "text", // text, password, email, number, etc.
   },
   error: {
     type: String,
@@ -36,15 +36,25 @@ const props = defineProps({
   },
   width: {
     type: String,
-    default: "100%", // Can be '100%', 'auto', '300px', 'w-64', etc.
+    default: "100%",
   },
   height: {
     type: String,
-    default: "", // Can be '40px', 'h-12', etc.
+    default: "",
+  },
+  icon: {
+    type: String,
+    default: "", // e.g. "fa fa-search" or "fa fa-user"
+  },
+  passwordToggle: {
+    type: Boolean,
+    default: false, // if true, shows eye icon to toggle
   },
 });
 
 const emit = defineEmits(["update:modelValue"]);
+
+const showPassword = ref(false);
 
 const sizeClasses = computed(() => {
   switch (props.size) {
@@ -53,15 +63,12 @@ const sizeClasses = computed(() => {
     case "lg":
       return "px-4 py-3 text-lg";
     default:
-      return "px-3 py-2 text-base"; // md
+      return "px-3 py-2 text-base";
   }
 });
 
 const borderClasses = computed(() => {
-  if (props.error) {
-    return "border-red-500";
-  }
-  return "border-gray-500";
+  return props.error ? "border-red-500" : "border-[#cbd5e1]";
 });
 
 const styleWidth = computed(() => {
@@ -71,37 +78,74 @@ const styleWidth = computed(() => {
 const styleHeight = computed(() => {
   return props.height.includes("h-") ? "" : props.height;
 });
+
+const inputType = computed(() => {
+  if (props.passwordToggle) {
+    return showPassword.value ? "text" : "password";
+  }
+  return props.type;
+});
+
+function togglePassword() {
+  showPassword.value = !showPassword.value;
+}
 </script>
 
 <template>
-  <div class="flex flex-col gap-1" :style="{ width: styleWidth }" :class="width.includes('w-') ? width : ''">
-
+  <div
+    class="flex flex-col gap-1 relative"
+    :style="{ width: styleWidth }"
+    :class="width.includes('w-') ? width : ''"
+  >
     <!-- Label -->
     <label v-if="label" class="text-sm font-medium text-black">
       {{ label }}
     </label>
 
-    <!-- Input -->
-    <input
-      :type="type"
-      :value="modelValue"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :readonly="readonly"
-      :style="{ height: styleHeight }"
-      :class="`
-        border rounded outline-none transition placeholder:text-[13px]
-        ${sizeClasses} ${borderClasses}
-        ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}
-        ${height.includes('h-') ? height : ''}
-      `"
-      @input="$emit('update:modelValue', $event.target.value)"
-    />
+    <!-- Input Wrapper with icon support -->
+    <div 
+      class="relative"
+      
+    >
+      <!-- Input -->
+      <input
+        :type="inputType"
+        :value="modelValue"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :readonly="readonly"
+        :style="{ height: styleHeight }"
+        :class="`
+          border rounded text-[14px] outline-none transition placeholder:text-[13px] placeholder:text-[#7f858b] focus:border-black w-full
+          ${sizeClasses} ${borderClasses}
+          ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}
+          ${height.includes('h-') ? height : ''}
+          ${icon || passwordToggle ? 'pr-10' : ''}
+        `"
+        autocomplete="off"
+        @input="$emit('update:modelValue', $event.target.value)"
+      />
+
+      <!-- Left Icon -->
+      <i
+        v-if="icon && !passwordToggle"
+        :class="`${icon} absolute right-3 top-1/2 -translate-y-1/2 text-gray-400`"
+      ></i>
+
+      <!-- Password Toggle -->
+      <button
+        v-if="passwordToggle"
+        type="button"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+        @click="togglePassword"
+      >
+        <i :class="showPassword? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+      </button>
+    </div>
 
     <!-- Error Message -->
     <p v-if="error" class="text-sm text-red-500">
       {{ error }}
     </p>
-
   </div>
 </template>

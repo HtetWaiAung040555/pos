@@ -11,7 +11,6 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import 'primeicons/primeicons.css';
-import Users from './views/Users.vue';
 import Branch from './views/Branch/Branch.vue';
 import CreateBranch from './views/Branch/CreateBranch.vue';
 import UpdateBranch from './views/Branch/UpdateBranch.vue';
@@ -23,6 +22,9 @@ import Role from './views/User_Role/Role.vue';
 import CreateRole from './views/User_Role/CreateRole.vue';
 import UpdateRole from './views/User_Role/UpdateRole.vue';
 import Unauthorized from './views/Unauthorized.vue';
+import User from './views/User/User.vue';
+import CreateUser from './views/User/CreateUser.vue';
+import UpdateUser from './views/User/UpdateUser.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -32,7 +34,9 @@ const router = createRouter({
         {path: '/unauthorized', name: 'Unauthorized', component: Unauthorized},
         {path: '/', name: 'Home', component: Home, meta: { requiresAuth: true }},
         {path: '/sales', name: 'Sales', component: Sales, meta: { requiresAuth: true }},
-        {path: '/users', name: 'Users', component: Users, meta: { requiresAuth: true }},
+        {path: '/user', name: 'Users', component: User, meta: { requiresAuth: true, permission: { resource: 'User', action: 'View' }  }},
+        {path: '/user/create', name: 'Create User', component: CreateUser, meta: { requiresAuth: true, permission: { resource: 'User', action: 'Create' } }},
+        {path: '/user/update', name: 'Update User', component: UpdateUser, meta: { requiresAuth: true, permission: { resource: 'User', action: 'Update' } }},
         {path: '/branch', name: 'Branch', component: Branch, meta: { requiresAuth: true, permission: { resource: 'Branch', action: 'View' } }},
         {path: '/branch/create', name: 'Create Branch', component: CreateBranch, meta: { requiresAuth: true }},
         {path: '/branch/update', name: 'Update Branch', component: UpdateBranch, meta: { requiresAuth: true }},

@@ -46,7 +46,7 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
           { 
             name: 'User', 
             icon: 'fas fa-user-tie',
-            pathname: '/users',
+            pathname: '/user',
             permission: {name: 'User', action: "View"}
           },
           { 

@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import BaseButton from './BaseButton.vue';
-import { useRouter } from 'vue-router';
 import Loading from './Loading.vue';
 import Dialog from 'primevue/dialog';
 
@@ -19,8 +18,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['delete']);
-
-const router = useRouter();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
