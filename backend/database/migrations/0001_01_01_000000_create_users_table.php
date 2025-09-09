@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->foreignId('branch_id')->constrained('branches')->restrictOnDelete();
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->restrictOnDelete();
             $table->foreignId('counter_id')->nullable()->constrained('counters')->restrictOnDelete();
             $table->foreignId('role_id')->nullable()->constrained('roles')->restrictOnDelete();
             $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
