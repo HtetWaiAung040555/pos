@@ -25,6 +25,9 @@ import Unauthorized from './views/Unauthorized.vue';
 import User from './views/User/User.vue';
 import CreateUser from './views/User/CreateUser.vue';
 import UpdateUser from './views/User/UpdateUser.vue';
+import Counter from './views/Counter/Counter.vue';
+import CreateCounter from './views/Counter/CreateCounter.vue';
+import UpdateCounter from './views/Counter/UpdateCounter.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -43,6 +46,12 @@ const router = createRouter({
         {path: '/role', name: 'Role', component: Role, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'View' } }},
         {path: '/role/create', name: 'Create Role', component: CreateRole, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'Create' } }},
         {path: '/role/update', name: 'Update Role', component: UpdateRole, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'Update' } }},
+        {path: '/role', name: 'Role', component: Role, meta: { requiresAuth: true }},
+        {path: '/role/create', name: 'Create Role', component: CreateRole, meta: { requiresAuth: true }},
+        {path: '/role/update', name: 'Update Role', component: UpdateRole, meta: { requiresAuth: true }},
+        {path: '/counter', name: 'Counter', component: Counter, meta: { requiresAuth: true }},
+        {path: '/counter/create', name: 'Create Counter', component: CreateCounter, meta: { requiresAuth: true }},
+        {path: '/counter/update', name: 'Update Counter', component: UpdateCounter, meta: { requiresAuth: true }},
         { path: '/', redirect: '/login' }
     ]
 });

@@ -67,7 +67,7 @@ export const useCounterStore = defineStore('counter', {
                 this.loading = false;
             }
         },
-        async deleteBranch(counterId) {
+        async deleteCounter(counterId) {
             this.deleteLoading = true,
             this.error = null
             try {
