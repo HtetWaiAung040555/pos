@@ -15,7 +15,7 @@ class RolePermissionSeeder extends Seeder
         // $userRole  = Role::find(2); // User
 
         // // Admin gets all permissions
-        $adminRole->permissions()->sync(range(1, 17));
+        $adminRole->permissions()->sync(range(1, 25));
 
         // // User gets only view permissions (example)
         // $userRole->permissions()->sync([1, 2, 6, 10, 14]);

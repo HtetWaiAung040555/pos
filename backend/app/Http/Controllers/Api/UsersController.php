@@ -12,7 +12,7 @@ use App\Models\Permission;
 class UsersController extends Controller
 {
     public function index(){
-        $users = User::with(['branch', 'counter', 'status', 'roles', 'createdBy', 'updatedBy'])->get();
+        $users = User::with(['branch', 'counter', 'status', 'createdBy', 'updatedBy'])->get();
         return UserResource::collection($users);
     }
 

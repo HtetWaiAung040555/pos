@@ -28,6 +28,14 @@ class PermissionSeeder extends Seeder
             ['id' => 15, 'name' => 'Counter', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
             ['id' => 16, 'name' => 'Counter', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
             ['id' => 17, 'name' => 'Counter', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 18, 'name' => 'User', 'action' => 'View', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 19, 'name' => 'User', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 20, 'name' => 'User', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 21, 'name' => 'User', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 22, 'name' => 'Role', 'action' => 'View', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 23, 'name' => 'Role', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 24, 'name' => 'Role', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 25, 'name' => 'Role', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1]
         ];
 
         foreach ($permissions as $permission) {
