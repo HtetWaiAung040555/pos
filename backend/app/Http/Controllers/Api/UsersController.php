@@ -23,7 +23,7 @@ class UsersController extends Controller
             'password' => 'required|string|min:8',
             'branch_id'  => 'nullable|exists:branches,id',
             'counter_id' => 'nullable|exists:counters,id',
-            'status_id'  => 'nullable|exists:statuses,id',
+            'status_id'  => 'exists:statuses,id',
             'roles' => 'nullable|array|exists:roles,id',
             'created_by' => 'nullable|exists:users,id'
         ]);
@@ -58,7 +58,7 @@ class UsersController extends Controller
             'password'   => 'sometimes|string|min:8',
             'branch_id'  => 'exists:branches,id',
             'counter_id' => 'nullable|exists:counters,id',
-            'role_id'    => 'sometimes|exists:role,id',
+            'role_id'    => 'sometimes|exists:roles,id',
             'status_id'  => 'exists:statuses,id',
             'updated_by' => 'required|exists:users,id',
         ]);
@@ -76,8 +76,12 @@ class UsersController extends Controller
 
     public function destroy($id) {
         try {
-            User::findOrFail($id)->delete();
-            return response()->json(['message' => 'Deleted Successfully'], 200);
+            $user = User::findOrFail($id);
+
+            $user->status_id = 3;
+            $user->save();
+
+            return response()->json(['message' => 'User deactivated successfully'], 200);
         } catch (\Illuminate\Database\QueryException $e) {
             return response()->json(['error' => 'User is referenced, cannot delete'], 400);
         }
