@@ -10,6 +10,7 @@
     import { useFilterStore } from '@/stores/filterStore';
     import { usePermissionStore } from '@/stores/usePermissionStore';
     import { useUserStore } from '@/stores/useUserStore';
+    import BaseInput from '@/components/BaseInput.vue';
 
     const router = useRouter();
     const toast = useToast();
@@ -63,11 +64,11 @@
     async function deleteHandle(id) {
         await useUser.deleteUser(id);
         if(useUser.error) {
-            toast.add({ severity: 'error', summary: 'Error Message', detail: useBranch.error, life: 3000 });
+            toast.add({ severity: 'error', summary: 'Error Message', detail: useUser.error, life: 3000 });
             return
         }
         if (useUser.data.status === 200) {
-            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Branch deleted successfully.', life: 3000 });
+            toast.add({ severity: 'success', summary: 'Success Message', detail: 'User deleted successfully.', life: 3000 });
             await useUser.fetchAllUsers();
             dataList.value = useUser.users;
         }
@@ -106,13 +107,29 @@
             <!-- Filter Section -->
             <template #filters>
                 <div class="flex gap-2">
-                    <input v-model="startDate" type="date" class="border rounded px-2 py-1" />
-                    <input v-model="endDate" type="date" class="border rounded px-2 py-1" />
-                    <input
-                        type="text"
+                    <BaseInput
+                        size="sm"
+                        type="date"
+                        v-model="startDate"
+                        placeholder="Search"
+                        width="200px"
+                        height="h-[35px]"
+                    />
+                    <BaseInput
+                        size="sm"
+                        type="date"
+                        v-model="endDate"
+                        placeholder="Search"
+                        width="200px"
+                        height="h-[35px]"
+                    />
+                    <BaseInput
+                        size="sm"
                         v-model="searchValue"
-                        placeholder="Search..."
-                        class="border rounded px-2 py-1"
+                        placeholder="Search"
+                        width="200px"
+                        height="h-[35px]"
+                        icon="pi pi-search"
                     />
                 </div>
             </template>

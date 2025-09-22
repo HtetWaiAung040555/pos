@@ -102,7 +102,9 @@ export const useUserStore = defineStore('user', {
                     }));
                 }
             } catch (err) {
-                this.error = err.message;
+                if (err.response && err.response.status === 401) {
+                    this.error = "Email or password incorrect.";
+                }
             } finally {
                 this.loading = false;
             }

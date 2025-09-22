@@ -12,6 +12,7 @@
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import SubTitle from '@/components/SubTitle.vue';
     import { useToast } from 'primevue';
+    import { errMsgList } from '@/utils/const';
 
     const router = useRouter();
     const route = useRoute();
@@ -21,6 +22,9 @@
     const formData = ref({});
     const branchStatus = ref(true);
     const userData = ref({});
+    const errorMsg = ref({
+        name: ""
+    });
 
     // Change route function
     function changeRoute(pathname) {
@@ -36,6 +40,10 @@
 
     // Update function
     async function formSubmit() {
+        if (formData.value.name === "") {
+            errorMsg.value.name = errMsgList.name;
+            return
+        }
         let updatedData = {
             name: formData.value.name,
             phone: formData.value.phone,
@@ -84,6 +92,8 @@
                         placeholder="Name"
                         width="300px"
                         height="h-[35px]"
+                        :isRequire="true"
+                        :error="errorMsg.name"
                     />
                     <!-- Branch status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">

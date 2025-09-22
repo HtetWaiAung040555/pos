@@ -13,6 +13,8 @@
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import BaseLabel from '@/components/BaseLabel.vue';
     import { Select } from 'primevue';
+    import { errMsgList } from '@/utils/const';
+    import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
 
     const router = useRouter();
     const toast = useToast();
@@ -29,10 +31,13 @@
         updated_by: ""
       }
     )
-
     const counterStatus = ref(true);
     const userData = ref({});
-    const selectedBranch = ref('');
+    const selectedBranch = ref();
+    const errorMsg = ref({
+        name: "",
+        branch: "",
+    });
 
     
     // Change route function
@@ -49,6 +54,23 @@
 
     // Create counter function
     async function formSubmit() {
+        if (formData.value.name === "") {
+            errorMsg.value = {
+                name: errMsgList.name,
+                branch: ""
+            };
+            return
+        } else if (!selectedBranch.value) {
+            errorMsg.value = {
+                name: "",
+                branch: errMsgList.branch
+            };
+            return
+        }
+        errorMsg.value = {
+            name: "",
+            branch: ""
+        };
         formData.value = {
             ...formData.value,
             branch_id: selectedBranch.value.id,
@@ -98,6 +120,8 @@
                         placeholder="Name"
                         width="300px"
                         height="h-[35px]"
+                        :isRequire="true"
+                        :error="errorMsg.name"
                     />
                     <!-- Counter Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
@@ -110,6 +134,7 @@
                     <div class="flex flex-col gap-y-1">
                         <BaseLabel 
                             label="Branch"
+                            :isRequire="true"
                         />
                         <Select 
                             v-model="selectedBranch" 
@@ -120,6 +145,7 @@
                             placeholder="Select a branch"
                             class="w-[300px] h-[35px] items-center" 
                         />
+                        <BaseErrorLabel v-if="errorMsg.branch" :label="errorMsg.branch"/>
                     </div>
                 </div>
                 <div class="flex gap-x-4 mt-4">

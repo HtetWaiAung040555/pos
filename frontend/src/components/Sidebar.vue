@@ -117,7 +117,7 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
           :key="item.name"
         >
           <div
-            class="items-center hover:bg-[#F8FAFC] hover:text-black transition-all cursor-pointer"
+            class="items-center hover:bg-[#F8FAFC] hover:text-black transition-all cursor-pointer relative"
             v-if="usePermission.can(item.permission.name, item.permission.action)"
           >
             <div 
@@ -136,8 +136,8 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
               <!-- Chevron Icon for Dropdown -->
               <i
                 v-if="item.children"
-                class="fas fa-chevron-right transition-transform"
-                :class="{ 'rotate-90': openDropdown === item.name }"
+                class="fas fa-chevron-right transition-transform text-sm ml-2"
+                :class="{ 'rotate-180': openDropdown === item.name }"
               ></i>
               <!-- If sidebar is collapsed, show floating dropdown -->
             </div>
@@ -145,7 +145,7 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
               v-if="item.children && openDropdown === item.name"
               :class="[
                 collapseSidebar.isSidebarCollapsed 
-                  ? 'bg-[#fff] text-black rounded shadow-lg z-10'
+                  ? 'absolute left-full top-0 ml-2 bg-[#fff] text-black rounded shadow-lg z-50 w-48'
                   : 'bg-[#fff] text-black'
               ]"
             >
@@ -154,12 +154,12 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
                 :key="sub.name"
               >
                 <div
-                  class="flex pl-8 items-center py-3 gap-4 hover:bg-[#F8FAFC] hover:text-black cursor-pointer transition-all"
+                  class="flex pl-6 items-center py-2 gap-3 hover:bg-[#F8FAFC] hover:text-black cursor-pointer transition-all"
                   @click="changeRoute(sub.pathname)"
                   v-if="usePermission.can(sub.permission.name, sub.permission.action)"
                 >
                   <i :class="sub.icon" class="text-lg"></i>
-                  <span>
+                  <span class="whitespace-nowrap">
                     {{ sub.name }}
                   </span>
                 </div>

@@ -91,6 +91,7 @@
                         placeholder="Name"
                         width="300px"
                         height="h-[35px]"
+                        :isRequire="true"
                     />
                     <!-- Counter Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
@@ -103,6 +104,7 @@
                     <div class="flex flex-col gap-y-1">
                         <BaseLabel 
                             label="Branch"
+                            :isRequire="true"
                         />
                         <Select 
                             v-model="selectedBranch" 

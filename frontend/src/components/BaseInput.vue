@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import BaseErrorLabel from "./BaseErrorLabel.vue";
 
 const props = defineProps({
   modelValue: {
@@ -50,6 +51,10 @@ const props = defineProps({
     type: Boolean,
     default: false, // if true, shows eye icon to toggle
   },
+  isRequire: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -98,9 +103,11 @@ function togglePassword() {
     :class="width.includes('w-') ? width : ''"
   >
     <!-- Label -->
-    <label v-if="label" class="text-sm font-medium text-black">
-      {{ label }}
-    </label>
+    <div v-if="label" class="flex items-center gap-x-1 py-0 text-sm font-medium text-black">
+      <span>{{ label }}</span> 
+      <i v-if="isRequire" class="fa fa-asterisk text-red-500 text-[9px]"></i>
+    </div>
+
 
     <!-- Input Wrapper with icon support -->
     <div 
@@ -144,8 +151,6 @@ function togglePassword() {
     </div>
 
     <!-- Error Message -->
-    <p v-if="error" class="text-sm text-red-500">
-      {{ error }}
-    </p>
+    <BaseErrorLabel v-if="error" :label="error" />
   </div>
 </template>
