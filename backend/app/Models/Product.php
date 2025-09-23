@@ -5,29 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Branch extends Model
+class Product extends Model
 {
     use HasFactory;
 
-    protected $table = 'branches';
+    protected $table = 'products';
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'phone',
-        'location',
-        'warehouse_id',
-        'status_id',
+        'unit',
+        'sec_prop',
+        'price',
         'created_by',
         'updated_by'
     ];
-
-    public function warehouse(){
-        return $this->belongsTo(Warehouse::class);
-    }
-
-    public function status() {
-        return $this->belongsTo(Status::class);
-    }
 
     public function createdBy() { 
         return $this->belongsTo(User::class, 'created_by'); 
@@ -36,5 +27,4 @@ class Branch extends Model
     public function updatedBy() { 
         return $this->belongsTo(User::class, 'updated_by'); 
     }
-    
 }

@@ -3,7 +3,9 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BranchesController;
 use App\Http\Controllers\Api\CountersController;
+use App\Http\Controllers\Api\InventoriesController;
 use App\Http\Controllers\Api\PermissionsController;
+use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\StatusesController;
@@ -47,6 +49,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('/counters', CountersController::class);
 
     Route::apiResource('/statuses', StatusesController::class);
+
+    Route::apiResource('/products', ProductsController::class);
+    Route::apiResource('/inventories', InventoriesController::class);
 
 });
 
