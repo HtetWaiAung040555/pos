@@ -12,7 +12,7 @@ class BranchesController extends Controller
 
     public function index()
     {
-        $branches = Branch::with(['status','createdBy', 'updatedBy'])->get();
+        $branches = Branch::with(['warehouse','status','createdBy', 'updatedBy'])->get();
         return BranchResource::collection($branches);
     }
 
@@ -23,6 +23,7 @@ class BranchesController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'location' => 'required|string|max:255',
+            'warehouse_id' => 'required|exists:warehouses,id',
             'status_id' => 'required|exists:statuses,id',
             'created_by' => 'required|exists:users,id',
             'updated_by' => 'nullable|exists:users,id',
@@ -32,18 +33,19 @@ class BranchesController extends Controller
             'name' => $request->name,
             'phone' => $request->phone,
             'location' => $request->location,
+            'warehouse_id' => $request->warehouse_id,
             'status_id' => $request->status_id,
             'created_by' => $request->created_by,
             'updated_by' => $request->updated_by ?? $request->created_by,
         ]);
     
-        return new BranchResource($branch->fresh(['status', 'createdBy', 'updatedBy']));
+        return new BranchResource($branch->fresh(['warehouse','status', 'createdBy', 'updatedBy']));
     }
 
  
     public function show(string $id)
     {
-        $branch = Branch::with(['status', 'createdBy', 'updatedBy'])->findOrFail($id);
+        $branch = Branch::with(['warehouse','status', 'createdBy', 'updatedBy'])->findOrFail($id);
         return new BranchResource($branch);
     }
 
@@ -56,15 +58,16 @@ class BranchesController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'phone' => 'sometimes|required|string|max:50',
             'location' => 'sometimes|required|string|max:255',
+            'warehouse_id' => 'sometimes|exists:warehouses,id',
             'status_id' => 'sometimes|required|exists:statuses,id',
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        $data = $request->only(['name', 'phone', 'location', 'status_id', 'updated_by']);
+        $data = $request->only(['name', 'phone', 'location', 'warehouse_id', 'status_id', 'updated_by']);
 
         $branch->update($data);
 
-        return new BranchResource($branch->fresh(['status', 'createdBy', 'updatedBy']));
+        return new BranchResource($branch->fresh(['warehouse', 'status', 'createdBy', 'updatedBy']));
     }
 
     

@@ -7,11 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class BranchResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
@@ -19,6 +14,11 @@ class BranchResource extends JsonResource
             'name' => $this->name,
             'phone' => $this->phone,
             'location' => $this->location,
+
+            'warehouse' => [
+                'id' => $this->warehouse->id ?? null,
+                'name' => $this->warehouse->name ?? null,
+            ],
 
             'status' => [
                 'id' => $this->status->id ?? null,
