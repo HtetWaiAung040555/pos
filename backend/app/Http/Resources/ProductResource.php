@@ -17,10 +17,24 @@ class ProductResource extends JsonResource
             'price'      => $this->price,
             'barcode'    => $this->barcode,
             'image_url'  => $this->image ? asset($this->image) : null,
-            'created_by' => $this->createdBy?->name,
-            'updated_by' => $this->updatedBy?->name,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            
+            'status' => [
+                'id' => $this->status->id ?? null,
+                'name' => $this->status->name ?? null,
+            ],
+
+            'created_by' => [
+                'id' => $this->createdBy->id ?? null,
+                'name' => $this->createdBy->name ?? null,
+            ],
+            
+            'updated_by' => [
+                'id' => $this->updatedBy->id ?? null,
+                'name' => $this->updatedBy->name ?? null,
+            ],
+
+            'created_at' => $this->created_at?->toDateTimeString(),
+            'updated_at' => $this->updated_at?->toDateTimeString(),
         ];
     }
 }

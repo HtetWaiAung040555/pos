@@ -39,7 +39,7 @@ class BranchesController extends Controller
             'updated_by' => $request->updated_by ?? $request->created_by,
         ]);
     
-        return new BranchResource($branch->fresh(['warehouse','status', 'createdBy', 'updatedBy']));
+        return new BranchResource($branch->fresh(['warehouse', 'status', 'createdBy', 'updatedBy']));
     }
 
  

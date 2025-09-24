@@ -16,9 +16,16 @@ class Product extends Model
         'unit',
         'sec_prop',
         'price',
+        'image',
+        'barcode',
+        'status_id',
         'created_by',
         'updated_by'
     ];
+
+    public function status() {
+        return $this->belongsTo(Status::class);
+    }
 
     public function createdBy() { 
         return $this->belongsTo(User::class, 'created_by'); 
