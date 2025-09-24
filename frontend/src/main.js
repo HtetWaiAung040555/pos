@@ -28,6 +28,7 @@ import UpdateUser from './views/User/UpdateUser.vue';
 import Counter from './views/Counter/Counter.vue';
 import CreateCounter from './views/Counter/CreateCounter.vue';
 import UpdateCounter from './views/Counter/UpdateCounter.vue';
+import Receipt from './views/Receipt.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -52,6 +53,7 @@ const router = createRouter({
         {path: '/counter', name: 'Counter', component: Counter, meta: { requiresAuth: true }},
         {path: '/counter/create', name: 'Create Counter', component: CreateCounter, meta: { requiresAuth: true }},
         {path: '/counter/update', name: 'Update Counter', component: UpdateCounter, meta: { requiresAuth: true }},
+        {path: '/receipt', name: 'Receipt', component: Receipt, meta: { requiresAuth: true }},
         { path: '/', redirect: '/login' }
     ]
 });
