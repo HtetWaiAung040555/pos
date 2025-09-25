@@ -89,9 +89,8 @@ class ProductsController extends Controller
                 File::delete(public_path($product->image));
             }
         
-            $extension = $file->getClientOriginalExtension();
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $imagenewname = uniqid($user_id . '_') . '_' . $product->id . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '', $originalName) . '.' . $extension;
+            $fname = $file->getClientOriginalName();
+            $imagenewname = uniqid($user_id) . '_' . $product->id . '_' . $fname;
         
             $file->move(public_path('assets/img/products/'), $imagenewname);
             $data['image'] = 'assets/img/products/' . $imagenewname;
