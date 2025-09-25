@@ -18,10 +18,14 @@ class ProductsController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'barcode' => $request->barcode ?: null,
+        ]);
+
         $request->validate([
             'name'       => 'required|string|max:255',
-            'unit'       => 'nullable|string|max:255',
-            'sec_prop'   => 'nullable|string|max:255',
+            'unit'       => 'required|string|max:255',
+            'sec_prop'   => 'required|string|max:255',
             'price'      => 'required|numeric|min:0',
             'barcode'    => 'nullable|string|max:255|unique:products,barcode',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
@@ -37,7 +41,7 @@ class ProductsController extends Controller
             'sec_prop'   => $request->sec_prop,
             'price'      => $request->price,
             'barcode'    => $request->barcode,
-            'status_id' => $request->status_id,
+            'status_id'  => $request->status_id,
             'created_by' => $request->created_by,
             'updated_by' => $request->updated_by ?? $request->created_by,
         ]);
@@ -89,9 +93,8 @@ class ProductsController extends Controller
                 File::delete(public_path($product->image));
             }
         
-            $extension = $file->getClientOriginalExtension();
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $imagenewname = uniqid($user_id . '_') . '_' . $product->id . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '', $originalName) . '.' . $extension;
+            $fname = $file->getClientOriginalName();
+            $imagenewname = uniqid($user_id) . '_' . $product->id . '_' . $fname;
         
             $file->move(public_path('assets/img/products/'), $imagenewname);
             $data['image'] = 'assets/img/products/' . $imagenewname;
