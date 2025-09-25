@@ -8,5 +8,9 @@ export const errMsgList = {
     branch: "Branch is required.",
     counter: "Counter is required.",
     password: "Password is required.",
-    permission: "Select at least one permission."
+    permission: "Select at least one permission.",
+    price: "Price must be greater than 0.",
+    unit: "Unit is required.",
+    sec_prop: "Secondary property is required.",
+    warehouse: "Warehouse is required."
 }

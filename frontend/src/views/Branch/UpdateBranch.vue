@@ -11,19 +11,24 @@
     import BaseLabel from '@/components/BaseLabel.vue';
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import SubTitle from '@/components/SubTitle.vue';
-    import { useToast } from 'primevue';
+    import { Select, useToast } from 'primevue';
     import { errMsgList } from '@/utils/const';
+import { useWarehouseStore } from '@/stores/useWarehouseStore';
+import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
 
     const router = useRouter();
     const route = useRoute();
     const useBranch = useBranchStore();
+    const useWarehouse = useWarehouseStore();
     const toast = useToast();
 
     const formData = ref({});
     const branchStatus = ref(true);
     const userData = ref({});
+    const selectedWarehouse = ref('');
     const errorMsg = ref({
-        name: ""
+        name: "",
+        warehouse: ""
     });
 
     // Change route function
@@ -36,18 +41,30 @@
         formData.value = useBranch.branchList;
         branchStatus.value = formData.value.status.id === 1 ? true : false;
         userData.value = JSON.parse(localStorage.getItem('user'));
+        await useWarehouse.fetchAllWarehouse();
+        selectedWarehouse.value = useWarehouse.warehouseList.filter(el => el.id === formData.value.warehouse.id)[0];
     });
 
     // Update function
     async function formSubmit() {
         if (formData.value.name === "") {
-            errorMsg.value.name = errMsgList.name;
+            errorMsg.value = {
+                name: errMsgList.name,
+                warehouse: ""
+            }
+            return
+        } else if (!selectedWarehouse.value) {
+            errorMsg.value = {
+                name: "",
+                warehouse: errMsgList.warehouse
+            }
             return
         }
         let updatedData = {
             name: formData.value.name,
             phone: formData.value.phone,
             location: formData.value.location,
+            warehouse_id: selectedWarehouse.value.id,
             status_id: branchStatus.value? '1' : '2',
             updated_by: userData.value.id
         }
@@ -111,6 +128,23 @@
                         width="300px"
                         height="h-[35px]"
                     />
+                    <!-- Warehouse Select -->
+                    <div class="flex flex-col gap-y-1">
+                        <BaseLabel 
+                            label="Warehouse"
+                            :isRequire="true"
+                        />
+                        <Select 
+                            v-model="selectedWarehouse" 
+                            :options="useWarehouse.warehouseList" 
+                            showClear
+                            filter
+                            optionLabel="name"
+                            placeholder="Select a warehouse"
+                            class="w-[300px] h-[35px] items-center" 
+                        />
+                        <BaseErrorLabel v-if="errorMsg.warehouse" :label="errorMsg.warehouse" />
+                    </div>
                 </div>
                 <div class="flex gap-x-4 mt-4">
                     <!-- Address input -->

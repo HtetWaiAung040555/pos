@@ -1,43 +1,43 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
-export const useUserRoleStore = defineStore('role', {
+
+export const useProductStore = defineStore('product', {
     state: () => ({
-        roleList: [],
+        productList: [],
         loading: false,
         deleteLoading: false,
         error: null,
-        data: null
-
+        data: null,
     }),
     actions: {
-        async fetchAllRole() {
+        async fetchAllProduct() {
             this.loading = true;
             try {
-                const response = await axios.get(`/roles`);
-                this.roleList = response.data.data;
+                const response = await axios.get(`/products`);
+                this.productList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
         },
-        async fetchRole(roleId) {
+        async fetchProduct(productId) {
             this.loading = true;
             try {
-                const response = await axios.get(`/roles/${roleId}`);
-                this.roleList = response.data.data;
+                const response = await axios.get(`/products/${productId}`);
+                this.productList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
         },
-        async addRole(formData) {
+        async addProduct(formData) {
             this.loading = true;
             try {
-                const response = await axios.post(`/roles`, formData);
-                this.roleList = response.data.data;
+                const response = await axios.post(`/products`, formData);
+                this.productList = response.data.data;
             } catch(err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
@@ -46,11 +46,13 @@ export const useUserRoleStore = defineStore('role', {
                 this.loading = false;
             }
         },
-        async editRole(roleId, formData) {
+        async editProduct(productId, formData) {
             this.loading = true;
+            console.log(formData);
+            console.log(productId);
             try {
-                const response = await axios.put(`/roles/${roleId}`, formData)
-                this.roleList = response.data.data
+                const response = await axios.post(`/products/${productId}`, formData)
+                this.productList = response.data.data
             } catch (err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
@@ -60,10 +62,10 @@ export const useUserRoleStore = defineStore('role', {
                 this.loading = false;
             }
         },
-        async deleteRole(roleId) {
+        async deleteProduct(productId) {
             this.deleteLoading = true;
             try {
-                const response = await axios.delete(`/roles/${roleId}`);
+                const response = await axios.delete(`/products/${productId}`);
                 this.data = response;
             } catch (err) {
                 if (err.response && err.response.status === 422) {
@@ -75,16 +77,5 @@ export const useUserRoleStore = defineStore('role', {
                 this.deleteLoading = false;
             }
         },
-        async addRolePermission(roleId, permissionId) {
-            this.loading = true;
-            try {
-                
-            } catch (err) {
-
-            } finally {
-
-            }
-        }
     }
-
 });

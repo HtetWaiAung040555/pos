@@ -1,15 +1,19 @@
 <script setup>
   import Button from 'primevue/button';
   import { useCollapseSidebar } from '@/stores/collapseSidebar';
-import { onMounted, ref } from 'vue';
-import BaseButton from './BaseButton.vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/useUserStore';
+  import { onMounted, ref } from 'vue';
+  import BaseButton from './BaseButton.vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import { useUserStore } from '@/stores/useUserStore';
+import { usePermissionStore } from '@/stores/usePermissionStore';
+import BaseInput from './BaseInput.vue';
 
   const collapseSidebar = useCollapseSidebar();
   const openDropdown = ref(false);
   const router = useRouter();
+  const route = useRoute();
   const useUser = useUserStore();
+  const usePermission = usePermissionStore();
   const userData = ref({});
 
   onMounted(() => {
@@ -28,11 +32,31 @@ import { useUserStore } from '@/stores/useUserStore';
 </script>
 
 <template>
-  <div class="w-full h-16 shadow flex items-center px-6 justify-between bg-[#ffffff] sticky top-0 z-10">
+  <div class="w-full h-16 shadow flex items-center px-4 justify-between bg-[#ffffff] sticky top-0 z-10">
     <!-- Collapse Button -->
-    <div class="flex justify-end ml-[-20px]">
-      <Button severity="contrast" variant="text" @click="collapseSidebar.toggleSidebar" icon="pi pi-bars" rounded />
+    <div
+      v-if="route.path === '/sales'"
+      class="flex gap-2 items-center justify-between"
+    >
+      <img src="../assets/images/logo.png" class="w-10 h-10" alt="Fusion Mart" />
+      <div class="flex flex-col">
+        <span class="text-black text-lg font-semibold transition-all duration-300 origin-left">Fusion Mart</span>
+        <span class="text-gray-800 text-[11px] transition-all duration-300 origin-left">POS System</span>
+      </div>
     </div>
+    <div 
+      v-else
+      class="flex justify-end" 
+    >
+      <Button 
+        severity="contrast" 
+        variant="text" 
+        @click="collapseSidebar.toggleSidebar" 
+        icon="pi pi-bars" 
+        rounded 
+      />
+    </div>
+    
     <div class="flex items-center gap-x-2">
       <BaseButton class="w-10 h-10" severity="primary" variant="outlined" icon="fa fa-question" rounded />
       <BaseButton class="w-10 h-10" severity="primary" variant="solid" icon="pi pi-bell" rounded />
@@ -59,11 +83,27 @@ import { useUserStore } from '@/stores/useUserStore';
             <div
               class="flex px-2 items-center py-3 gap-3 hover:bg-blue-100 cursor-pointer transition-all"
             >
-              <i class="pi pi-user-edit" style="font-size: 1rem;"></i>
+              <i class="pi pi-user-edit"></i>
               <span>
                 Setting
               </span>
             </div>
+            <router-link v-if="route.path !== '/sales' && usePermission.can('Sales', 'Create')" to="/sales">
+              <div
+                class="flex px-2 items-center py-3 gap-3 hover:bg-blue-100 cursor-pointer transition-all"
+              >
+                <i class="pi pi-shop"></i>
+                <span>Go to POS</span>
+              </div>
+            </router-link>
+            <router-link v-else to="/">
+              <div
+                class="flex px-2 items-center py-3 gap-3 hover:bg-blue-100 cursor-pointer transition-all"
+              >
+                <i class="pi pi-shop"></i>
+                <span>Admin Panel</span>
+              </div>
+            </router-link>
             <div
               class="flex px-2 items-center py-3 gap-3 hover:bg-blue-100 cursor-pointer transition-all"
               @click="logout"

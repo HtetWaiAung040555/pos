@@ -6,7 +6,6 @@
     import SubTitle from '@/components/SubTitle.vue';
     import { useRouter } from 'vue-router';
     import BaseInput from '@/components/BaseInput.vue';
-    import BaseTextarea from '@/components/BaseTextarea.vue';
     import { onMounted, ref, watch } from 'vue';
     import { useToast } from 'primevue/usetoast';
     import BaseSwitch from '@/components/BaseSwitch.vue';

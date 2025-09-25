@@ -6,7 +6,7 @@
     import { useRouter } from 'vue-router';
     import BaseInput from '@/components/BaseInput.vue';
     import BaseTextarea from '@/components/BaseTextarea.vue';
-    import { onMounted, ref, watch } from 'vue';
+    import { onMounted, ref } from 'vue';
     import { useCounterStore } from '@/stores/useCounterStore';
     import { useBranchStore } from '@/stores/useBranchStore';
     import { useToast } from 'primevue/usetoast';

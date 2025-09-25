@@ -66,7 +66,7 @@
         if (useCounter.data.status === 200) {
             toast.add({ severity: 'success', summary: 'Success Message', detail: 'Counter deleted successfully.', life: 3000 });
             await useCounter.fetchAllCounter();
-            counterList.value = useCounter.counterListList
+            counterList.value = useCounter.counterList
         }
     }
 
@@ -80,6 +80,7 @@
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
                     <BaseButton 
+                        v-if="usePermission.can('Counter', 'Create')"
                         icon="fa fa-circle-plus" 
                         label="Create" 
                         severity="primary" 

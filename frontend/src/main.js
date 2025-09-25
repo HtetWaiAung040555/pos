@@ -28,6 +28,9 @@ import UpdateUser from './views/User/UpdateUser.vue';
 import Counter from './views/Counter/Counter.vue';
 import CreateCounter from './views/Counter/CreateCounter.vue';
 import UpdateCounter from './views/Counter/UpdateCounter.vue';
+import Product from './views/Product/Product.vue';
+import CreateProduct from './views/Product/CreateProduct.vue';
+import UpdateProduct from './views/Product/UpdateProduct.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -52,6 +55,9 @@ const router = createRouter({
         {path: '/counter', name: 'Counter', component: Counter, meta: { requiresAuth: true }},
         {path: '/counter/create', name: 'Create Counter', component: CreateCounter, meta: { requiresAuth: true }},
         {path: '/counter/update', name: 'Update Counter', component: UpdateCounter, meta: { requiresAuth: true }},
+        {path: '/product', name: 'Product', component: Product, meta: { requiresAuth: true }},
+        {path: '/product/create', name: 'Create Product', component: CreateProduct, meta: { requiresAuth: true }},
+        {path: '/product/update', name: 'Update Product', component: UpdateProduct, meta: { requiresAuth: true }},
         { path: '/', redirect: '/login' }
     ]
 });

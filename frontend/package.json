@@ -13,6 +13,7 @@
     "@heroicons/vue": "^2.2.0",
     "@primeuix/themes": "^1.2.1",
     "@primevue/themes": "^4.3.6",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
     "moment": "^2.30.1",

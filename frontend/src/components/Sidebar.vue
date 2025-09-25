@@ -30,7 +30,7 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
       { 
         name: 'Products', 
         icon: 'fas fa-box-open',
-        pathname: "",
+        pathname: "/product",
         permission: {name: 'Product', action: "View"}
       },
       { 

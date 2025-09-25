@@ -11,7 +11,7 @@ class WarehousesController extends Controller
 {
     public function index()
     {
-        $branches = Warehouse::with(['warehouse','status','createdBy', 'updatedBy'])->get();
+        $branches = Warehouse::with(['createdBy', 'updatedBy'])->get();
         return WarehouseResource::collection($branches);
     }
 }
