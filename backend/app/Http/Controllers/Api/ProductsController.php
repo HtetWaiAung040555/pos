@@ -18,10 +18,14 @@ class ProductsController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'barcode' => $request->barcode ?: null,
+        ]);
+
         $request->validate([
             'name'       => 'required|string|max:255',
-            'unit'       => 'nullable|string|max:255',
-            'sec_prop'   => 'nullable|string|max:255',
+            'unit'       => 'required|string|max:255',
+            'sec_prop'   => 'required|string|max:255',
             'price'      => 'required|numeric|min:0',
             'barcode'    => 'nullable|string|max:255|unique:products,barcode',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
@@ -37,7 +41,7 @@ class ProductsController extends Controller
             'sec_prop'   => $request->sec_prop,
             'price'      => $request->price,
             'barcode'    => $request->barcode,
-            'status_id' => $request->status_id,
+            'status_id'  => $request->status_id,
             'created_by' => $request->created_by,
             'updated_by' => $request->updated_by ?? $request->created_by,
         ]);
