@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('unit');
             $table->string('sec_prop');
-            $table->decimal('price',8,2);
+            $table->decimal('price',11,2);
             $table->string('image')->nullable();
-            $table->string('barcode')->nullable();
+            $table->string('barcode')->nullable()->unique();
             $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');

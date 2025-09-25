@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\RolesController;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\StatusesController;
+use App\Http\Controllers\Api\WarehousesController;
 // use App\Http\Controllers\Api\RolesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +59,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Route::delete('/products/{id}', [ProductsController::class, 'destroy']);
 
     Route::apiResource('/inventories', InventoriesController::class);
+
+    Route::apiResource('/warehouses', WarehousesController::class);
 
 });
 

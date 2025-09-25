@@ -72,6 +72,10 @@ class ProductsController extends Controller
     {
         $product = Product::findOrFail($id);
 
+        $request->merge([
+            'barcode' => $request->barcode ?: null,
+        ]);
+
         $request->validate([
             'name'       => 'sometimes|required|string|max:255',
             'unit'       => 'nullable|string|max:255',
