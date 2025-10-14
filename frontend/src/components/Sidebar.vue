@@ -66,10 +66,16 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
             icon: 'fas fa-computer',
             pathname: "/counter",
             permission: {name: 'Counter', action: "View"}
-          },
+          }
         ],
         pathname: "",
         permission: {name: 'Role', action: "View"}
+      },
+      { 
+        name: 'Receipt', 
+        icon: 'fas fa-receipt',
+        pathname: "/receipt",
+        permission: {name: 'Receipt', action: "View"}
       }
   ];
 
