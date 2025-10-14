@@ -51,3 +51,7 @@ input.p-inputtext.p-component.p-select-filter {
 input.p-inputtext.p-component.p-select-filter:focus {
   border-color: black !important;
 }
+
+input[type="number"] {
+    text-align: right;
+}

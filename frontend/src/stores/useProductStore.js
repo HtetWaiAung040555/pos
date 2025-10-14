@@ -1,50 +1,44 @@
-import { defineStore } from "pinia";
 import axios from "axios";
-import { API_URL } from "@/utils/config";
+import { defineStore } from "pinia";
 
-const api_url = API_URL;
 
-export const useCounterStore = defineStore('counter', {
+export const useProductStore = defineStore('product', {
     state: () => ({
-        counterList: null,
+        productList: [],
         loading: false,
         deleteLoading: false,
-        data: null,
         error: null,
+        data: null,
     }),
-
     actions: {
-        async fetchAllCounter() {
-            this.loading = true
-            this.error = null
+        async fetchAllProduct() {
+            this.loading = true;
             try {
-                const response = await axios.get(`/counters`);
-                this.counterList = response.data.data;
+                const response = await axios.get(`/products`);
+                this.productList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
         },
-        async fetchCounter(counterId) {
+        async fetchProduct(productId) {
             this.loading = true;
-            this.error = null;
             try {
-                const response = await axios.get(`/counters/${counterId}`);
-                this.counterList = response.data.data;
+                const response = await axios.get(`/products/${productId}`);
+                this.productList = response.data.data;
             } catch (err) {
                 this.error = err.message;
             } finally {
                 this.loading = false;
             }
         },
-        async addCounter(formData) {
+        async addProduct(formData) {
             this.loading = true;
-            this.error = null;
             try {
-                const response = await axios.post(`/counters`, formData);
-                this.counterList = response.data.data;
-            } catch (err) {
+                const response = await axios.post(`/products`, formData);
+                this.productList = response.data.data;
+            } catch(err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
                 }
@@ -52,12 +46,13 @@ export const useCounterStore = defineStore('counter', {
                 this.loading = false;
             }
         },
-        async editCounter(formData, counterId) {
-            this.loading = true,
-            this.error = null
+        async editProduct(productId, formData) {
+            this.loading = true;
+            console.log(formData);
+            console.log(productId);
             try {
-                const response = await axios.put(`/counters/${counterId}`, formData)
-                this.counterList = response.data.data
+                const response = await axios.post(`/products/${productId}`, formData)
+                this.productList = response.data.data
             } catch (err) {
                 if (err.response && err.response.status === 422) {
                     this.error = err.response.data.errors;
@@ -67,11 +62,10 @@ export const useCounterStore = defineStore('counter', {
                 this.loading = false;
             }
         },
-        async deleteCounter(counterId) {
-            this.deleteLoading = true,
-            this.error = null
+        async deleteProduct(productId) {
+            this.deleteLoading = true;
             try {
-                const response = await axios.delete(`/counters/${counterId}`);
+                const response = await axios.delete(`/products/${productId}`);
                 this.data = response;
             } catch (err) {
                 if (err.response && err.response.status === 422) {
@@ -82,6 +76,6 @@ export const useCounterStore = defineStore('counter', {
             } finally {
                 this.deleteLoading = false;
             }
-        }
+        },
     }
 });

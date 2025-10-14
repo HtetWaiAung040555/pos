@@ -14,6 +14,8 @@
     import { useUserRoleStore } from '@/stores/useUserRoleStore';
     import { usePermissionStore } from '@/stores/usePermissionStore';
     import BaseCheckbox from '@/components/BaseCheckbox.vue';
+    import { errMsgList } from '@/utils/const';
+    import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
     
     const router = useRouter();
     const toast = useToast();
@@ -34,6 +36,10 @@
     const collapsed = ref({}); // which permission groups are collapsed
     const selectedPermissions = ref([]); // store selected permission IDs
     const userData = ref({});
+    const errorMsg = ref({
+        name: "",
+        permission: ""
+    });
 
     onMounted(async() => {
         await usePermission.fetchAllPermission();
@@ -123,6 +129,19 @@
 
     // Create role function
     async function formSubmit() {
+        if (formData.value.name === "") {
+            errorMsg.value = {
+                name: errMsgList.name,
+                permission: ""
+            };
+            return
+        } else if (selectedPermissions.value.length == 0) {
+            errorMsg.value = {
+                name: "",
+                permission: errMsgList.permission
+            };
+            return
+        }
         formData.value = {
             ...formData.value,
             status_id: roleStatus.value? '1' : '2',
@@ -171,6 +190,8 @@
                         placeholder="Role Name"
                         width="300px"
                         height="h-[35px]"
+                        :isRequire="true"
+                        :error="errorMsg.name"
                     />
                     <!-- Role status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
@@ -187,9 +208,12 @@
                         autoResize
                     />
                 </div>
-                <div class="mt-4 flex items-center gap-x-2">
+                <div class="mt-4 mb-2 flex items-center gap-x-2">
                     <!-- Permission title -->
-                    <SubTitle label="Permission" />
+                    <div class="flex items-center">
+                        <SubTitle label="Permission" />
+                        <i class="fa fa-asterisk text-red-500 text-[9px]"></i>
+                    </div>
                     <!-- Select all permission checkbox -->
                     <BaseCheckbox
                         :label="isAllSelectedGlobal ? 'Deselect All' : 'Select All'"
@@ -197,6 +221,8 @@
                         @update:modelValue="checked => toggleAllGlobal(checked)"
                     />
                 </div>
+                <!-- Permission error message -->
+                <BaseErrorLabel v-if="errorMsg.permission" :label="errorMsg.permission" />
                 <!-- Display loading when the permissions are fetching -->
                 <div v-if="usePermission.loading" class="w-full rounded-md p-4">
                     <div class="flex animate-pulse space-x-4">

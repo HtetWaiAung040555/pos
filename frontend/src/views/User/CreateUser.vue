@@ -6,7 +6,6 @@
     import SubTitle from '@/components/SubTitle.vue';
     import { useRouter } from 'vue-router';
     import BaseInput from '@/components/BaseInput.vue';
-    import BaseTextarea from '@/components/BaseTextarea.vue';
     import { onMounted, ref, watch } from 'vue';
     import { useToast } from 'primevue/usetoast';
     import BaseSwitch from '@/components/BaseSwitch.vue';
@@ -16,6 +15,8 @@
     import { Select } from 'primevue';
     import { useUserRoleStore } from '@/stores/useUserRoleStore';
     import { useCounterStore } from '@/stores/useCounterStore';
+    import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
+    import { errMsgList } from '@/utils/const';
     
     const router = useRouter();
     const toast = useToast();
@@ -42,6 +43,12 @@
     const selectedRole = ref('');
     const selectedCounter = ref('');
     const filteredCounters = ref([]);
+    const errorMsg = ref({
+        name: "",
+        email: "",
+        password: "",
+        role: ""
+    });
 
     // Change route function
     function changeRoute(pathname) {
@@ -83,6 +90,47 @@
 
     // Create branch function
     async function formSubmit() {
+        if (formData.value.name === "") {
+            errorMsg.value = {
+                name: errMsgList.name,
+                role: "",
+                email: "",
+                password: ""
+            };
+            return
+        } else if (!selectedRole.value) {
+            errorMsg.value = {
+                name: "",
+                role: errMsgList.role,
+                email: "",
+                password: ""
+            };
+            return
+        } else if (formData.value.email === "") {
+            errorMsg.value = {
+                name: "",
+                role: "",
+                email: errMsgList.email,
+                password: ""
+            };
+            return
+        } else if (formData.value.password === "") {
+            errorMsg.value = {
+                name: "",
+                role: "",
+                email: "",
+                password: errMsgList.password
+            };
+            return
+        } else if (formData.value.password.length < 8) {
+            errorMsg.value = {
+                name: "",
+                role: "",
+                email: "",
+                password: "Password must have 8 characters."
+            };
+            return
+        }
         formData.value = {
             ...formData.value,
             role_id: selectedRole.value.id,
@@ -133,6 +181,8 @@
                         placeholder="Name"
                         width="300px"
                         height="h-[35px]"
+                        :isRequire="true"
+                        :error="errorMsg.name"
                     />
                 </div>
                 <div class="flex gap-x-4 mt-4">
@@ -140,6 +190,7 @@
                     <div class="flex flex-col gap-y-1">
                         <BaseLabel 
                             label="Role"
+                            :isRequire="true"
                         />
                         <Select 
                             v-model="selectedRole" 
@@ -150,6 +201,7 @@
                             placeholder="Select a branch"
                             class="w-[300px] h-[35px] items-center" 
                         />
+                        <BaseErrorLabel v-if="errorMsg.role" :label="errorMsg.role" />
                     </div>
                     <!-- Branch Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
@@ -167,6 +219,8 @@
                         width="300px"
                         height="h-[35px]"
                         type="email"
+                        :isRequire="true"
+                        :error="errorMsg.email"
                     />
                     <!-- Password -->
                     <BaseInput
@@ -177,6 +231,8 @@
                         height="h-[35px]"
                         type="password"
                         passwordToggle
+                        :isRequire="true"
+                        :error="errorMsg.password"
                     />
                 </div>
                 <div class="flex gap-x-4 mt-4">

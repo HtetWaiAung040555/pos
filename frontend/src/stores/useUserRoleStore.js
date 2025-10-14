@@ -12,8 +12,7 @@ export const useUserRoleStore = defineStore('role', {
     }),
     actions: {
         async fetchAllRole() {
-            this.loading = true
-            this.error = null
+            this.loading = true;
             try {
                 const response = await axios.get(`/roles`);
                 this.roleList = response.data.data;
@@ -25,7 +24,6 @@ export const useUserRoleStore = defineStore('role', {
         },
         async fetchRole(roleId) {
             this.loading = true;
-            this.error = null;
             try {
                 const response = await axios.get(`/roles/${roleId}`);
                 this.roleList = response.data.data;
@@ -37,7 +35,6 @@ export const useUserRoleStore = defineStore('role', {
         },
         async addRole(formData) {
             this.loading = true;
-            this.error = null;
             try {
                 const response = await axios.post(`/roles`, formData);
                 this.roleList = response.data.data;
@@ -50,8 +47,7 @@ export const useUserRoleStore = defineStore('role', {
             }
         },
         async editRole(roleId, formData) {
-            this.loading = true,
-            this.error = null
+            this.loading = true;
             try {
                 const response = await axios.put(`/roles/${roleId}`, formData)
                 this.roleList = response.data.data
@@ -65,8 +61,7 @@ export const useUserRoleStore = defineStore('role', {
             }
         },
         async deleteRole(roleId) {
-            this.deleteLoading = true,
-            this.error = null
+            this.deleteLoading = true;
             try {
                 const response = await axios.delete(`/roles/${roleId}`);
                 this.data = response;
