@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\CustomerResource;
+use App\Models\Customer;
+use Illuminate\Http\Request;
+
+class CustomersController extends Controller
+{
+     public function index()
+    {
+        $customers = Customer::with(['status','createdBy', 'updatedBy'])->get();
+        return CustomerResource::collection($customers);
+    }
+
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'string|max:50',
+            'address' => 'string|max:255',
+            'status_id' => 'required|exists:statuses,id',
+            'is_default' => 'boolean',
+            'created_by' => 'required|exists:users,id',
+            'updated_by' => 'nullable|exists:users,id',
+        ]);
+    
+        $Customer = Customer::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'status_id' => $request->status_id,
+            'is_default' => $request->is_default ?? false,
+            'created_by' => $request->created_by,
+            'updated_by' => $request->updated_by ?? $request->created_by,
+        ]);
+    
+        return new CustomerResource($Customer->fresh(['status', 'createdBy', 'updatedBy']));
+    }
+
+ 
+    public function show(string $id)
+    {
+        $Customer = Customer::with(['status', 'createdBy', 'updatedBy'])->findOrFail($id);
+        return new CustomerResource($Customer);
+    }
+
+
+    public function update(Request $request, string $id)
+    {
+        $Customer = Customer::findOrFail($id);
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'phone' => 'sometimes|required|string|max:50',
+            'address' => 'sometimes|required|string|max:255',
+            'warehouse_id' => 'sometimes|exists:warehouses,id',
+            'status_id' => 'sometimes|required|exists:statuses,id',
+            'is_default' => 'sometimes|boolean',
+            'updated_by' => 'nullable|exists:users,id',
+        ]);
+
+        $data = $request->only(['name', 'phone', 'address', 'status_id', 'updated_by']);
+
+        $Customer->update($data);
+
+        return new CustomerResource($Customer->fresh(['status', 'createdBy', 'updatedBy']));
+    }
+
+    
+    public function destroy(string $id)
+    {
+        try {
+            Customer::findOrFail($id)->delete();
+            return response()->json(['message' => 'Deleted Successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Customer cannot be deleted'], 400);
+        }
+    }
+}

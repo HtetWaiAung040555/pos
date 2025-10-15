@@ -3,10 +3,12 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BranchesController;
 use App\Http\Controllers\Api\CountersController;
+use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\InventoriesController;
 use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\RolesController;
+use App\Http\Controllers\Api\SaleController;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\StatusesController;
 use App\Http\Controllers\Api\WarehousesController;
@@ -61,6 +63,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('/inventories', InventoriesController::class);
 
     Route::apiResource('/warehouses', WarehousesController::class);
+
+    Route::apiResource('/customers', CustomersController::class);
+
+    Route::apiResource('/sales', SaleController::class);
 
 });
 

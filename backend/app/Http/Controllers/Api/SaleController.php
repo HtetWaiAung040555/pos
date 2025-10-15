@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\SaleResource;
+use App\Models\Product;
+use App\Models\Sale;
+use App\Models\SaleDetail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class SaleController extends Controller
+{
+    public function index()
+    {
+        $sales = Sale::with(['customer', 'status', 'details.product', 'createdBy', 'updatedBy'])->get();
+        return SaleResource::collection($sales);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'payment_method' => 'required|string|max:100',
+            'paid_amount' => 'nullable|numeric|min:0',
+            'status_id' => 'required|exists:statuses,id',
+            'created_by' => 'required|exists:users,id',
+            'updated_by' => 'nullable|exists:users,id',
+            'products' => 'required|array|min:1',
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Calculate totals
+            $totalAmount = 0;
+            foreach ($request->products as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                $totalAmount += $product->price * $item['quantity'];
+            }
+
+            // Create Sale
+            $sale = Sale::create([
+                'invoice_no' => 'INV-' . date('Ymd-His'),
+                'customer_id' => $request->customer_id,
+                'total_amount' => $totalAmount,
+                'paid_amount' => $request->paid_amount ?? $totalAmount,
+                'due_amount' => $totalAmount - ($request->paid_amount ?? $totalAmount),
+                'payment_method' => $request->payment_method,
+                'status_id' => $request->status_id,
+                'created_by' => $request->created_by,
+                'updated_by' => $request->updated_by ?? $request->created_by,
+            ]);
+
+            // Create Sale Details
+            foreach ($request->products as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                SaleDetail::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $product->price,
+                    'total' => $product->price * $item['quantity'],
+                ]);
+            }
+
+            DB::commit();
+            return new SaleResource($sale->fresh(['customer', 'status', 'details.product', 'createdBy', 'updatedBy']));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Failed to create sale', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show(string $id)
+    {
+        $sale = Sale::with(['customer', 'status', 'details.product', 'createdBy', 'updatedBy'])->findOrFail($id);
+        return new SaleResource($sale);
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $sale = Sale::findOrFail($id);
+
+        $request->validate([
+            'payment_method' => 'sometimes|required|string|max:100',
+            'paid_amount' => 'sometimes|required|numeric|min:0',
+            'status_id' => 'sometimes|required|exists:statuses,id',
+            'updated_by' => 'nullable|exists:users,id',
+        ]);
+
+        $sale->update($request->only(['payment_method', 'paid_amount', 'status_id', 'updated_by']));
+
+        return new SaleResource($sale->fresh(['customer', 'status', 'details.product', 'createdBy', 'updatedBy']));
+    }
+
+    public function destroy(string $id)
+    {
+        try {
+            Sale::findOrFail($id)->delete();
+            return response()->json(['message' => 'Sale deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Sale cannot be deleted'], 400);
+        }
+    }
+}
