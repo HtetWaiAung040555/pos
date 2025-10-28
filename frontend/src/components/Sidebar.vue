@@ -17,53 +17,73 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
   const menuItems = [
       { 
         name: 'Dashboard', 
-        icon: 'fas fa-tachometer-alt',
+        icon: 'fa fa-tachometer-alt',
         pathname: '/',
         permission: {name: 'Dashboard', action: "View"}
       },
       { 
-        name: 'Sales', 
-        icon: 'fas fa-chart-line',
+        name: 'Sales Management', 
+        icon: 'fa fa-chart-line',
         pathname: '/sales',
-        permission: {name: 'Sales', action: 'View'}
+        permission: {name: 'Sales', action: 'View'},
+        children: [
+          { 
+            name: 'Sales', 
+            icon: 'fa fa-cash-register',
+            pathname: '/sales',
+            permission: {name: 'Sales', action: "View"}
+          },
+          { 
+            name: 'Customers', 
+            icon: 'fa fa-users',
+            pathname: "/customer",
+            permission: {name: 'Customer', action: "View"}
+          },
+        ],
       },
       { 
         name: 'Products', 
-        icon: 'fas fa-box-open',
+        icon: 'fa fa-box-open',
         pathname: "/product",
         permission: {name: 'Product', action: "View"}
       },
       { 
+        name: 'Inventory', 
+        icon: 'fa fa-cubes',
+        pathname: "/inventory",
+        permission: {name: 'Inventory', action: "View"}
+      },
+      { 
         name: 'Settings', 
-        icon: 'fas fa-cogs',
+        icon: 'fa fa-cogs',
         pathname: "",
         permission: {name: 'Setting', action: "View"}
       },
       { 
         name: 'User Role', 
-        icon: 'fas fa-users',
+        icon: 'fa fa-users',
         children: [
           { 
             name: 'User', 
-            icon: 'fas fa-user-tie',
+            icon: 'fa fa-user-tie',
             pathname: '/user',
             permission: {name: 'User', action: "View"}
           },
           { 
             name: 'Role & Permission', 
-            icon: 'fas fa-sitemap',
+            icon: 'fa fa-sitemap',
             pathname: "/role",
             permission: {name: 'Role', action: "View"}
           },
           { 
             name: 'Branch', 
-            icon: 'fas fa-warehouse',
+            icon: 'fa fa-warehouse',
             pathname: '/branch',
             permission: { name: 'Branch', action: 'View' }
           },
           { 
             name: 'Counter', 
-            icon: 'fas fa-computer',
+            icon: 'fa fa-computer',
             pathname: "/counter",
             permission: {name: 'Counter', action: "View"}
           }

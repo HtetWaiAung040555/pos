@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, defineExpose } from "vue";
 import BaseErrorLabel from "./BaseErrorLabel.vue";
 
 const props = defineProps({
@@ -60,6 +60,16 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 const showPassword = ref(false);
+const inputEl = ref(null);
+
+function focus(){
+  inputEl.value?.focus();
+}
+
+defineExpose({
+  focus,
+  inputEl
+});
 
 const sizeClasses = computed(() => {
   switch (props.size) {
@@ -116,6 +126,7 @@ function togglePassword() {
     >
       <!-- Input -->
       <input
+        ref="inputEl"
         :type="inputType"
         :value="modelValue"
         :placeholder="placeholder"
@@ -123,7 +134,7 @@ function togglePassword() {
         :readonly="readonly"
         :style="{ height: styleHeight }"
         :class="`
-          border rounded text-[14px] outline-none transition placeholder:text-[13px] placeholder:text-[#7f858b] focus:border-black w-full
+          border rounded text-[14px] outline-none transition text-black placeholder:text-[13px] placeholder:text-[#7f858b] focus:border-black w-full
           ${sizeClasses} ${borderClasses}
           ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}
           ${height.includes('h-') ? height : ''}

@@ -5,8 +5,7 @@
   import BaseButton from './BaseButton.vue';
   import { useRoute, useRouter } from 'vue-router';
   import { useUserStore } from '@/stores/useUserStore';
-import { usePermissionStore } from '@/stores/usePermissionStore';
-import BaseInput from './BaseInput.vue';
+  import { usePermissionStore } from '@/stores/usePermissionStore';
 
   const collapseSidebar = useCollapseSidebar();
   const openDropdown = ref(false);
@@ -67,11 +66,18 @@ import BaseInput from './BaseInput.vue';
         >
           <div class="flex items-center gap-x-2">
             <i  class="fa fa-user-circle text-2xl"></i>
-            <span
-              class="text-sm transition-all duration-300 origin-left"
-            >
-              {{ userData?.name }}
-            </span>
+            <div class="flex flex-col">
+              <span
+                class="text-sm transition-all duration-300 origin-left"
+              >
+                {{ userData?.name }}
+              </span>
+              <span
+                class="text-[11px] transition-all duration-300 origin-left"
+              >
+                {{ userData.branch?.name }}
+              </span>
+            </div>
             <!-- <i :class="openDropdown? 'fa fa-chevron-up' : 'fa fa-chevron-down'" class="text-sm"></i> -->
           </div>
         </div>

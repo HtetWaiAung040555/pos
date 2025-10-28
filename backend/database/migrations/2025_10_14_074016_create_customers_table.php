@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('phone');
-            $table->string('address');
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
             $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
             $table->boolean('is_default')->default(false);
             $table->unsignedBigInteger('created_by');

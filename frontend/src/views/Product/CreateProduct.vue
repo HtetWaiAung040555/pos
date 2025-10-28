@@ -231,8 +231,16 @@
                         :error="errorMsg.price"
                     />
                 </div>
-                <div class="flex justify-end mt-4">
+                <div class="flex justify-end gap-x-2 mt-4">
                     <!-- Save Button -->
+                     <BaseButton 
+                        label="Save & New" 
+                        variant="outlined"
+                        :isLoading="useProduct.loading" :icon="useProduct.loading? 'fa fa-spinner' : 'fa fa-file-arrow-up'" 
+                        severity="primary" 
+                        @click="formSubmit" 
+                        :disabled="useProduct.loading"  
+                    />
                     <BaseButton 
                         label="Save" 
                         :isLoading="useProduct.loading" :icon="useProduct.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" 

@@ -20,8 +20,8 @@ class CustomersController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'string|max:50',
-            'address' => 'string|max:255',
+            'phone' => 'nullable|string|max:50',
+            'address' => 'nullable|string|max:255',
             'status_id' => 'required|exists:statuses,id',
             'is_default' => 'boolean',
             'created_by' => 'required|exists:users,id',
@@ -55,8 +55,8 @@ class CustomersController extends Controller
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'phone' => 'sometimes|required|string|max:50',
-            'address' => 'sometimes|required|string|max:255',
+            'phone' => 'sometimes|string|max:50',
+            'address' => 'sometimes|string|max:255',
             'warehouse_id' => 'sometimes|exists:warehouses,id',
             'status_id' => 'sometimes|required|exists:statuses,id',
             'is_default' => 'sometimes|boolean',

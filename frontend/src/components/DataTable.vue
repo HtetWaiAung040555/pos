@@ -201,7 +201,7 @@ function confirmDelete() {
       </div>
 
       <!-- Pagination -->
-      <div class="sticky bottom-0 bg-white border-t border-gray-200 p-3">
+      <div class="sticky bottom-0 bg-white border-t border-gray-200">
         <div class="flex items-center justify-end mt-3 gap-2">
           <BaseButton 
             icon="fa fa-chevron-left" 

@@ -8,64 +8,66 @@
     import { useToast } from 'primevue';
     import moment from 'moment'
     import { useFilterStore } from '@/stores/filterStore';
-    import { useUserRoleStore } from '@/stores/useUserRoleStore';
     import { usePermissionStore } from '@/stores/usePermissionStore';
-import BaseInput from '@/components/BaseInput.vue';
+    import BaseInput from '@/components/BaseInput.vue';
+    import { useInventoryStore } from '@/stores/useInventoryStore';
 
     const router = useRouter();
-    const useRole = useUserRoleStore();
     const toast = useToast();
     const filter = useFilterStore();
     const usePermission = usePermissionStore();
+    const useInventory = useInventoryStore();
+
     const searchValue = ref('');
     const startDate = ref('');
     const endDate = ref('');
-    const roleList = ref([]);
+    const dataList = ref([]);
 
     onMounted(async () => {
-      await useRole.fetchAllRole();
-      roleList.value = useRole.roleList;
+        await useInventory.fetchAllStock();
+        const inventory = useInventory.stockList.filter(item => item.warehouse.id === JSON.parse(localStorage.getItem('user')).branch.warehouse_id);
+        dataList.value = inventory;
     });
 
-    // Table header
+    // Table headers
     const columns = [
         { key: 'id', label: 'ID' },
-        { key: 'name', label: 'Name' },
-        { key: 'desc', label: 'Description' },
-        { key: 'status', label: 'Status', formatter: (row) => {
-            const color = row.status.name === 'Active' ? 'bg-green-500 text-white rounded-md py-1 px-2' : 'bg-red-500 text-white rounded-md py-1 px-2';
-            return `<span class="text-white px-2 py-1 rounded ${color}">${row.status.name}</span>`;
+        { key: 'image_url', label: 'Image', formatter: (row) => {
+            return `<img class="object-cover w-10 h-10 rounded" src="${row.product.image_url}" alt="${row.product.name}" />`;
         } },
-        { key: 'created_by.name', label: 'Created By', formatter: (row) => row.created_by.name },
+        { key: 'product.name', label: 'Product', formatter: (row) => row.product.name },
+        { key: 'warehouse.name', label: 'Warehouse', formatter: (row) => row.warehouse.name },
+        { key: 'qty', label: 'Qty' },
+        { key: 'created_by', label: 'Created By', formatter: (row) => row.created_by },
         { key: 'created_at', label: 'Created At', formatter: (row) => moment(row.created_at).format('DD-MM-YY hh:mm') },
-        { key: 'updated_by.name', label: 'Updated By', formatter: (row) => row.updated_by.name },
+        { key: 'updated_by', label: 'Updated By', formatter: (row) => row.updated_by },
         { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
     ];
 
-    // Change route function
+    // Route change function: need to pass route path.
     function changeRoute(pathname) {
         router.push(pathname);
     }
 
-    // Filter function
+    // Filter Function
     const filteredRows = computed(() => {
-        const searchedData = filter.searchFunction(roleList.value, searchValue.value, [
+        const searchedData = filter.searchFunction(dataList.value, searchValue.value, [
             "name",
         ]);
-        return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value });
+        return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value })
     });
 
-    // Role delete function
+    //Branch delete function
     async function deleteHandle(id) {
-        await useRole.deleteRole(id);
-        if(useRole.error) {
-            toast.add({ severity: 'error', summary: 'Error Message', detail: useRole.error, life: 3000 });
+        await useUser.deleteUser(id);
+        if(useUser.error) {
+            toast.add({ severity: 'error', summary: 'Error Message', detail: useUser.error, life: 3000 });
             return
         }
-        if (useRole.data.status === 200) {
-            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Branch deleted successfully.', life: 3000 });
-            await useRole.fetchAllBranch();
-            roleList.value = useRole.roleList
+        if (useUser.data.status === 200) {
+            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Inventory deleted successfully.', life: 3000 });
+            await useUser.fetchAllUsers();
+            dataList.value = useUser.users;
         }
     }
 
@@ -73,32 +75,33 @@ import BaseInput from '@/components/BaseInput.vue';
 
 <template>
     <div class="p-4">
-        <!-- Page title -->
-        <PageTitle title="Role List">
+        <!-- Page Title -->
+        <PageTitle title="Stock List">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
                     <BaseButton 
-                        v-if="usePermission.can('Role', 'Create')"
+                        v-if="usePermission.can('Inventory', 'Create')"
                         icon="fa fa-circle-plus" 
                         label="Create" 
                         severity="primary" 
-                        @click="changeRoute('/role/create')" 
+                        @click="changeRoute('/inventory/create')"  
                     />
                 </div>
             </template>
         </PageTitle>
-        <!-- Displaying role data -->
-        <DataTable 
-            :columns="columns" 
-            :rows="filteredRows" 
-            :pageSize="5" 
-            :editPath="'Update Role'" 
-            :isLoading="useRole.loading" 
-            @delete="deleteHandle"
+        <!-- DataTable -->
+        <DataTable
+            :columns="columns"
+            :rows="filteredRows"
+            :pageSize="5"
+            :editPath="'Update Inventory'"
+            :isLoading="useInventory.loading"
             :defaultSort="{key: 'created_at', order: 'desc'}"
-            :isEdit="!usePermission.can('Role', 'Update')"
-            :isDelete="!usePermission.can('Role', 'Delete')"
+            :isEdit="!usePermission.can('Inventory', 'Update')"
+            :isDelete="!usePermission.can('Inventory', 'Delete')"
+            @delete="deleteHandle"
         >
+            <!-- Filter Section -->
             <template #filters>
                 <div class="flex gap-2">
                     <BaseInput

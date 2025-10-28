@@ -10,6 +10,7 @@
     import moment from 'moment'
     import { useFilterStore } from '@/stores/filterStore';
     import { usePermissionStore } from '@/stores/usePermissionStore';
+import BaseInput from '@/components/BaseInput.vue';
 
     const router = useRouter();
     const useBranch = useBranchStore();
@@ -106,13 +107,29 @@
             <!-- Filter Section -->
             <template #filters>
                 <div class="flex gap-2">
-                    <input v-model="startDate" type="date" class="border rounded px-2 py-1" />
-                    <input v-model="endDate" type="date" class="border rounded px-2 py-1" />
-                    <input
-                        type="text"
+                    <BaseInput
+                        size="sm"
+                        type="date"
+                        v-model="startDate"
+                        placeholder="Search"
+                        width="200px"
+                        height="h-[35px]"
+                    />
+                    <BaseInput
+                        size="sm"
+                        type="date"
+                        v-model="endDate"
+                        placeholder="Search"
+                        width="200px"
+                        height="h-[35px]"
+                    />
+                    <BaseInput
+                        size="sm"
                         v-model="searchValue"
-                        placeholder="Search..."
-                        class="border rounded px-2 py-1"
+                        placeholder="Search"
+                        width="200px"
+                        height="h-[35px]"
+                        icon="pi pi-search"
                     />
                 </div>
             </template>

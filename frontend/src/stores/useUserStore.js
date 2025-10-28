@@ -98,6 +98,8 @@ export const useUserStore = defineStore('user', {
                     localStorage.setItem('user', JSON.stringify({
                         id: response.data.user.id,
                         name: response.data.user.name,
+                        branch: response.data.user.branch,
+                        counter: response.data.user.counter,
                         permissions: [...response.data.user.role.permissions]
                     }));
                 }

@@ -84,7 +84,7 @@
     });
 
 
-    // Create branch function
+    // Update user function
     async function formSubmit() {
         if (formData.value.name === "") {
             errorMsg.value = {

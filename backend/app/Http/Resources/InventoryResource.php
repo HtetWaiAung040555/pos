@@ -19,6 +19,9 @@ class InventoryResource extends JsonResource
                 'name'     => $this->product->name,
                 'barcode'  => $this->product->barcode,
                 'image_url'=> $this->product->image ? asset($this->product->image) : null,
+                'price'    => $this->product->price,
+                'unit'     => $this->product->unit,
+                'sec_prop' => $this->product->sec_prop
             ] : null,
 
             'warehouse'     => $this->warehouse ? [

@@ -32,6 +32,11 @@ import Receipt from './views/Receipt.vue';
 import Product from './views/Product/Product.vue';
 import CreateProduct from './views/Product/CreateProduct.vue';
 import UpdateProduct from './views/Product/UpdateProduct.vue';
+import Inventory from './views/Inventory/Inventory.vue';
+import CreateInventory from './views/Inventory/CreateInventory.vue';
+import UpdateInventory from './views/Inventory/UpdateInventory.vue';
+import Customer from './views/Customer/Customer.vue';
+import CreateCustomer from './views/Customer/CreateCustomer.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -60,6 +65,12 @@ const router = createRouter({
         {path: '/product', name: 'Product', component: Product, meta: { requiresAuth: true }},
         {path: '/product/create', name: 'Create Product', component: CreateProduct, meta: { requiresAuth: true }},
         {path: '/product/update', name: 'Update Product', component: UpdateProduct, meta: { requiresAuth: true }},
+        {path: '/inventory', name: 'Inventory', component: Inventory, meta: { requiresAuth: true }},
+        {path: '/inventory/create', name: 'Create Inventory', component: CreateInventory, meta: { requiresAuth: true }},
+        {path: '/inventory/update', name: 'Update Inventory', component: UpdateInventory, meta: { requiresAuth: true }},
+        {path: '/customer', name: 'Customer', component: Customer, meta: { requiresAuth: true }},
+        {path: '/customer/create', name: 'Create Customer', component: CreateCustomer, meta: { requiresAuth: true }},
+        {path: '/customer/update', name: 'Update Customer', component: CreateCustomer, meta: { requiresAuth: true }},
         { path: '/', redirect: '/login' }
     ]
 });

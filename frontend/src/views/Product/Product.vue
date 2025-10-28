@@ -31,7 +31,7 @@
     // Table headers
     const columns = [
         { key: 'id', label: 'ID' },
-        { key: 'status', label: 'Status', formatter: (row) => {
+        { key: 'image_url', label: 'Image', formatter: (row) => {
             return `<img class="object-cover w-10 h-10 rounded" src="${row.image_url}" alt="${row.name}" />`;
         } },
         { key: 'name', label: 'Name' },
@@ -103,8 +103,8 @@
             :editPath="'Update Product'"
             :isLoading="useProduct.loading"
             :defaultSort="{key: 'created_at', order: 'desc'}"
-            :isEdit="!usePermission.can('User', 'Update')"
-            :isDelete="!usePermission.can('User', 'Delete')"
+            :isEdit="!usePermission.can('Product', 'Update')"
+            :isDelete="!usePermission.can('Product', 'Delete')"
             @delete="deleteHandle"
         >
             <!-- Filter Section -->
