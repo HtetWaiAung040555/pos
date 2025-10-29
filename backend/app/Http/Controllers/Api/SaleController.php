@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SaleResource;
+use App\Models\Inventory;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleDetail;
+use App\Models\StockTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -55,14 +57,39 @@ class SaleController extends Controller
             ]);
 
             // Create Sale Details
+            // Create Sale Details & reduce inventory
             foreach ($request->products as $item) {
                 $product = Product::findOrFail($item['product_id']);
-                SaleDetail::create([
+
+                // Create SaleDetail
+                $detail = SaleDetail::create([
                     'sale_id' => $sale->id,
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
                     'price' => $product->price,
                     'total' => $product->price * $item['quantity'],
+                ]);
+
+                // Reduce inventory
+                $inventory = Inventory::where('product_id', $product->id)
+                    ->where('warehouse_id', $request->warehouse_id)
+                    ->firstOrFail();
+
+                if ($inventory->qty < $item['quantity']) {
+                    throw new \Exception("Not enough stock for product: {$product->name}");
+                }
+
+                $inventory->decrement('qty', $item['quantity']);
+
+                // Create stock transaction
+                StockTransaction::create([
+                    'inventory_id' => $inventory->id,
+                    'reference_id' => $sale->id,
+                    'reference_type' => 'sale',
+                    'quantity_change' => -$item['quantity'],
+                    'type' => 'out',
+                    'created_by' => $request->created_by,
+                    'updated_by' => $request->updated_by ?? $request->created_by,
                 ]);
             }
 
