@@ -37,6 +37,7 @@ import CreateInventory from './views/Inventory/CreateInventory.vue';
 import UpdateInventory from './views/Inventory/UpdateInventory.vue';
 import Customer from './views/Customer/Customer.vue';
 import CreateCustomer from './views/Customer/CreateCustomer.vue';
+import CreatePayment from './views/CreatePayment.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -71,6 +72,7 @@ const router = createRouter({
         {path: '/customer', name: 'Customer', component: Customer, meta: { requiresAuth: true }},
         {path: '/customer/create', name: 'Create Customer', component: CreateCustomer, meta: { requiresAuth: true }},
         {path: '/customer/update', name: 'Update Customer', component: CreateCustomer, meta: { requiresAuth: true }},
+        {path: '/payment/create', name: 'Create Payment', component: CreatePayment, meta: { requiresAuth: true }},
         { path: '/', redirect: '/login' }
     ]
 });
