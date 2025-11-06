@@ -19,6 +19,7 @@ class CustomersController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'id' => 'required',
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
@@ -29,6 +30,7 @@ class CustomersController extends Controller
         ]);
     
         $Customer = Customer::create([
+            'id' => $request->id,
             'name' => $request->name,
             'phone' => $request->phone,
             'address' => $request->address,
@@ -57,7 +59,6 @@ class CustomersController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'phone' => 'sometimes|string|max:50',
             'address' => 'sometimes|string|max:255',
-            'warehouse_id' => 'sometimes|exists:warehouses,id',
             'status_id' => 'sometimes|required|exists:statuses,id',
             'is_default' => 'sometimes|boolean',
             'updated_by' => 'nullable|exists:users,id',
@@ -80,4 +81,19 @@ class CustomersController extends Controller
             return response()->json(['error' => 'Customer cannot be deleted'], 400);
         }
     }
+
+    public function getLastId()
+    {
+        // Get the last customer by creation time (or by ID descending)
+        $lastCustomer = Customer::orderBy('id', 'desc')->first();
+
+        if ($lastCustomer) {
+            $lastId = $lastCustomer->id;
+        } else {
+            $lastId = null;
+        }
+
+        return response()->json(['last_id' => $lastId]);
+    }
+
 }

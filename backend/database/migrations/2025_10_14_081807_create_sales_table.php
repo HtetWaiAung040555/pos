@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_no');
-            $table->foreignId('customer_id')->constrained('customers')->restrictOnDelete();
+            $table->string('customer_id');
+            $table->foreign('customer_id')->references('id')->on('customers')->restrictOnDelete();
             $table->decimal('total_amount',11,2);
             $table->decimal('paid_amount',11,2);
             $table->decimal('due_amount',11,2);
