@@ -19,8 +19,13 @@ class Sale extends Model
         'due_amount',
         'payment_method',
         'status_id',
+        'sale_date',
         'created_by',
         'updated_by'
+    ];
+
+    protected $casts = [
+        'sale_date' => 'datetime',
     ];
 
     public function details()
