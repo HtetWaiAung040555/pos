@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('due_amount',11,2);
             $table->string('payment_method');
             $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
+            $table->dateTime('sale_date');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
             $table->timestamps();

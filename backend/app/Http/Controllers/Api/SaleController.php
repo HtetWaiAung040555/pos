@@ -29,6 +29,7 @@ class SaleController extends Controller
             'status_id' => 'required|exists:statuses,id',
             'created_by' => 'required|exists:users,id',
             'updated_by' => 'nullable|exists:users,id',
+            'sale_date' => 'nullable|date',
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
@@ -52,6 +53,7 @@ class SaleController extends Controller
                 'due_amount' => $totalAmount - ($request->paid_amount ?? $totalAmount),
                 'payment_method' => $request->payment_method,
                 'status_id' => $request->status_id,
+                'sale_date' => $request->sale_date ?? now(),
                 'created_by' => $request->created_by,
                 'updated_by' => $request->updated_by ?? $request->created_by,
             ]);
@@ -115,10 +117,11 @@ class SaleController extends Controller
             'payment_method' => 'sometimes|required|string|max:100',
             'paid_amount' => 'sometimes|required|numeric|min:0',
             'status_id' => 'sometimes|required|exists:statuses,id',
+            'sale_date' => 'sometimes|date',
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        $sale->update($request->only(['payment_method', 'paid_amount', 'status_id', 'updated_by']));
+        $sale->update($request->only(['payment_method', 'paid_amount', 'status_id', 'sale_date','updated_by']));
 
         return new SaleResource($sale->fresh(['customer', 'status', 'details.product', 'createdBy', 'updatedBy']));
     }
