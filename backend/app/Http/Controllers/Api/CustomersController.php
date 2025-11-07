@@ -19,7 +19,7 @@ class CustomersController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id' => 'required',
+            'id' => 'required|unique:customers,id',
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
@@ -85,7 +85,7 @@ class CustomersController extends Controller
     public function getLastId()
     {
         // Get the last customer by creation time (or by ID descending)
-        $lastCustomer = Customer::orderBy('id', 'desc')->first();
+        $lastCustomer = Customer::orderBy('created_at', 'desc')->first();
 
         if ($lastCustomer) {
             $lastId = $lastCustomer->id;
