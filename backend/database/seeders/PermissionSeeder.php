@@ -35,7 +35,23 @@ class PermissionSeeder extends Seeder
             ['id' => 22, 'name' => 'Role', 'action' => 'View', 'created_by' => 1, 'updated_by' => 1],
             ['id' => 23, 'name' => 'Role', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
             ['id' => 24, 'name' => 'Role', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
-            ['id' => 25, 'name' => 'Role', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1]
+            ['id' => 25, 'name' => 'Role', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 26, 'name' => 'Warehouse', 'action' => 'View', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 27, 'name' => 'Warehouse', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 28, 'name' => 'Warehouse', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 29, 'name' => 'Warehouse', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 30, 'name' => 'Product', 'action' => 'View', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 31, 'name' => 'Product', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 32, 'name' => 'Product', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 33, 'name' => 'Product', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 34, 'name' => 'Inventory', 'action' => 'View', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 35, 'name' => 'Inventory', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 36, 'name' => 'Inventory', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 37, 'name' => 'Inventory', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 38, 'name' => 'Customer', 'action' => 'View', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 39, 'name' => 'Customer', 'action' => 'Create', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 40, 'name' => 'Customer', 'action' => 'Update', 'created_by' => 1, 'updated_by' => 1],
+            ['id' => 41, 'name' => 'Customer', 'action' => 'Delete', 'created_by' => 1, 'updated_by' => 1]
         ];
 
         foreach ($permissions as $permission) {

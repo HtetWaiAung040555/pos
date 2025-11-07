@@ -14,6 +14,7 @@ class Customer extends Model
     protected $keyType = 'string';
     public $incrementing = false;
     protected $fillable = [
+        'id',
         'name',
         'phone',
         'address',
@@ -35,20 +36,20 @@ class Customer extends Model
         return $this->belongsTo(User::class, 'updated_by'); 
     }
 
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::creating(function ($customer) {
-            if (empty($customer->id)) {
-                $last = self::latest('id')->first();
-                if ($last) {
-                    $number = intval(str_replace('FMC-', '', $last->id)) + 1;
-                } else {
-                    $number = 1;
-                }
-                $customer->id = 'FMC-' . str_pad($number, 6, '0', STR_PAD_LEFT);
-            }
-        });
-    }
+    //     static::creating(function ($customer) {
+    //         if (empty($customer->id)) {
+    //             $last = self::latest('id')->first();
+    //             if ($last) {
+    //                 $number = intval(str_replace('FMC-', '', $last->id)) + 1;
+    //             } else {
+    //                 $number = 1;
+    //             }
+    //             $customer->id = 'FMC-' . str_pad($number, 6, '0', STR_PAD_LEFT);
+    //         }
+    //     });
+    // }
 }
