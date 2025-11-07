@@ -14,9 +14,15 @@ use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sale::with(['customer', 'status', 'details.product', 'createdBy', 'updatedBy'])->get();
+        $query = Sale::with(['customer', 'status', 'details.product', 'createdBy', 'updatedBy']);
+
+        if ($request->has('status_id') && !empty($request->status_id)) {
+            $query->where('status_id', $request->status_id);
+        }
+
+        $sales = $query->get();
         return SaleResource::collection($sales);
     }
 
