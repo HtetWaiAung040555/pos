@@ -81,7 +81,7 @@ class ProductsController extends Controller
             'unit'       => 'nullable|string|max:255',
             'sec_prop'   => 'nullable|string|max:255',
             'price'      => 'sometimes|required|numeric|min:0',
-            'barcode'    => 'nullable|string|max:255|unique:products,barcode',
+            'barcode'    => 'nullable|string|max:255',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'status_id'  => 'sometimes|exists:statuses,id',
             'updated_by' => 'nullable|exists:users,id',

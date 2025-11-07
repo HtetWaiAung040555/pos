@@ -7,13 +7,12 @@
     import { useRouter } from 'vue-router';
     import BaseInput from '@/components/BaseInput.vue';
     import BaseTextarea from '@/components/BaseTextarea.vue';
-    import { onMounted, ref } from 'vue';
+    import { onMounted, ref, watch } from 'vue';
+    import QRCode from 'qrcode';
     import { useToast } from 'primevue/usetoast';
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import BaseLabel from '@/components/BaseLabel.vue';
     import { errMsgList } from '@/utils/const';
-    import { Select } from 'primevue';
-    import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
     import { useCustomerStore } from '@/stores/useCustomerStore';
     
     const router = useRouter();
@@ -32,6 +31,7 @@
         updated_by: ""
       }
     )
+        const qrDataUrl = ref('');
     const customerStatus = ref(true);
     const userData = ref({});
     const errorMsg = ref({
@@ -47,7 +47,82 @@
         userData.value = JSON.parse(localStorage.getItem('user'));
         await useCustomer.fetchLastCustomerId();
         console.log(useCustomer.lastId);
+        // generate initial auto code
+        generateCustomerCode();
     });
+
+    // Watch code field and generate QR whenever it changes
+    watch(() => formData.value.id, async (newVal) => {
+        if (!newVal) {
+            qrDataUrl.value = '';
+            return;
+        }
+        try {
+            qrDataUrl.value = await QRCode.toDataURL(newVal, { width: 300 });
+        } catch (err) {
+            console.error('Failed to generate QR', err);
+            qrDataUrl.value = '';
+        }
+    });
+
+    // 1) Auto-generate customer code (e.g., FMC-0001)
+    function generateCustomerCode() {
+        // Default values when there is no lastId
+        const defaultPrefix = 'FMC';
+        const defaultSep = '-';
+
+        const lastRaw = useCustomer.lastId;
+        console.log('Last ID:', lastRaw);
+        let lastSerial = 0;
+        let pad = 4; // default serial padding
+        let prefix = defaultPrefix;
+        let sep = defaultSep;
+
+        if (lastRaw) {
+            // Try to extract trailing digits and use their length as padding
+            const m = lastRaw.match(/(\d+)$/);
+            if (m) {
+                lastSerial = parseInt(m[1], 10) || 0;
+                pad = m[1].length;
+                // prefix part is everything before the digits
+                let p = lastRaw.slice(0, lastRaw.length - m[1].length).trim();
+                if (p.endsWith('-') || p.endsWith('_')) {
+                    sep = p.slice(-1);
+                    prefix = p.slice(0, -1);
+                } else if (p.length > 0) {
+                    // No explicit separator, keep p as prefix and use default sep
+                    prefix = p;
+                }
+            } else if (!isNaN(Number(lastRaw))) {
+                // lastRaw is numeric string like "123"
+                lastSerial = Number(lastRaw);
+                pad = Math.max(4, String(lastSerial).length);
+            }
+        }
+
+        const next = lastSerial + 1;
+        const serial = String(next).padStart(pad, '0');
+        formData.value.id = `${prefix}${sep}${serial}`;
+    }
+
+    // 2) Print QR code image (opens printable window)
+    function printQr() {
+        if (!qrDataUrl.value) return;
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
+        if (!printWindow) {
+            alert('Unable to open print window. Please allow popups.');
+            return;
+        }
+        printWindow.document.write(`<!doctype html><html><head><title>Print QR</title><style>body{display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}img{max-width:100%;}</style></head><body><img src="${qrDataUrl.value}" alt="QR"/></body></html>`);
+        printWindow.document.close();
+        // Give the image a moment to load then print
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            // Optionally close after print
+            // printWindow.close();
+        }, 500);
+    }
 
     // Create branch function
     async function formSubmit() {
@@ -62,6 +137,14 @@
             created_by: userData.value.id,
             status_id: customerStatus.value? '1' : '2'
         };
+        // Ensure QR is generated for the code before submit (if needed server-side)
+        if (!qrDataUrl.value && formData.value.id) {
+            try {
+                qrDataUrl.value = await QRCode.toDataURL(formData.value.id, { width: 200 });
+            } catch (err) {
+                console.error('Failed to generate QR before submit', err);
+            }
+        }
         console.log(formData.value);
         await useCustomer.addCustomer(formData.value);
         if(useCustomer.error) {
@@ -96,7 +179,7 @@
                 <!-- Form section subtitle -->
                 <SubTitle label="Basic Info" />
                 <div class="flex gap-x-4 mt-6">
-                    <BaseInput
+                    <!-- <BaseInput
                         size="sm"
                         v-model="formData.id"
                         label="Code"
@@ -105,7 +188,21 @@
                         height="h-[35px]"
                         :isRequire="true"
                         :error="errorMsg.name"
-                    />
+                    /> -->
+                    <!-- QR Display and Print -->
+                    <div class="flex items-center gap-x-3 ml-4">
+                        <div class="flex flex-col gap-y-2 items-center justify-center">
+                            <div class="w-[140px] h-[140px] bg-white flex items-center justify-center border">
+                                <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR Code" class="max-w-full max-h-full" />
+                                <div v-else class="text-xs text-gray-400">QR will appear here</div>
+                            </div>
+                            <BaseLabel v-if="formData.id" :label="formData.id" class="text-sm" />
+                        </div>
+                        <div class="flex flex-col gap-y-2">
+                            <BaseButton label="Generate" severity="secondary" @click="generateCustomerCode" />
+                            <BaseButton label="Print QR" severity="primary" @click="printQr" :disabled="!qrDataUrl" />
+                        </div>
+                    </div>
                 </div>
                 <div class="flex gap-x-4 mt-6">
                     <!-- Customer Name Input -->

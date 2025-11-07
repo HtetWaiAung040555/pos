@@ -7,11 +7,17 @@
   import { Dialog, Select } from 'primevue';
   import { computed, nextTick, onMounted, ref, watch } from 'vue';
   import axios from 'axios';
+  import { useStatusStore } from '@/stores/useStatusStore';
+import moment from 'moment';
+import { useSaleStore } from '@/stores/useSalesStore';
 
   const useInventory = useInventoryStore();
   const useCustomer = useCustomerStore();
+  const useStatus = useStatusStore();
+  const useSales = useSaleStore();
 
   const productList = ref([]);
+  const userData = ref({});
   const selectedProducts = ref([]);
   const salesData = ref({
     customer_id: '',
@@ -37,7 +43,9 @@
   onMounted( async() => {
       await useInventory.fetchAllStock();
       await useCustomer.fetchAllCustomer();
+      await useStatus.fetchAllStatus();
       const inventory = useInventory.stockList.filter(item => item.warehouse.id === JSON.parse(localStorage.getItem('user')).branch.warehouse_id);
+      userData.value = JSON.parse(localStorage.getItem('user'));
       selectedCustomer.value = useCustomer.customerList.find(c => c.is_default);
       productList.value = inventory;
       // Always keep barcode input focused
@@ -170,30 +178,26 @@ async function holdSale() {
   // Build payload expected by backend. Assumptions noted below.
   const payload = {
     customer_id: selectedCustomer.value?.id ?? null,
-    items: selectedProducts.value.map(p => ({
+    paid_amount: 0,
+    warehouse_id: userData.value.branch.warehouse_id,
+    products: selectedProducts.value.map(p => ({
       product_id: p.id,
-      qty: p.qty,
+      quantity: p.qty,
       price: p.price
     })),
-    total: selectedProducts.value.reduce((sum, item) => sum + (item.qty * item.price), 0),
-    status: 'hold'
+    payment_method: 'Cash',
+    sale_date: new Date().toISOString(),
+    status_id: useStatus.statusList.find(el => el.name === 'Hold').id,
+    created_by: JSON.parse(localStorage.getItem('user')).id,
   };
 
   holdList.value = [
     ...holdList.value,
     payload
   ];
+  console.log(payload);
+  await useSales.addSales(payload);
   selectedProducts.value = [];
-
-  // try {
-  //   const res = await axios.post(`/sales/holds`, payload);
-  //   // If backend returns saved hold, refresh list and clear current cart
-  //   await fetchHoldList();
-  //   selectedProducts.value = [];
-  // } catch (err) {
-  //   console.error('Failed to hold sale', err);
-  //   // Optionally show user toast here
-  // }
 }
 
 async function fetchHoldList() {
@@ -329,10 +333,16 @@ async function deleteHold(hold) {
                   v-model="selectedCustomer" 
                   :options="useCustomer.customerList" 
                   filter
-                  optionLabel="name"
+                  optionLabel="id"
                   placeholder="Select a customer"
                   class="w-[200px] h-[30px] items-center" 
-              />
+              >
+              <template #option="slotProps">
+                <div class="flex items-center text-[13px]">
+                  {{ slotProps.option.id  }} | {{ slotProps.option.name }}
+                </div>
+              </template>
+              </Select>
           </div>
 
           <!-- Scrollable Cart Table -->
