@@ -3,7 +3,7 @@ import './style.css'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from './views/Home.vue';
-import Sales from './views/Sales.vue';
+import Sales from './views/POS/Sales.vue';
 import Login from './components/Login.vue';
 import Register from './components/Register.vue';
 import { createPinia } from 'pinia';
@@ -28,7 +28,7 @@ import UpdateUser from './views/User/UpdateUser.vue';
 import Counter from './views/Counter/Counter.vue';
 import CreateCounter from './views/Counter/CreateCounter.vue';
 import UpdateCounter from './views/Counter/UpdateCounter.vue';
-import Receipt from './views/Receipt.vue';
+import Receipt from './views/POS/Receipt.vue';
 import Product from './views/Product/Product.vue';
 import CreateProduct from './views/Product/CreateProduct.vue';
 import UpdateProduct from './views/Product/UpdateProduct.vue';
@@ -37,7 +37,7 @@ import CreateInventory from './views/Inventory/CreateInventory.vue';
 import UpdateInventory from './views/Inventory/UpdateInventory.vue';
 import Customer from './views/Customer/Customer.vue';
 import CreateCustomer from './views/Customer/CreateCustomer.vue';
-import CreatePayment from './views/CreatePayment.vue';
+import CreatePayment from './views/POS/CreatePayment.vue';
 
 const router = createRouter({
     history: createWebHistory(),

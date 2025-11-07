@@ -196,7 +196,11 @@
               :key="item.id"
               class="border-t border-gray-100"
             >
-              <td class="py-1 w-[150px] line-clamp-2">{{ item.name }}</td>
+              <td class="py-1 w-[150px]">
+                <span class="line-clamp-2">
+                  {{ item.name }}
+                </span>
+              </td>
               <td class="py-1 text-center">{{ item.qty }}</td>
               <td class="py-1 text-right">{{ item.price.toLocaleString() }}</td>
               <td class="py-1 text-right">

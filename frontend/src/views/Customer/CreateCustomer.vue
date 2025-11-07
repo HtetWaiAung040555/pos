@@ -22,6 +22,7 @@
 
     const formData = ref(
       {
+        id: "",
         name: "",
         phone: "",
         address: "",
@@ -44,6 +45,8 @@
 
     onMounted(async() => {
         userData.value = JSON.parse(localStorage.getItem('user'));
+        await useCustomer.fetchLastCustomerId();
+        console.log(useCustomer.lastId);
     });
 
     // Create branch function
@@ -92,6 +95,18 @@
             <template #cardElements>
                 <!-- Form section subtitle -->
                 <SubTitle label="Basic Info" />
+                <div class="flex gap-x-4 mt-6">
+                    <BaseInput
+                        size="sm"
+                        v-model="formData.id"
+                        label="Code"
+                        placeholder="Code"
+                        width="300px"
+                        height="h-[35px]"
+                        :isRequire="true"
+                        :error="errorMsg.name"
+                    />
+                </div>
                 <div class="flex gap-x-4 mt-6">
                     <!-- Customer Name Input -->
                     <BaseInput

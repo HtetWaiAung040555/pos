@@ -5,8 +5,6 @@ const props = defineProps({
   imageUrl: { type: String, default: "" },
   qty: { type: [String, Number], default: null }
 });
-
-console.log(props.imageUrl);
 </script>
 
 

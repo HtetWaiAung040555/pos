@@ -64,8 +64,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::apiResource('/warehouses', WarehousesController::class);
 
-    Route::apiResource('/customers', CustomersController::class);
     Route::get('/customers/last-id', [CustomersController::class, 'getLastId']);
+    Route::apiResource('/customers', CustomersController::class);
 
     Route::apiResource('/sales', SaleController::class);
 

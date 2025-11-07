@@ -6,12 +6,22 @@
   import { useInventoryStore } from '@/stores/useInventoryStore';
   import { Dialog, Select } from 'primevue';
   import { computed, nextTick, onMounted, ref, watch } from 'vue';
+  import axios from 'axios';
 
   const useInventory = useInventoryStore();
   const useCustomer = useCustomerStore();
 
   const productList = ref([]);
   const selectedProducts = ref([]);
+  const salesData = ref({
+    customer_id: '',
+    sale_date: '',
+    payment_method: '',
+    paid_amount: 0,
+    status_id: '',
+    created_by: '',
+    products: [],
+  });
   const visible = ref(false);
   const qty = ref("");
   const qtyInputRef = ref(null);
@@ -19,6 +29,10 @@
   const selectedCustomer = ref("");
   const searchQuery = ref("");
   const barcodeInput = ref(null); // Hidden barcode input reference
+  // Hold sales UI
+  const visibleHoldList = ref(false);
+  const holdList = ref([]);
+  const loadingHolds = ref(false);
 
   onMounted( async() => {
       await useInventory.fetchAllStock();
@@ -146,6 +160,110 @@
     } 
 }
 
+// -------------------------
+// Hold / Resume Sale logic
+// -------------------------
+
+async function holdSale() {
+  if (!selectedProducts.value || selectedProducts.value.length === 0) return;
+
+  // Build payload expected by backend. Assumptions noted below.
+  const payload = {
+    customer_id: selectedCustomer.value?.id ?? null,
+    items: selectedProducts.value.map(p => ({
+      product_id: p.id,
+      qty: p.qty,
+      price: p.price
+    })),
+    total: selectedProducts.value.reduce((sum, item) => sum + (item.qty * item.price), 0),
+    status: 'hold'
+  };
+
+  holdList.value = [
+    ...holdList.value,
+    payload
+  ];
+  selectedProducts.value = [];
+
+  // try {
+  //   const res = await axios.post(`/sales/holds`, payload);
+  //   // If backend returns saved hold, refresh list and clear current cart
+  //   await fetchHoldList();
+  //   selectedProducts.value = [];
+  // } catch (err) {
+  //   console.error('Failed to hold sale', err);
+  //   // Optionally show user toast here
+  // }
+}
+
+async function fetchHoldList() {
+  loadingHolds.value = true;
+  try {
+    const res = await axios.get(`/sales/holds`);
+    // Expecting array of holds
+    holdList.value = res.data || [];
+  } catch (err) {
+    console.error('Failed to fetch hold list', err);
+    holdList.value = [];
+  } finally {
+    loadingHolds.value = false;
+  }
+}
+
+async function openHoldDialog() {
+  visibleHoldList.value = true;
+  //await fetchHoldList();
+}
+
+// Load hold into current cart for editing/resuming
+async function editHold(hold) {
+  try {
+    // Expect hold detail endpoint returns items with product info
+    const res = await axios.get(`/sales/holds/${hold.id}`);
+    const data = res.data;
+
+    // Map items into selectedProducts shape: { ...product, qty }
+    if (Array.isArray(data.items)) {
+      selectedProducts.value = data.items.map(i => {
+        // If backend includes full product data
+        if (i.product) {
+          return {
+            ...i.product,
+            qty: i.qty,
+            price: i.price ?? i.product.price
+          }
+        }
+        // Fallback: try to find product in local productList
+        const found = productList.value.find(p => p.product.id === i.product_id) || {};
+        return {
+          ...(found.product || { id: i.product_id, name: i.name ?? 'Unknown' }),
+          qty: i.qty,
+          price: i.price
+        }
+      });
+    }
+
+    // Set customer if included
+    if (data.customer) selectedCustomer.value = data.customer;
+
+    // Close hold list dialog
+    visibleHoldList.value = false;
+  } catch (err) {
+    console.error('Failed to fetch hold detail', err);
+  }
+}
+
+async function deleteHold(hold) {
+  if (!confirm('Delete this held sale? This may be irreversible depending on backend settings.')) return;
+  try {
+    await axios.delete(`/sales/holds/${hold.id}`);
+    // Refresh list
+    await fetchHoldList();
+  } catch (err) {
+    console.error('Failed to delete hold', err);
+  }
+}
+
 </script>
 
 <template>
@@ -168,7 +286,7 @@
         
         <div class="flex flex-col w-2/3 p-4 overflow-hidden">
           <!-- Fixed Search Bar -->
-          <div class="shrink-0">
+          <div class="shrink-0 flex gap-x-2 justify-between items-center">
             <BaseInput
               v-model="searchQuery"
               height="h-[33px]"
@@ -176,6 +294,12 @@
               width="350px"
               icon="pi pi-search"
               @keyup.escape="searchQuery = ' '"
+            />
+            <BaseButton 
+              label="Holds" 
+              severity="info"
+              icon="fa fa-folder-open"
+              @click="openHoldDialog"
             />
           </div>
 
@@ -268,6 +392,7 @@
               severity="secondary"
               icon="fa fa-hand"
               :disabled="selectedProducts.length === 0"
+              @click="holdSale"
             />
             <BaseButton 
               label="Pay" 
@@ -295,6 +420,72 @@
             <div class="flex justify-center gap-x-2">
               <BaseButton label="Cancel" severity="secondary" @click="visible = false" />
               <BaseButton label="Add" severity="primary" @click="addQty" />
+            </div>
+          </div>
+        </template>
+      </Dialog>
+      <!-- Holds list dialog -->
+      <Dialog v-model:visible="visibleHoldList" :style="{ width: '700px' }" :modal="true" :draggable="false" :position="'center'">
+        <template #container="{ closeCallback }">
+          <div class="p-4">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-lg font-semibold text-black">Hold Sales</h3>
+              <div class="flex gap-x-2">
+                <BaseButton 
+                  severity="secondary" 
+                  variant="outlined"
+                  @click="fetchHoldList" 
+                  icon="pi pi-refresh"
+                />
+                <BaseButton
+                  severity="secondary"
+                  @click="visibleHoldList = false" 
+                  icon="fa fa-x"
+                />
+              </div>
+            </div>
+
+            <div v-if="loadingHolds" class="text-center py-8">Loading...</div>
+
+            <div v-else>
+              <table class="table-auto w-full border-collapse">
+                <thead class="bg-gray-100 text-sm">
+                  <tr>
+                    <th class="p-2 text-left">#</th>
+                    <th class="p-2 text-left">Hold ID</th>
+                    <th class="p-2 text-left">Customer</th>
+                    <th class="p-2 text-right">Total</th>
+                    <th class="p-2 text-left">Date</th>
+                    <th class="p-2 w-[80px]"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(h, idx) in holdList" :key="h.id" class="border-t text-sm">
+                    <td class="p-2">{{ idx + 1 }}</td>
+                    <td class="p-2">{{ h.id }}</td>
+                    <td class="p-2">{{ h.customer?.name ?? 'Walk-in' }}</td>
+                    <td class="p-2 text-right font-semibold">Ks. {{ (h.total || 0).toLocaleString('en-us') }}</td>
+                    <td class="p-2">{{ h.created_at ? new Date(h.created_at).toLocaleString() : '' }}</td>
+                    <td class="p-2">
+                      <div class="flex gap-x-2">
+                        <BaseButton 
+                          severity="info" 
+                          size="sm" 
+                          icon="pi pi-pen-to-square"
+                          @click="editHold(h)" 
+                        />
+                        <BaseButton 
+                          severity="danger" 
+                          size="sm" 
+                          icon="pi pi-trash"
+                          @click="deleteHold(h)" 
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div v-if="holdList.length === 0" class="text-center p-4 text-gray-500">No hold sales found.</div>
             </div>
           </div>
         </template>
