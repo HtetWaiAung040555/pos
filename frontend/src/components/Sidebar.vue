@@ -74,22 +74,28 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
             icon: 'fa fa-sitemap',
             pathname: "/role",
             permission: {name: 'Role', action: "View"}
-          },
-          { 
-            name: 'Branch', 
-            icon: 'fa fa-warehouse',
-            pathname: '/branch',
-            permission: { name: 'Branch', action: 'View' }
-          },
-          { 
-            name: 'Counter', 
-            icon: 'fa fa-computer',
-            pathname: "/counter",
-            permission: {name: 'Counter', action: "View"}
           }
         ],
         pathname: "",
         permission: {name: 'Role', action: "View"}
+      },
+      { 
+        name: 'Branch', 
+        icon: 'fa fa-warehouse',
+        pathname: '/branch',
+        permission: { name: 'Branch', action: 'View' }
+      },
+      { 
+        name: 'Counter', 
+        icon: 'fa fa-computer',
+        pathname: "/counter",
+        permission: {name: 'Counter', action: "View"}
+      },
+      { 
+        name: 'Warehouse', 
+        icon: 'fa fa-boxes-stacked',
+        pathname: "/warehouse",
+        permission: {name: 'Warehouse', action: "View"}
       },
       { 
         name: 'Receipt', 
