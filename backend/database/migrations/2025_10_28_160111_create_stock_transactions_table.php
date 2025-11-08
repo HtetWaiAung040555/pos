@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('stock_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inventory_id')->constrained('inventories')->cascadeOnDelete();
-            $table->unsignedBigInteger('reference_id')->nullable();
+            $table->string('reference_id')->nullable();
             $table->enum('reference_type', ['sale', 'purchase'])->nullable();
             $table->integer('quantity_change');
             $table->enum('type', ['in', 'out'])->comment('in = added to stock, out = removed from stock');
