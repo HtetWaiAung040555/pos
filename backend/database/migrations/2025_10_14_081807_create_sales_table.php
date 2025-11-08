@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sales', function (Blueprint $table) {
-            $table->id();
-            $table->string('invoice_no');
+            $table->string('id')->primary();
             $table->string('customer_id');
             $table->foreign('customer_id')->references('id')->on('customers')->restrictOnDelete();
             $table->decimal('total_amount',11,2);
