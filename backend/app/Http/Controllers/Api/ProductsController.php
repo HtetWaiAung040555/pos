@@ -25,12 +25,12 @@ class ProductsController extends Controller
         $request->validate([
             'name'       => 'required|string|max:255',
             'unit'       => 'required|string|max:255',
-            'sec_prop'   => 'required|string|max:255',
-            'price'      => 'required|numeric|min:0',
+            'sec_prop'   => 'nullable|string|max:255',
+            'price'      => 'sometimes|required|numeric|min:0',
             'barcode'    => 'nullable|string|max:255|unique:products,barcode',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'status_id' => 'required|exists:statuses,id',
-            'created_by' => 'required|exists:users,id',
+            'status_id' => 'sometimes|required|exists:statuses,id',
+            'created_by' => 'sometimes|required|exists:users,id',
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
@@ -38,7 +38,7 @@ class ProductsController extends Controller
         $product = Product::create([
             'name'       => $request->name,
             'unit'       => $request->unit,
-            'sec_prop'   => $request->sec_prop,
+            'sec_prop'   => $request->sec_prop ?? null,
             'price'      => $request->price,
             'barcode'    => $request->barcode,
             'status_id'  => $request->status_id,
@@ -81,7 +81,7 @@ class ProductsController extends Controller
             'unit'       => 'nullable|string|max:255',
             'sec_prop'   => 'nullable|string|max:255',
             'price'      => 'sometimes|required|numeric|min:0',
-            'barcode'    => 'nullable|string|max:255|unique:products,barcode',
+            'barcode'    => 'nullable|string|max:255',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'status_id'  => 'sometimes|exists:statuses,id',
             'updated_by' => 'nullable|exists:users,id',

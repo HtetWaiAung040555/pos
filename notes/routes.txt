@@ -1,0 +1,18 @@
+Status
+
+GET => http://localhost:8000/api/statuses
+GET by id => http://localhost:8000/api/statuses/{status_id}
+POST => http://localhost:8000/api/statuses
+PUT => http://localhost:8000/api/statuses/{status_id}
+DELETE => http://localhost:8000/api/statuses/{status_id}
+
+------------------------------------------------------------------------------
+
+Sale
+
+GET => http://localhost:8000/api/sales
+GET by status_id => http://localhost:8000/api/sales?status_id={status_id}
+GET by id => http://localhost:8000/api/sales/{sale_id}
+POST => http://localhost:8000/api/sales
+
+------------------------------------------------------------------------------
