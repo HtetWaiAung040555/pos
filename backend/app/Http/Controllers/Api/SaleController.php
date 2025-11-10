@@ -16,9 +16,9 @@ class SaleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Sale::with(['customer', 'status', 'details.product', 'createdBy', 'updatedBy']);
+        $query = Sale::with(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']);
 
-        if ($request->has('status_id') && !empty($request->status_id)) {
+        if ($request->filled('status_id')) {
             $query->where('status_id', $request->status_id);
         }
 
@@ -30,12 +30,14 @@ class SaleController extends Controller
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'payment_method' => 'required|string|max:100',
+            'payment_id' => 'required|exists:payment_methods,id',
             'paid_amount' => 'nullable|numeric|min:0',
             'status_id' => 'required|exists:statuses,id',
+            'remark' => 'nullable|string|max:1000',
             'created_by' => 'required|exists:users,id',
             'updated_by' => 'nullable|exists:users,id',
             'sale_date' => 'nullable|date',
+            'warehouse_id' => 'required|exists:inventories,warehouse_id',
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
@@ -43,7 +45,7 @@ class SaleController extends Controller
 
         DB::beginTransaction();
         try {
-            // Calculate totals
+            // Calculate total
             $totalAmount = 0;
             foreach ($request->products as $item) {
                 $product = Product::findOrFail($item['product_id']);
@@ -52,25 +54,24 @@ class SaleController extends Controller
 
             // Create Sale
             $sale = Sale::create([
-                'invoice_no' => 'INV-' . date('Ymd-His'),
                 'customer_id' => $request->customer_id,
                 'total_amount' => $totalAmount,
                 'paid_amount' => $request->paid_amount ?? $totalAmount,
                 'due_amount' => $totalAmount - ($request->paid_amount ?? $totalAmount),
-                'payment_method' => $request->payment_method,
+                'payment_id' => $request->payment_id,
                 'status_id' => $request->status_id,
+                'remark' => $request->remark ?? null,
                 'sale_date' => $request->sale_date ?? now(),
                 'created_by' => $request->created_by,
                 'updated_by' => $request->updated_by ?? $request->created_by,
             ]);
 
-            // Create Sale Details
-            // Create Sale Details & reduce inventory
+            // Sale Details & Inventory
             foreach ($request->products as $item) {
                 $product = Product::findOrFail($item['product_id']);
 
                 // Create SaleDetail
-                $detail = SaleDetail::create([
+                SaleDetail::create([
                     'sale_id' => $sale->id,
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
@@ -89,7 +90,7 @@ class SaleController extends Controller
 
                 $inventory->decrement('qty', $item['quantity']);
 
-                // Create stock transaction
+                // Stock Transaction
                 StockTransaction::create([
                     'inventory_id' => $inventory->id,
                     'reference_id' => $sale->id,
@@ -102,7 +103,8 @@ class SaleController extends Controller
             }
 
             DB::commit();
-            return new SaleResource($sale->fresh(['customer', 'status', 'details.product', 'createdBy', 'updatedBy']));
+            return new SaleResource($sale->fresh(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']));
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Failed to create sale', 'details' => $e->getMessage()], 500);
@@ -111,7 +113,8 @@ class SaleController extends Controller
 
     public function show(string $id)
     {
-        $sale = Sale::with(['customer', 'status', 'details.product', 'createdBy', 'updatedBy'])->findOrFail($id);
+        $sale = Sale::with(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy'])
+            ->findOrFail($id);
         return new SaleResource($sale);
     }
 
@@ -120,16 +123,23 @@ class SaleController extends Controller
         $sale = Sale::findOrFail($id);
 
         $request->validate([
-            'payment_method' => 'sometimes|required|string|max:100',
+            'payment_id' => 'sometimes|required|exists:payment_methods,id',
             'paid_amount' => 'sometimes|required|numeric|min:0',
             'status_id' => 'sometimes|required|exists:statuses,id',
+            'remark' => 'nullable|string|max:1000',
             'sale_date' => 'sometimes|date',
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        $sale->update($request->only(['payment_method', 'paid_amount', 'status_id', 'sale_date','updated_by']));
+        $sale->update($request->only([
+            'payment_id',
+            'paid_amount',
+            'status_id',
+            'sale_date',
+            'updated_by'
+        ]));
 
-        return new SaleResource($sale->fresh(['customer', 'status', 'details.product', 'createdBy', 'updatedBy']));
+        return new SaleResource($sale->fresh(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']));
     }
 
     public function destroy(string $id)
@@ -138,7 +148,7 @@ class SaleController extends Controller
             Sale::findOrFail($id)->delete();
             return response()->json(['message' => 'Sale deleted successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Sale cannot be deleted'], 400);
+            return response()->json(['error' => 'Sale cannot be deleted', 'details' => $e->getMessage()], 400);
         }
     }
 }
