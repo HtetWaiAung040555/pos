@@ -41,6 +41,9 @@ import CreatePayment from './views/POS/CreatePayment.vue';
 import UpdateWarehouse from './views/Warehouse/UpdateWarehouse.vue';
 import CreateWarehouse from './views/Warehouse/CreateWarehouse.vue';
 import Warehouse from './views/Warehouse/Warehouse.vue';
+import PaymentMethod from './views/Payment_Method/PaymentMethod.vue';
+import CreatePaymentMethod from './views/Payment_Method/CreatePaymentMethod.vue';
+import UpdatePaymentMethod from './views/Payment_Method/UpdatePaymentMethod.vue';
 
 
 const router = createRouter({
@@ -77,6 +80,9 @@ const router = createRouter({
         {path: '/customer/create', name: 'Create Customer', component: CreateCustomer, meta: { requiresAuth: true }},
         {path: '/customer/update', name: 'Update Customer', component: CreateCustomer, meta: { requiresAuth: true }},
         {path: '/payment/create', name: 'Create Payment', component: CreatePayment, meta: { requiresAuth: true }},
+        {path: '/payment_method', name: 'Payment Method', component: PaymentMethod, meta: { requiresAuth: true }},
+        {path: '/payment_method/create', name: 'Create Payment Method', component: CreatePaymentMethod, meta: { requiresAuth: true }},
+        {path: '/payment_method/update', name: 'Update Payment Method', component: UpdatePaymentMethod, meta: { requiresAuth: true }},
         {path: '/warehouse', name: 'Warehouse', component: Warehouse, meta: { requiresAuth: true }},
         {path: '/warehouse/create', name: 'Create Warehouse', component: CreateWarehouse, meta: { requiresAuth: true }},
         {path: '/warehouse/update', name: 'Update Warehouse', component: UpdateWarehouse, meta: { requiresAuth: true }},
