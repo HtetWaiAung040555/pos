@@ -102,6 +102,12 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
         icon: 'fas fa-receipt',
         pathname: "/receipt",
         permission: {name: 'Receipt', action: "View"}
+      },
+      { 
+        name: 'Payment Method', 
+        icon: 'fas fa-money-check-dollar',
+        pathname: "/payment_method",
+        permission: {name: 'Payment method', action: "View"}
       }
   ];
 
