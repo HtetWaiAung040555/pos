@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BranchesController;
 use App\Http\Controllers\Api\CountersController;
 use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\InventoriesController;
+use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\PermissionsController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\RolesController;
@@ -68,6 +69,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('/customers', CustomersController::class);
 
     Route::apiResource('/sales', SaleController::class);
+
+    Route::apiResource('/payment_methods', PaymentMethodController::class);
 
 });
 
