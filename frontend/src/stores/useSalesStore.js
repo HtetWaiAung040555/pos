@@ -33,6 +33,17 @@ export const useSaleStore = defineStore('sales', {
                 this.loading = false;
             }
         },
+        async fetchSalesByStatus(status) {
+            this.loading = true;
+            try {
+                const response = await axios.get(`/sales?status_id=${status}`);
+                this.salesList = response.data.data;
+            } catch (err) {
+                this.error = err.message;
+            } finally {
+                this.loading = false;
+            }
+        },
         async addSales(formData) {
             this.loading = true;
             try {

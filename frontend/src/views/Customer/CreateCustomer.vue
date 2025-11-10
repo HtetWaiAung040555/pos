@@ -145,7 +145,6 @@
                 console.error('Failed to generate QR before submit', err);
             }
         }
-        console.log(formData.value);
         await useCustomer.addCustomer(formData.value);
         if(useCustomer.error) {
             Object.values(useCustomer.error).forEach((err) => {
@@ -198,7 +197,7 @@
                             </div>
                             <BaseLabel v-if="formData.id" :label="formData.id" class="text-sm" />
                         </div>
-                        <div class="flex flex-col gap-y-2">
+                        <div class="flex flex-col items-center gap-y-2">
                             <BaseButton label="Generate" severity="secondary" @click="generateCustomerCode" />
                             <BaseButton label="Print QR" severity="primary" @click="printQr" :disabled="!qrDataUrl" />
                         </div>

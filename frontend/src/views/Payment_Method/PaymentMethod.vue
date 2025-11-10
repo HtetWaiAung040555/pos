@@ -24,8 +24,9 @@
     let paymentMethodList = ref([]);
 
     onMounted(async () => {
-      await usePaymentMethod.fetchAllPaymenMethod();
+      await usePaymentMethod.fetchAllPaymentMethod();
       paymentMethodList.value = usePaymentMethod.paymentMethodList
+      console.log(paymentMethodList.value);
     });
 
     const columns = [
@@ -61,7 +62,7 @@
         }
         if (usePaymentMethod.data.status === 200) {
             toast.add({ severity: 'success', summary: 'Success Message', detail: 'Payment method deleted successfully.', life: 3000 });
-            await usePaymentMethod.fetchAllPaymenMethod();
+            await usePaymentMethod.fetchAllPaymentMethod();
             paymentMethodList.value =  usePaymentMethod.paymentMethodList
         }
     }

@@ -27,7 +27,6 @@
 
     onMounted(async () => {
         await usePaymentMethod.fetchPaymentMethod(route.query.id);
-        await usePaymentMethod.fetchAllPaymenMethod();
         formData.value = usePaymentMethod.paymentMethodList;
         paymentMethodStatus.value = formData.value.status.id === 1 ? true : false;
         userData.value = JSON.parse(localStorage.getItem('user'));
@@ -85,7 +84,7 @@
                     <!-- Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
                         <BaseLabel label="Status" />
-                        <BaseSwitch v-model="counterStatus" />
+                        <BaseSwitch v-model="paymentMethodStatus" />
                     </div>
                 </div>    
                 <div class="flex justify-end mt-4">

@@ -12,7 +12,6 @@
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import BaseLabel from '@/components/BaseLabel.vue';
     import { errMsgList } from '@/utils/const';
-    import { Select } from 'primevue';
     import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
     import { useCustomerStore } from '@/stores/useCustomerStore';
     

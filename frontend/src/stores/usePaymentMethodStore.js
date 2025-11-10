@@ -14,7 +14,7 @@ export const usePaymentMethodStore = defineStore('payment_method', {
     }),
 
     actions: {
-        async fetchAllPaymenMethod() {
+        async fetchAllPaymentMethod() {
             this.loading = true
             try {
                 const response = await axios.get(`/payment_methods`);

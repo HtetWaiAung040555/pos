@@ -4,13 +4,15 @@
   import ProductCard from '@/components/ProductCard.vue';
   import { useCustomerStore } from '@/stores/useCustomerStore';
   import { useInventoryStore } from '@/stores/useInventoryStore';
-  import { Dialog, Select } from 'primevue';
+  import { Dialog, Select, useToast } from 'primevue';
   import { computed, nextTick, onMounted, ref, watch } from 'vue';
   import axios from 'axios';
   import { useStatusStore } from '@/stores/useStatusStore';
-import moment from 'moment';
-import { useSaleStore } from '@/stores/useSalesStore';
+  import { useSaleStore } from '@/stores/useSalesStore';
+import { useRouter } from 'vue-router';
 
+  const toast = useToast();
+  const router = useRouter();
   const useInventory = useInventoryStore();
   const useCustomer = useCustomerStore();
   const useStatus = useStatusStore();
@@ -41,9 +43,10 @@ import { useSaleStore } from '@/stores/useSalesStore';
   const loadingHolds = ref(false);
 
   onMounted( async() => {
+      await useStatus.fetchAllStatus();
+      console.log(useStatus.statusList);
       await useInventory.fetchAllStock();
       await useCustomer.fetchAllCustomer();
-      await useStatus.fetchAllStatus();
       const inventory = useInventory.stockList.filter(item => item.warehouse.id === JSON.parse(localStorage.getItem('user')).branch.warehouse_id);
       userData.value = JSON.parse(localStorage.getItem('user'));
       selectedCustomer.value = useCustomer.customerList.find(c => c.is_default);
@@ -110,12 +113,6 @@ import { useSaleStore } from '@/stores/useSalesStore';
           }
       ];
       selectedPId.value = product.id;
-      //visible.value = true;
-
-      // Wait for dialog to render, then auto focus
-      // nextTick(() => {
-      //     if (qtyInputRef.value) qtyInputRef.value.focus();
-      // });
   }
 
   // Add quantity to the selected product
@@ -190,22 +187,29 @@ async function holdSale() {
     status_id: useStatus.statusList.find(el => el.name === 'Hold').id,
     created_by: JSON.parse(localStorage.getItem('user')).id,
   };
-
-  holdList.value = [
-    ...holdList.value,
-    payload
-  ];
-  console.log(payload);
   await useSales.addSales(payload);
-  selectedProducts.value = [];
+  if(useSales.error) {
+    Object.values(useSales.error).forEach((err) => {
+        err.forEach((msg) => {
+            toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });
+        })
+    })
+    return
+  }
+  if (useSales.salesList) {
+    toast.add({ severity: 'success', summary: 'Success Message', detail: 'Sales hold successfully.', life: 3000 });
+    selectedProducts.value = [];
+  }
 }
 
 async function fetchHoldList() {
   loadingHolds.value = true;
+  let status_id = useStatus.statusList.find(el => el.name === 'Hold').id;
+  console.log(status_id);
   try {
-    const res = await axios.get(`/sales/holds`);
-    // Expecting array of holds
-    holdList.value = res.data || [];
+    await useSales.fetchSalesByStatus(status_id);
+    console.log(useSales.salesList);
+    holdList.value = useSales.salesList;
   } catch (err) {
     console.error('Failed to fetch hold list', err);
     holdList.value = [];
@@ -216,16 +220,14 @@ async function fetchHoldList() {
 
 async function openHoldDialog() {
   visibleHoldList.value = true;
-  //await fetchHoldList();
+  await fetchHoldList();
 }
 
 // Load hold into current cart for editing/resuming
 async function editHold(hold) {
   try {
     // Expect hold detail endpoint returns items with product info
-    const res = await axios.get(`/sales/holds/${hold.id}`);
-    const data = res.data;
-
+    console.log(hold);
     // Map items into selectedProducts shape: { ...product, qty }
     if (Array.isArray(data.items)) {
       selectedProducts.value = data.items.map(i => {
@@ -268,6 +270,38 @@ async function deleteHold(hold) {
   }
 }
 
+async function onPayClick() {
+  const payload = {
+    customer_id: selectedCustomer.value?.id ?? null,
+    paid_amount: 0,
+    warehouse_id: userData.value.branch.warehouse_id,
+    products: selectedProducts.value.map(p => ({
+      product_id: p.id,
+      quantity: p.qty,
+      price: p.price
+    })),
+    payment_id: '1',
+    sale_date: new Date().toISOString(),
+    status_id: useStatus.statusList.find(el => el.name === 'Pending').id,
+    created_by: JSON.parse(localStorage.getItem('user')).id,
+  };
+  await useSales.addSales(payload);
+  console.log(useSales.salesList);
+  if(useSales.error) {
+    Object.values(useSales.error).forEach((err) => {
+        err.forEach((msg) => {
+            toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });
+        })
+    })
+    return
+  }
+  if (useSales.salesList) {
+    toast.add({ severity: 'success', summary: 'Success Message', detail: 'Sales created successfully.', life: 3000 });
+    router.push({path: '/payment/create', query: {id: useSales.salesList.id}});
+  }
+
+}
+
 </script>
 
 <template>
@@ -284,10 +318,6 @@ async function deleteHold(hold) {
       <!-- Main POS content fills remaining height -->
       <div class="flex flex-1 overflow-hidden">
         <!-- Left section (Products) -->
-        
-
-      
-        
         <div class="flex flex-col w-2/3 p-4 overflow-hidden">
           <!-- Fixed Search Bar -->
           <div class="shrink-0 flex gap-x-2 justify-between items-center">
@@ -331,7 +361,7 @@ async function deleteHold(hold) {
           <div class="shrink-0 mb-2 flex gap-x-2 items-center">
               <Select 
                   v-model="selectedCustomer" 
-                  :options="useCustomer.customerList" 
+                  :options="useCustomer.salesList" 
                   filter
                   optionLabel="id"
                   placeholder="Select a customer"
@@ -409,6 +439,7 @@ async function deleteHold(hold) {
               severity="primary" 
               icon="fa fa-credit-card"
               :disabled="selectedProducts.length === 0"
+              @click="onPayClick"
             />
           </div>
         </div>
@@ -434,6 +465,7 @@ async function deleteHold(hold) {
           </div>
         </template>
       </Dialog>
+
       <!-- Holds list dialog -->
       <Dialog v-model:visible="visibleHoldList" :style="{ width: '700px' }" :modal="true" :draggable="false" :position="'center'">
         <template #container="{ closeCallback }">
@@ -474,7 +506,7 @@ async function deleteHold(hold) {
                     <td class="p-2">{{ idx + 1 }}</td>
                     <td class="p-2">{{ h.id }}</td>
                     <td class="p-2">{{ h.customer?.name ?? 'Walk-in' }}</td>
-                    <td class="p-2 text-right font-semibold">Ks. {{ (h.total || 0).toLocaleString('en-us') }}</td>
+                    <td class="p-2 text-right font-semibold">Ks. {{ (h.total_amount || 0).toLocaleString('en-us') }}</td>
                     <td class="p-2">{{ h.created_at ? new Date(h.created_at).toLocaleString() : '' }}</td>
                     <td class="p-2">
                       <div class="flex gap-x-2">

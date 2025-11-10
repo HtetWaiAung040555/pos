@@ -50,6 +50,20 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
       { 
         name: 'Inventory', 
         icon: 'fa fa-cubes',
+        children: [
+          { 
+            name: 'Inventory Stocks', 
+            icon: 'fa fa-cart-flatbed',
+            pathname: "/inventory",
+            permission: {name: 'Inventory', action: "View"}
+          },
+          { 
+            name: 'Warehouse', 
+            icon: 'fa fa-boxes-stacked',
+            pathname: "/warehouse",
+            permission: {name: 'Warehouse', action: "View"}
+          },
+        ],
         pathname: "/inventory",
         permission: {name: 'Inventory', action: "View"}
       },
@@ -74,28 +88,22 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
             icon: 'fa fa-sitemap',
             pathname: "/role",
             permission: {name: 'Role', action: "View"}
-          }
+          },
+          { 
+            name: 'Branch', 
+            icon: 'fa fa-warehouse',
+            pathname: '/branch',
+            permission: { name: 'Branch', action: 'View' }
+          },
+          { 
+            name: 'Counter', 
+            icon: 'fa fa-computer',
+            pathname: "/counter",
+            permission: {name: 'Counter', action: "View"}
+          },
         ],
         pathname: "",
         permission: {name: 'Role', action: "View"}
-      },
-      { 
-        name: 'Branch', 
-        icon: 'fa fa-warehouse',
-        pathname: '/branch',
-        permission: { name: 'Branch', action: 'View' }
-      },
-      { 
-        name: 'Counter', 
-        icon: 'fa fa-computer',
-        pathname: "/counter",
-        permission: {name: 'Counter', action: "View"}
-      },
-      { 
-        name: 'Warehouse', 
-        icon: 'fa fa-boxes-stacked',
-        pathname: "/warehouse",
-        permission: {name: 'Warehouse', action: "View"}
       },
       { 
         name: 'Receipt', 
@@ -120,9 +128,23 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
     router.push(name);
   }
 
-  function canAccess(item) {
-    if (!item.permissions) return false
-    return usePermission.can(item.permission.name, item.permission.action);
+  // Determine whether a menu item should be shown.
+  // - If the item has children: show only when at least one child is permitted.
+  // - If the item has no children: show when the item itself is permitted (or when no permission specified).
+  function canShowItem(item) {
+    if (item.children && item.children.length) {
+      return item.children.some((child) => {
+        if (!child.permission) return true;
+        return usePermission.can(child.permission.name, child.permission.action);
+      });
+    }
+
+    if (item.permission) {
+      return usePermission.can(item.permission.name, item.permission.action);
+    }
+
+    // If no permission specified, show by default
+    return true;
   }
 
 </script>
@@ -156,7 +178,7 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
         >
           <div
             class="items-center hover:bg-[#F8FAFC] hover:text-black transition-all cursor-pointer relative"
-            v-if="usePermission.can(item.permission.name, item.permission.action)"
+            v-if="canShowItem(item)"
           >
             <div 
               class="flex justify-between items-center py-3 px-4 hover:bg-[#F8FAFC] hover:text-black transition-all cursor-pointer"
@@ -192,7 +214,7 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
                 :key="sub.name"
               >
                 <div
-                  class="flex pl-6 items-center py-2 gap-3 hover:bg-[#F8FAFC] hover:text-black cursor-pointer transition-all"
+                  class="flex pl-6 items-center py-3 gap-3 hover:bg-[#F8FAFC] hover:text-black cursor-pointer transition-all"
                   @click="changeRoute(sub.pathname)"
                   v-if="usePermission.can(sub.permission.name, sub.permission.action)"
                 >
