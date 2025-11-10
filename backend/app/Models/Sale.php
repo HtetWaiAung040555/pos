@@ -19,8 +19,9 @@ class Sale extends Model
         'total_amount',
         'paid_amount',
         'due_amount',
-        'payment_method',
+        'payment_id',
         'status_id',
+        'remark',
         'sale_date',
         'created_by',
         'updated_by'
@@ -64,6 +65,11 @@ class Sale extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function paymentMethod() 
+    {
+        return $this->belongsTo(PaymentMethod::class, 'payment_id');
     }
 
     public function status() {
