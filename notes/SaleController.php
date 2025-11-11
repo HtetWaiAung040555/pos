@@ -57,22 +57,16 @@ class SaleController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Calculate total amount
             $totalAmount = 0;
             foreach ($request->products as $item) {
                 $product = Product::findOrFail($item['product_id']);
                 $totalAmount += $product->price * $item['quantity'];
             }
 
-            // 2. Calculate change (due_amount)
-            $paidAmount = $request->paid_amount;
-            $dueAmount = $paidAmount - $totalAmount; // change amount
+            $paidAmount = $request->paid_amount ?? $totalAmount;
+            $dueAmount = $totalAmount - $paidAmount;
 
-            if ($dueAmount < 0) {
-                $dueAmount = 0; // avoid negative change
-            }
-
-            // 3. Create Sale
+            // Create Sale
             $sale = Sale::create([
                 'customer_id' => $request->customer_id,
                 'total_amount' => $totalAmount,
@@ -86,7 +80,6 @@ class SaleController extends Controller
                 'updated_by' => $request->updated_by ?? $request->created_by,
             ]);
 
-            // 4. Create Sale Details and Stock Transactions
             foreach ($request->products as $item) {
                 $product = Product::findOrFail($item['product_id']);
 
@@ -122,10 +115,26 @@ class SaleController extends Controller
                 ]);
             }
 
+            // Create Customer Transaction
+            CustomerTransaction::create([
+                'customer_id' => $sale->customer_id,
+                'sale_id' => $sale->id,
+                'type' => 'sale',
+                'amount' => $paidAmount,
+                'remark' => $sale->remark,
+                'created_by' => $sale->created_by,
+                'updated_by' => $sale->updated_by,
+            ]);
+
+            // Update Customer balances
+            $customer = $sale->customer;
+            $customer->payable += $dueAmount;
+            $customer->paid_amount += $paidAmount;
+            $customer->total = $customer->paid_amount - $customer->payable; // safer accounting
+            $customer->save();
+
             DB::commit();
-
             return new SaleResource($sale->fresh(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']));
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Failed to create sale', 'details' => $e->getMessage()], 500);
@@ -149,54 +158,40 @@ class SaleController extends Controller
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        $sale = Sale::with('status')->findOrFail($id); // Load sale with status relation
-
-        // 1. Store old status name for comparison
-        $oldStatus = $sale->status->name ?? null;
+        $sale = Sale::findOrFail($id);
+        $oldPaidAmount = $sale->paid_amount;
+        $oldDueAmount = $sale->due_amount;
 
         DB::beginTransaction();
         try {
-            // 2️. Update sale fields
-            $sale->update([
-                'payment_id' => $request->payment_id ?? $sale->payment_id,
-                'paid_amount' => $request->paid_amount ?? $sale->paid_amount,
-                'status_id' => $request->status_id ?? $sale->status_id,
-                'remark' => $request->remark ?? $sale->remark,
-                'sale_date' => $request->sale_date ?? $sale->sale_date,
-                'updated_by' => $request->updated_by,
-            ]);
+            $sale->update($request->only(['payment_id', 'paid_amount', 'status_id', 'remark', 'sale_date', 'updated_by']));
 
+            if ($request->filled('paid_amount') && $request->paid_amount != $oldPaidAmount) {
+                $difference = $sale->paid_amount - $oldPaidAmount;
 
-            // . Create CustomerTransaction only if status changed
-            CustomerTransaction::create([
-                'customer_id' => $sale->customer_id,
-                'sale_id' => $sale->id,
-                'type' => 'sale',
-                'amount' => $sale->paid_amount,
-                'created_by' => $sale->updated_by,
-                'updated_by' => $sale->updated_by,
-            ]);
-            
+                // Create a new transaction for the difference
+                CustomerTransaction::create([
+                    'customer_id' => $sale->customer_id,
+                    'sale_id' => $sale->id,
+                    'type' => 'payment',
+                    'amount' => $difference,
+                    'remark' => 'Updated payment',
+                    'created_by' => $sale->updated_by,
+                    'updated_by' => $sale->updated_by,
+                ]);
 
-            // Update customer balances
-            $customer = $sale->customer;
-            $customer->paid_amount += $request->paid_amount ?? 0 - $sale->paid_amount;
-            $customer->payable = max(0, $sale->total_amount - $sale->paid_amount);
-            $customer->total = $customer->paid_amount - $customer->payable;
-            $customer->save();
+                $customer = $sale->customer;
+                $customer->payable -= $difference;
+                $customer->paid_amount += $difference;
+                $customer->total = $customer->paid_amount - $customer->payable;
+                $customer->save();
+            }
 
             DB::commit();
-
-            // 6️. Return updated sale resource with relationships
-            return new SaleResource(
-                $sale->fresh(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy'])
-            );
+            return new SaleResource($sale->fresh(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']));
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'error' => 'Failed to update sale',
-                'details' => $e->getMessage()
-            ], 500);
+            return response()->json(['error' => 'Failed to update sale', 'details' => $e->getMessage()], 500);
         }
     }
 
