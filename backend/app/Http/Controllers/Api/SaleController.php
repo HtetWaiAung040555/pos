@@ -27,6 +27,14 @@ class SaleController extends Controller
             $query->where('status_id', $request->status_id);
         }
 
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('sale_date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('sale_date', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('sale_date', '<=', $request->end_date);
+        }
+
         return SaleResource::collection($query->get());
     }
 
