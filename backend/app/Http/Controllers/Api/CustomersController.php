@@ -9,12 +9,11 @@ use Illuminate\Http\Request;
 
 class CustomersController extends Controller
 {
-     public function index()
+    public function index()
     {
-        $customers = Customer::with(['status','createdBy', 'updatedBy'])->get();
+        $customers = Customer::with(['status', 'createdBy', 'updatedBy'])->get();
         return CustomerResource::collection($customers);
     }
-
 
     public function store(Request $request)
     {
@@ -28,32 +27,33 @@ class CustomersController extends Controller
             'created_by' => 'required|exists:users,id',
             'updated_by' => 'nullable|exists:users,id',
         ]);
-    
-        $Customer = Customer::create([
+
+        $customer = Customer::create([
             'id' => $request->id,
             'name' => $request->name,
             'phone' => $request->phone,
             'address' => $request->address,
             'status_id' => $request->status_id,
             'is_default' => $request->is_default ?? false,
+            'payable' => 0,
+            'receivable' => 0, 
+            'total' => 0,
             'created_by' => $request->created_by,
             'updated_by' => $request->updated_by ?? $request->created_by,
         ]);
-    
-        return new CustomerResource($Customer->fresh(['status', 'createdBy', 'updatedBy']));
+
+        return new CustomerResource($customer->fresh(['status', 'createdBy', 'updatedBy']));
     }
 
- 
     public function show(string $id)
     {
-        $Customer = Customer::with(['status', 'createdBy', 'updatedBy'])->findOrFail($id);
-        return new CustomerResource($Customer);
+        $customer = Customer::with(['status', 'createdBy', 'updatedBy'])->findOrFail($id);
+        return new CustomerResource($customer);
     }
-
 
     public function update(Request $request, string $id)
     {
-        $Customer = Customer::findOrFail($id);
+        $customer = Customer::findOrFail($id);
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -64,36 +64,25 @@ class CustomersController extends Controller
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        $data = $request->only(['name', 'phone', 'address', 'status_id', 'updated_by']);
+        $data = $request->only(['name', 'phone', 'address', 'status_id', 'is_default', 'updated_by']);
+        $customer->update($data);
 
-        $Customer->update($data);
-
-        return new CustomerResource($Customer->fresh(['status', 'createdBy', 'updatedBy']));
+        return new CustomerResource($customer->fresh(['status', 'createdBy', 'updatedBy']));
     }
 
-    
     public function destroy(string $id)
     {
         try {
             Customer::findOrFail($id)->delete();
             return response()->json(['message' => 'Deleted Successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Customer cannot be deleted'], 400);
+            return response()->json(['error' => 'Customer cannot be deleted', 'details' => $e->getMessage()], 400);
         }
     }
 
     public function getLastId()
     {
-        // Get the last customer by creation time (or by ID descending)
         $lastCustomer = Customer::orderBy('created_at', 'desc')->first();
-
-        if ($lastCustomer) {
-            $lastId = $lastCustomer->id;
-        } else {
-            $lastId = null;
-        }
-
-        return response()->json(['last_id' => $lastId]);
+        return response()->json(['last_id' => $lastCustomer->id ?? null]);
     }
-
 }
