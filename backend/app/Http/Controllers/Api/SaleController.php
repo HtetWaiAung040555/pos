@@ -180,9 +180,14 @@ class SaleController extends Controller
 
             // Update customer balances
             $customer = $sale->customer;
-            $customer->paid_amount += $request->paid_amount ?? 0 - $sale->paid_amount;
-            $customer->payable = max(0, $sale->total_amount - $sale->paid_amount);
-            $customer->total = $customer->paid_amount - $customer->payable;
+            if (strtolower($sale->status->name ?? '') === 'paid') {
+                $customer->paid_amount += $sale->total_amount;
+                $customer->payable += 0;
+            }else{
+                $customer->paid_amount += 0;
+                $customer->payable += $sale->total_amount;
+            }
+            $customer->total = $sale->total_amount;
             $customer->save();
 
             DB::commit();
