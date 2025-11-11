@@ -10,6 +10,7 @@
   import { useStatusStore } from '@/stores/useStatusStore';
   import { useSaleStore } from '@/stores/useSalesStore';
 import { useRouter } from 'vue-router';
+import moment from 'moment';
 
   const toast = useToast();
   const router = useRouter();
@@ -183,7 +184,7 @@ async function holdSale() {
       price: p.price
     })),
     payment_method: 'Cash',
-    sale_date: new Date().toISOString(),
+    sale_date: moment().format("YYYY/MM/DD HH:mm:ss"),
     status_id: useStatus.statusList.find(el => el.name === 'Hold').id,
     created_by: JSON.parse(localStorage.getItem('user')).id,
   };
@@ -281,7 +282,7 @@ async function onPayClick() {
       price: p.price
     })),
     payment_id: '1',
-    sale_date: new Date().toISOString(),
+    sale_date: moment().format("YYYY/MM/DD HH:mm:ss"),
     status_id: useStatus.statusList.find(el => el.name === 'Pending').id,
     created_by: JSON.parse(localStorage.getItem('user')).id,
   };
@@ -361,7 +362,7 @@ async function onPayClick() {
           <div class="shrink-0 mb-2 flex gap-x-2 items-center">
               <Select 
                   v-model="selectedCustomer" 
-                  :options="useCustomer.salesList" 
+                  :options="useCustomer.customerList" 
                   filter
                   optionLabel="id"
                   placeholder="Select a customer"

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             $table->decimal('payable', 15, 2)->default(0)->after('is_default');
-            $table->decimal('receivable', 15, 2)->default(0)->after('payable');
-            $table->decimal('total', 15, 2)->default(0)->after('receivable');
+            $table->decimal('paid_amount', 15, 2)->default(0)->after('payable');
+            $table->decimal('total', 15, 2)->default(0)->after('paid_amount');
         });
     }
 

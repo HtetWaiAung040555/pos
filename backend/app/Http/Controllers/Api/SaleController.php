@@ -129,8 +129,8 @@ class SaleController extends Controller
             // Update Customer balances
             $customer = $sale->customer;
             $customer->payable += $dueAmount;
-            $customer->receivable += $paidAmount;
-            $customer->total = $customer->receivable - $customer->payable; // safer accounting
+            $customer->paid_amount += $paidAmount;
+            $customer->total = $customer->paid_amount - $customer->payable; // safer accounting
             $customer->save();
 
             DB::commit();
@@ -182,8 +182,8 @@ class SaleController extends Controller
 
                 $customer = $sale->customer;
                 $customer->payable -= $difference;
-                $customer->receivable += $difference;
-                $customer->total = $customer->receivable - $customer->payable;
+                $customer->paid_amount += $difference;
+                $customer->total = $customer->paid_amount - $customer->payable;
                 $customer->save();
             }
 

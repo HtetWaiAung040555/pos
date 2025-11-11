@@ -3,7 +3,7 @@ import './style.css'
 import App from './App.vue'
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from './views/Home.vue';
-import Sales from './views/POS/Sales.vue';
+import POS from './views/POS/POS.vue';
 import Login from './components/Login.vue';
 import Register from './components/Register.vue';
 import { createPinia } from 'pinia';
@@ -44,6 +44,7 @@ import Warehouse from './views/Warehouse/Warehouse.vue';
 import PaymentMethod from './views/Payment_Method/PaymentMethod.vue';
 import CreatePaymentMethod from './views/Payment_Method/CreatePaymentMethod.vue';
 import UpdatePaymentMethod from './views/Payment_Method/UpdatePaymentMethod.vue';
+import Sales from './views/Sales/Sales.vue';
 
 
 const router = createRouter({
@@ -53,39 +54,38 @@ const router = createRouter({
         {path: '/register', name: 'Register', component: Register},
         {path: '/unauthorized', name: 'Unauthorized', component: Unauthorized},
         {path: '/', name: 'Home', component: Home, meta: { requiresAuth: true }},
-        {path: '/sales', name: 'Sales', component: Sales, meta: { requiresAuth: true }},
+        {path: '/pos', name: 'POS', component: POS, meta: { requiresAuth: true, permission: { resource: 'POS', action: 'View' } }},
         {path: '/user', name: 'Users', component: User, meta: { requiresAuth: true, permission: { resource: 'User', action: 'View' }  }},
         {path: '/user/create', name: 'Create User', component: CreateUser, meta: { requiresAuth: true, permission: { resource: 'User', action: 'Create' } }},
         {path: '/user/update', name: 'Update User', component: UpdateUser, meta: { requiresAuth: true, permission: { resource: 'User', action: 'Update' } }},
         {path: '/branch', name: 'Branch', component: Branch, meta: { requiresAuth: true, permission: { resource: 'Branch', action: 'View' } }},
-        {path: '/branch/create', name: 'Create Branch', component: CreateBranch, meta: { requiresAuth: true }},
-        {path: '/branch/update', name: 'Update Branch', component: UpdateBranch, meta: { requiresAuth: true }},
+        {path: '/branch/create', name: 'Create Branch', component: CreateBranch, meta: { requiresAuth: true, permission: { resource: 'Branch', action: 'Create' } }},
+        {path: '/branch/update', name: 'Update Branch', component: UpdateBranch, meta: { requiresAuth: true, permission: { resource: 'Branch', action: 'Update' } }},
         {path: '/role', name: 'Role', component: Role, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'View' } }},
         {path: '/role/create', name: 'Create Role', component: CreateRole, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'Create' } }},
         {path: '/role/update', name: 'Update Role', component: UpdateRole, meta: { requiresAuth: true, permission: { resource: 'Role', action: 'Update' } }},
-        {path: '/role', name: 'Role', component: Role, meta: { requiresAuth: true }},
-        {path: '/role/create', name: 'Create Role', component: CreateRole, meta: { requiresAuth: true }},
-        {path: '/role/update', name: 'Update Role', component: UpdateRole, meta: { requiresAuth: true }},
-        {path: '/counter', name: 'Counter', component: Counter, meta: { requiresAuth: true }},
-        {path: '/counter/create', name: 'Create Counter', component: CreateCounter, meta: { requiresAuth: true }},
-        {path: '/counter/update', name: 'Update Counter', component: UpdateCounter, meta: { requiresAuth: true }},
+        {path: '/counter', name: 'Counter', component: Counter, meta: { requiresAuth: true, permission: { resource: 'Counter', action: 'View' } }},
+        {path: '/counter/create', name: 'Create Counter', component: CreateCounter, meta: { requiresAuth: true, permission: { resource: 'Counter', action: 'Create' } }},
+        {path: '/counter/update', name: 'Update Counter', component: UpdateCounter, meta: { requiresAuth: true, permission: { resource: 'Counter', action: 'Update' } }},
         {path: '/receipt', name: 'Receipt', component: Receipt, meta: { requiresAuth: true }},
-        {path: '/product', name: 'Product', component: Product, meta: { requiresAuth: true }},
-        {path: '/product/create', name: 'Create Product', component: CreateProduct, meta: { requiresAuth: true }},
-        {path: '/product/update', name: 'Update Product', component: UpdateProduct, meta: { requiresAuth: true }},
-        {path: '/inventory', name: 'Inventory', component: Inventory, meta: { requiresAuth: true }},
-        {path: '/inventory/create', name: 'Create Inventory', component: CreateInventory, meta: { requiresAuth: true }},
-        {path: '/inventory/update', name: 'Update Inventory', component: UpdateInventory, meta: { requiresAuth: true }},
-        {path: '/customer', name: 'Customer', component: Customer, meta: { requiresAuth: true }},
-        {path: '/customer/create', name: 'Create Customer', component: CreateCustomer, meta: { requiresAuth: true }},
-        {path: '/customer/update', name: 'Update Customer', component: CreateCustomer, meta: { requiresAuth: true }},
-        {path: '/payment/create', name: 'Create Payment', component: CreatePayment, meta: { requiresAuth: true }},
-        {path: '/payment_method', name: 'Payment Method', component: PaymentMethod, meta: { requiresAuth: true }},
-        {path: '/payment_method/create', name: 'Create Payment Method', component: CreatePaymentMethod, meta: { requiresAuth: true }},
-        {path: '/payment_method/update', name: 'Update Payment Method', component: UpdatePaymentMethod, meta: { requiresAuth: true }},
-        {path: '/warehouse', name: 'Warehouse', component: Warehouse, meta: { requiresAuth: true }},
-        {path: '/warehouse/create', name: 'Create Warehouse', component: CreateWarehouse, meta: { requiresAuth: true }},
-        {path: '/warehouse/update', name: 'Update Warehouse', component: UpdateWarehouse, meta: { requiresAuth: true }},
+        {path: '/product', name: 'Product', component: Product, meta: { requiresAuth: true, permission: { resource: 'Product', action: 'View' } }},
+        {path: '/product/create', name: 'Create Product', component: CreateProduct, meta: { requiresAuth: true, permission: { resource: 'Product', action: 'Create' } }},
+        {path: '/product/update', name: 'Update Product', component: UpdateProduct, meta: { requiresAuth: true, permission: { resource: 'Product', action: 'Update' } }},
+        {path: '/inventory', name: 'Inventory', component: Inventory, meta: { requiresAuth: true, permission: { resource: 'Inventory', action: 'View' } }},
+        {path: '/inventory/create', name: 'Create Inventory', component: CreateInventory, meta: { requiresAuth: true, permission: { resource: 'Inventory', action: 'Create' } }},
+        {path: '/inventory/update', name: 'Update Inventory', component: UpdateInventory, meta: { requiresAuth: true, permission: { resource: 'Inventory', action: 'Update' } }},
+        {path: '/customer', name: 'Customer', component: Customer, meta: { requiresAuth: true, permission: { resource: 'Customer', action: 'View' } }},
+        {path: '/customer/create', name: 'Create Customer', component: CreateCustomer, meta: { requiresAuth: true, permission: { resource: 'Customer', action: 'Create' } }},
+        {path: '/customer/update', name: 'Update Customer', component: CreateCustomer, meta: { requiresAuth: true, permission: { resource: 'Customer', action: 'Update' } }},
+        {path: '/payment/create', name: 'Create Payment', component: CreatePayment, meta: { requiresAuth: true, permission: { resource: 'POS', action: 'View' } }},
+        {path: '/payment_method', name: 'Payment Method', component: PaymentMethod, meta: { requiresAuth: true, permission: { resource: 'Payment method', action: 'View' } }},
+        {path: '/payment_method/create', name: 'Create Payment Method', component: CreatePaymentMethod, meta: { requiresAuth: true, permission: { resource: 'Payment method', action: 'Create' } }},
+        {path: '/payment_method/update', name: 'Update Payment Method', component: UpdatePaymentMethod, meta: { requiresAuth: true, permission: { resource: 'Payment method', action: 'Update' } }},
+        {path: '/warehouse', name: 'Warehouse', component: Warehouse, meta: { requiresAuth: true, permission: { resource: 'Warehouse', action: 'View' } }},
+        {path: '/warehouse/create', name: 'Create Warehouse', component: CreateWarehouse, meta: { requiresAuth: true, permission: { resource: 'Warehouse', action: 'Create' } }},
+        {path: '/warehouse/update', name: 'Update Warehouse', component: UpdateWarehouse, meta: { requiresAuth: true, permission: { resource: 'Warehouse', action: 'Update' } }},
+        {path: '/sales', name: 'Sales', component: Sales, meta: { requiresAuth: true, permission: { resource: 'Sales', action: 'View' } }},
+        {path: '/sales', name: 'Update Sales', component: Sales, meta: { requiresAuth: true, permission: { resource: 'Sales', action: 'View' } }},
         { path: '/', redirect: '/login' }
     ]
 });

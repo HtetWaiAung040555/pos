@@ -8,9 +8,9 @@
   import BaseTextarea from '@/components/BaseTextarea.vue';
   import BaseButton from '@/components/BaseButton.vue';
   import { useSaleStore } from '@/stores/useSalesStore';
-import { useStatusStore } from '@/stores/useStatusStore';
-import { usePaymentMethodStore } from '@/stores/usePaymentMethodStore';
-import { useToast } from 'primevue';
+  import { useStatusStore } from '@/stores/useStatusStore';
+  import { usePaymentMethodStore } from '@/stores/usePaymentMethodStore';
+  import { useToast } from 'primevue';
 
   const router = useRouter();
   const route = useRoute();
@@ -26,7 +26,7 @@ import { useToast } from 'primevue';
     // Payment Form
     payAmount: 0,
     note: "",
-    date: moment().format("DD/MM/YY hh:mm"),
+    date: moment().format("YYYY/MM/DD HH:mm:ss"),
     currency: 'Ks. ',
     taxRate: 3,
     payment_id: 1,
@@ -36,11 +36,12 @@ import { useToast } from 'primevue';
   onMounted(async() => {
     await useSales.fetchSales(route.query.id);
     salesData.value = useSales.salesList;
-    userData.value = JSON.parse(localStorage.getItem('user'));
     data.value.payAmount = salesData.value.total_amount;
-    await useStatus.fetchAllStatus();
-    data.value.status_id = useStatus.statusList.find(el => el.name === 'Complete').id;
     await usePaymentMethod.fetchAllPaymentMethod();
+    await useStatus.fetchAllStatus();
+    userData.value = JSON.parse(localStorage.getItem('user'));
+    data.value.status_id = useStatus.statusList.find(el => el.name === 'Complete').id;
+    console.log(salesData.value);
   });
 
   const subtotal = computed(() => {
@@ -105,7 +106,14 @@ import { useToast } from 'primevue';
   }
 
   function changePaymentMethod(e) {
-    
+    if (!e.target.value) return
+    if (e.target.value === '2') {
+      data.value.status_id = useStatus.statusList.find(el => el.name === 'Unpaid').id;
+      return
+    } else {
+      data.value.status_id = useStatus.statusList.find(el => el.name === 'Complete').id;
+      return
+    }
   }
 
   // Print only the slip section between the markers
@@ -228,6 +236,7 @@ import { useToast } from 'primevue';
             v-model="data.payment_id"
             @change="changePaymentMethod"
           >
+            <option value="1" v-if="usePaymentMethod.loading">Loading. . .</option>
             <option v-for="pm in usePaymentMethod.paymentMethodList" :value="pm.id">
               {{ pm.name }}
             </option>
@@ -303,7 +312,7 @@ import { useToast } from 'primevue';
           </div>
           <div style="text-align: left;">
             <div><span style="font-weight: bold;">Cashier:</span> {{ userData.name }}</div>
-            <div><span style="font-weight: bold;">Date:</span> {{ data.date }}</div>
+            <div><span style="font-weight: bold;">Date:</span> {{ moment(data.date).format('DD/MM/YY HH:mm') }}</div>
           </div>
         </div>
 
@@ -330,6 +339,11 @@ import { useToast } from 'primevue';
             </tr>
           </thead>
           <tbody>
+            <tr v-if="useSales.loading">
+              <td colspan="4" class="text-center">
+                <i class="fa fa-spinner animate-spin"></i>
+              </td>
+            </tr>
             <tr
               v-for="item in salesData.details"
               :key="item.id"

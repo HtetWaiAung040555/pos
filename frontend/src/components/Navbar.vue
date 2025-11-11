@@ -34,7 +34,7 @@
   <div class="w-full h-16 shadow flex items-center px-4 justify-between bg-[#ffffff] sticky top-0 z-10">
     <!-- Collapse Button -->
     <div
-      v-if="route.path === '/sales'"
+      v-if="route.path === '/pos'"
       class="flex gap-2 items-center justify-between"
     >
       <img src="../assets/images/logo.png" class="w-10 h-10" alt="Fusion Mart" />
@@ -94,7 +94,7 @@
                 Setting
               </span>
             </div>
-            <router-link v-if="route.path !== '/sales' && usePermission.can('Sales', 'Create')" to="/sales">
+            <router-link v-if="route.path !== '/pos' && usePermission.can('POS', 'View')" to="/pos">
               <div
                 class="flex px-2 items-center py-3 gap-3 hover:bg-blue-100 cursor-pointer transition-all"
               >

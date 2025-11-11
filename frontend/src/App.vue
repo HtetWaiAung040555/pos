@@ -13,7 +13,7 @@
 <template>
   <Toast class="my-toast" />
   <div class="flex h-screen text-sm">
-    <Sidebar v-if="route.path !== '/login' && route.path !== '/sales' && route.path !== '/payment/create'" />
+    <Sidebar v-if="route.path !== '/login' && route.path !== '/pos' && route.path !== '/payment/create'" />
     <!-- Main content -->
     <div class="w-full p-0 main-bg max-h-full overflow-y-auto">
       <Navbar v-if="route.path !== '/login' && route.path !== '/payment/create'" />
