@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BranchesController;
+use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\CountersController;
 use App\Http\Controllers\Api\CustomersController;
 use App\Http\Controllers\Api\InventoriesController;
@@ -53,6 +54,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('/counters', CountersController::class);
 
     Route::apiResource('/statuses', StatusesController::class);
+
+    Route::apiResource('/categories', CategoriesController::class);
 
     Route::apiResource('/products', ProductsController::class);
     // Route::get('/products', [ProductsController::class, 'index']);

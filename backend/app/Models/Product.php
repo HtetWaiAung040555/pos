@@ -15,6 +15,7 @@ class Product extends Model
         'name',
         'unit',
         'sec_prop',
+        'category_id',
         'price',
         'image',
         'barcode',
@@ -22,6 +23,10 @@ class Product extends Model
         'created_by',
         'updated_by'
     ];
+
+    public function category() {
+        return $this->belongsTo(Category::class);
+    }
 
     public function status() {
         return $this->belongsTo(Status::class);
