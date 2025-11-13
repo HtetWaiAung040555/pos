@@ -66,7 +66,7 @@
         if (useWarehouse.data.status === 200) {
             toast.add({ severity: 'success', summary: 'Success Message', detail: 'Warehouse deleted successfully.', life: 3000 });
             await useWarehouse.fetchAllWarehouse();
-            warehouseList.value = useWarehouse.warehouseList
+            warehouseList.value = useWarehouse.warehouseList;
         }
     }
 

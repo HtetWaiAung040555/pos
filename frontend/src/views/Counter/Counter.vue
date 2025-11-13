@@ -26,7 +26,7 @@
 
     onMounted(async () => {
       await useCounter.fetchAllCounter();
-      counterList.value = useCounter.counterList
+      counterList.value = useCounter.counterList;
       
     });
 
@@ -66,7 +66,7 @@
         if (useCounter.data.status === 200) {
             toast.add({ severity: 'success', summary: 'Success Message', detail: 'Counter deleted successfully.', life: 3000 });
             await useCounter.fetchAllCounter();
-            counterList.value = useCounter.counterList
+            counterList.value = useCounter.counterList;
         }
     }
 

@@ -18,16 +18,16 @@ class CategoryResource extends JsonResource
                 'name' => $this->status->name,
             ]),
 
-            'created_by' => $this->whenLoaded('creator', fn() => [
-                'id' => $this->creator->id,
-                'name' => $this->creator->name,
-            ]),
+            'created_by' => [
+                'id' => $this->createdBy->id ?? null,
+                'name' => $this->createdBy->name ?? null,
+            ],
 
-            'updated_by' => $this->whenLoaded('updater', fn() => [
-                'id' => $this->updater->id,
-                'name' => $this->updater->name,
-            ]),
-
+            'updated_by' => [
+                'id' => $this->updatedBy->id ?? null,
+                'name' => $this->updatedBy->name ?? null,
+            ],
+            
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
         ];

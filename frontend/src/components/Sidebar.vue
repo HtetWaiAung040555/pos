@@ -116,6 +116,12 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
         icon: 'fas fa-money-check-dollar',
         pathname: "/payment_method",
         permission: {name: 'Payment method', action: "View"}
+      },
+      { 
+        name: 'Category', 
+        icon: 'fas fa-clone',
+        pathname: "/category",
+        permission: {name: 'Category', action: "View"}
       }
   ];
 

@@ -4,37 +4,35 @@
     import DataTable from '@/components/DataTable.vue';
     import BaseButton from '@/components/BaseButton.vue';
     import { useRouter } from 'vue-router';
-    import { useBranchStore } from '@/stores/useBranchStore';
     import { onMounted, ref, computed } from 'vue';
     import { useToast } from 'primevue';
     import moment from 'moment'
     import { useFilterStore } from '@/stores/filterStore';
-    import { usePermissionStore } from '@/stores/usePermissionStore';
     import BaseInput from '@/components/BaseInput.vue';
+    import { usePermissionStore } from '@/stores/usePermissionStore';
+    import { useCategoryStore } from '@/stores/useCategoryStore';
 
     const router = useRouter();
-    const useBranch = useBranchStore();
+    const useCategory = useCategoryStore();
     const toast = useToast();
     const filter = useFilterStore();
-    const usePermission = usePermissionStore();
-
     const searchValue = ref('');
     const startDate = ref('');
     const endDate = ref('');
-    const branchList = ref([]);
+    const usePermission = usePermissionStore();
+    
+    let categoryList = ref([]);
 
     onMounted(async () => {
-        await useBranch.fetchAllBranch();
-        branchList.value = useBranch.branchList;
+      await useCategory.fetchAllCategory();
+      categoryList.value =useCategory.categoryList;
+      console.log(categoryList.value)
     });
+    
 
-    // Table headers
     const columns = [
         { key: 'id', label: 'ID' },
         { key: 'name', label: 'Name' },
-        { key: 'phone', label: 'Phone' },
-        { key: 'location', label: 'Location' },
-        { key: 'warehouse.name', label: 'Warehouse', formatter: (row) => row.warehouse.name },
         { key: 'status', label: 'Status', formatter: (row) => {
             const color = row.status.name === 'Active' ? 'bg-green-500 text-white rounded-md py-1 px-2' : 'bg-red-500 text-white rounded-md py-1 px-2';
             return `<span class="text-white px-2 py-1 rounded ${color}">${row.status.name}</span>`;
@@ -45,91 +43,82 @@
         { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
     ];
 
-    // Route change function: need to pass route path.
     function changeRoute(pathname) {
         router.push(pathname);
     }
 
-    // Filter Function
     const filteredRows = computed(() => {
-        const searchedData = filter.searchFunction(branchList.value, searchValue.value, [
+        const searchedData = filter.searchFunction(categoryList.value, searchValue.value, [
             "name",
-            "phone",
-            "location"
         ]);
         return filter.dateRangeFilter(searchedData, { dateField: 'created_at', startDate: startDate.value, endDate: endDate.value })
     });
 
-    // Branch delete function
+    // delete function
     async function deleteHandle(id) {
-        await useBranch.deleteBranch(id);
-        if(useBranch.error) {
-            toast.add({ severity: 'error', summary: 'Error Message', detail: useBranch.error, life: 3000 });
+        await useCategory.deleteCategory(id);
+        if(useCategory.error) {
+            toast.add({ severity: 'error', summary: 'Error Message', detail: useCategory.error, life: 3000 });
             return
         }
-        if (useBranch.data.status === 200) {
-            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Branch deleted successfully.', life: 3000 });
-            await useBranch.fetchAllBranch();
-            branchList.value = useBranch.branchList;
+        if (useCategory.data.status === 200) {
+            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Category deleted successfully.', life: 3000 });
+            await useCategory.fetchAllCategory();
+            categoryList.value =  useCategory.categoryList;
         }
     }
-
 </script>
 
 <template>
     <div class="p-4">
-        <!-- Page Title -->
-        <PageTitle title="Branch List">
+        <PageTitle title="Category List">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
                     <BaseButton 
-                        v-if="usePermission.can('Branch', 'Create')"
+                        v-if="usePermission.can('Category', 'Create')"
                         icon="fa fa-circle-plus" 
                         label="Create" 
                         severity="primary" 
-                        @click="changeRoute('/branch/create')"  
-                    />
+                        @click="changeRoute('/category/create')"  />
                 </div>
             </template>
         </PageTitle>
-        <!-- DataTable -->
-        <DataTable
-            :columns="columns"
-            :rows="filteredRows"
-            :pageSize="5"
-            :editPath="'Update Branch'"
-            :isLoading="useBranch.loading"
+        <DataTable 
+            :columns="columns" 
+            :rows="filteredRows" 
+            :pageSize="5" 
+            :editPath="'Update Category'" 
+            :isLoading="useCategory.loading" 
             @delete="deleteHandle"
             :defaultSort="{key: 'created_at', order: 'desc'}"
-            :isEdit="!usePermission.can('Branch', 'Update')"
-            :isDelete="!usePermission.can('Branch', 'Delete')"
+            :isEdit="!usePermission.can('Category', 'Update')"
+            :isDelete="!usePermission.can('Category', 'Delete')"
         >
-            <!-- Filter Section -->
             <template #filters>
                 <div class="flex gap-2">
-                    <BaseInput
+                    <BaseInput 
                         size="sm"
-                        type="date"
                         v-model="startDate"
-                        placeholder="Search"
-                        width="200px"
-                        height="h-[35px]"
-                    />
-                    <BaseInput
-                        size="sm"
                         type="date"
-                        v-model="endDate"
-                        placeholder="Search"
+                        placeholder="Start Date"
                         width="200px"
                         height="h-[35px]"
                     />
-                    <BaseInput
+                    <BaseInput 
+                        size="sm"
+                        v-model="endDate"
+                        type="date"
+                        placeholder="End Date"
+                        width="200px"
+                        height="h-[35px]"
+                    />
+                    <BaseInput 
                         size="sm"
                         v-model="searchValue"
-                        placeholder="Search"
+                        placeholder="Search..."
+                        icon="pi pi-search"
                         width="200px"
                         height="h-[35px]"
-                        icon="pi pi-search"
                     />
                 </div>
             </template>
