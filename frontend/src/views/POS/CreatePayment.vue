@@ -35,6 +35,7 @@
 
   onMounted(async() => {
     await useSales.fetchSales(route.query.id);
+    console.log("api" + useSales.salesList);
     salesData.value = useSales.salesList;
     data.value.payAmount = salesData.value.total_amount;
     await usePaymentMethod.fetchAllPaymentMethod();

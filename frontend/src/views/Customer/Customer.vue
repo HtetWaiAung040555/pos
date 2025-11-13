@@ -72,7 +72,7 @@
 <template>
     <div class="p-4">
         <!-- Page Title -->
-        <PageTitle title="CUstomer List">
+        <PageTitle title="Customer List">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
                     <BaseButton 

@@ -36,7 +36,7 @@
     async function formSubmit() {
         let updatedData = {
             name: formData.value.name,
-            status_id: counterStatus.value? '1' : '2',
+            status_id: paymentMethodStatus.value? '1' : '2',
             updated_by: userData.value.id
         }
         await usePaymentMethod.editPaymentMethod(updatedData, route.query.id);

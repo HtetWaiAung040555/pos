@@ -11,10 +11,12 @@ export const useSaleStore = defineStore('sales', {
 
     }),
     actions: {
-        async fetchAllSales() {
+        async fetchAllSales(filteredData) {
             this.loading = true;
             try {
-                const response = await axios.get(`/sales`);
+                console.log(filteredData);
+                const response = await axios.get(`/sales?start_date=${filteredData.start_date}&end_date=${filteredData.end_date}&customer_id=${filteredData.customer_id}&status_id=${filteredData.status_id}`);
+                console.log(response.data.data);
                 this.salesList = response.data.data;
             } catch (err) {
                 this.error = err.message;

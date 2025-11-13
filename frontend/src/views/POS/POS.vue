@@ -183,7 +183,7 @@ async function holdSale() {
       quantity: p.qty,
       price: p.price
     })),
-    payment_method: 'Cash',
+    payment_id: 1,
     sale_date: moment().format("YYYY/MM/DD HH:mm:ss"),
     status_id: useStatus.statusList.find(el => el.name === 'Hold').id,
     created_by: JSON.parse(localStorage.getItem('user')).id,

@@ -68,7 +68,7 @@ watch(() => formData.value.id, async (newVal) => {
 // 1) Auto-generate customer code (e.g., FMC-0001)
 function generateCustomerCode() {
     // Default values when there is no lastId
-    const defaultPrefix = 'FMC';
+    const defaultPrefix = 'KBAM';
     const defaultSep = '-';
 
     const lastRaw = useCustomer.lastId;
