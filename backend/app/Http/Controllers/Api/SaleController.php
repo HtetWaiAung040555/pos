@@ -151,23 +151,21 @@ class SaleController extends Controller
 
         $sale = Sale::with('status')->findOrFail($id); // Load sale with status relation
 
-        // 1. Store old status name for comparison
-        $oldStatus = $sale->status->name ?? null;
-
         DB::beginTransaction();
         try {
-            // 2️. Update sale fields
+
+            // 1. Update sale fields
             $sale->update([
-                'payment_id' => $request->payment_id ?? $sale->payment_id,
-                'paid_amount' => $request->paid_amount ?? $sale->paid_amount,
-                'status_id' => $request->status_id ?? $sale->status_id,
-                'remark' => $request->remark ?? $sale->remark,
-                'sale_date' => $request->sale_date ?? $sale->sale_date,
+                'payment_id' => $request->payment_id,
+                'paid_amount' => $request->paid_amount,
+                'status_id' => $request->status_id,
+                'remark' => $request->remark,
+                'sale_date' => $request->sale_date,
                 'updated_by' => $request->updated_by,
             ]);
 
 
-            // . Create CustomerTransaction only if status changed
+            // 2. Create CustomerTransaction only if status changed
             CustomerTransaction::create([
                 'customer_id' => $sale->customer_id,
                 'sale_id' => $sale->id,
@@ -178,24 +176,23 @@ class SaleController extends Controller
             ]);
             
 
-            // Update customer balances
+            // 3. Update customer balances
             $customer = $sale->customer;
-            if (strtolower($sale->status->name ?? '') === 'paid') {
+            if (strtolower($sale->status->name) === 'complete') {
                 $customer->paid_amount += $sale->total_amount;
-                $customer->payable += 0;
             }else{
-                $customer->paid_amount += 0;
                 $customer->payable += $sale->total_amount;
             }
-            $customer->total = $sale->total_amount;
+            $customer->total += $sale->total_amount;
             $customer->save();
 
             DB::commit();
 
-            // 6️. Return updated sale resource with relationships
+            // 4. Return updated sale resource with relationships
             return new SaleResource(
                 $sale->fresh(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy'])
             );
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

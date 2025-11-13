@@ -5,32 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CustomerTransaction extends Model
+class Category extends Model
 {
     use HasFactory;
 
-    protected $table = 'customer_transactions';
+    protected $table = 'categories';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'customer_id',
-        'sale_id',
-        'type',
-        'amount',
-        'remark',
+        'name',
+        'status_id',
         'created_by',
         'updated_by',
     ];
 
-    // Relationships
-
-    public function customer()
+    public function status()
     {
-        return $this->belongsTo(Customer::class);
-    }
-
-    public function sale()
-    {
-        return $this->belongsTo(Sale::class);
+        return $this->belongsTo(Status::class);
     }
 
     public function createdBy()

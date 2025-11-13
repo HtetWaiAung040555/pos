@@ -14,6 +14,12 @@ class ProductResource extends JsonResource
             'name'       => $this->name,
             'unit'       => $this->unit,
             'sec_prop'   => $this->sec_prop,
+
+            'category_id' => [
+                'id' => $this->category->id ?? null,
+                'name' => $this->category->name ?? null
+            ],
+
             'price'      => $this->price,
             'barcode'    => $this->barcode,
             'image_url'  => $this->image ? asset($this->image) : null,

@@ -23,15 +23,16 @@ class ProductsController extends Controller
         ]);
 
         $request->validate([
-            'name'       => 'required|string|max:255',
-            'unit'       => 'required|string|max:255',
-            'sec_prop'   => 'nullable|string|max:255',
-            'price'      => 'sometimes|required|numeric|min:0',
-            'barcode'    => 'nullable|string|max:255|unique:products,barcode',
-            'image'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'status_id' => 'sometimes|required|exists:statuses,id',
-            'created_by' => 'sometimes|required|exists:users,id',
-            'updated_by' => 'nullable|exists:users,id',
+            'name'          => 'required|string|max:255',
+            'unit'          => 'required|string|max:255',
+            'sec_prop'      => 'nullable|string|max:255',
+            'category_id'   => 'nullable|exists:categories,id',
+            'price'         => 'sometimes|required|numeric|min:0',
+            'barcode'       => 'nullable|string|max:255|unique:products,barcode',
+            'image'         => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'status_id'     => 'sometimes|required|exists:statuses,id',
+            'created_by'    => 'sometimes|required|exists:users,id',
+            'updated_by'    => 'nullable|exists:users,id',
         ]);
 
         // Create product first (to get ID)
@@ -39,6 +40,7 @@ class ProductsController extends Controller
             'name'       => $request->name,
             'unit'       => $request->unit,
             'sec_prop'   => $request->sec_prop ?? null,
+            'category_id'=> $request->category_id,
             'price'      => $request->price,
             'barcode'    => $request->barcode,
             'status_id'  => $request->status_id,
@@ -59,12 +61,12 @@ class ProductsController extends Controller
             $product->save();
         }
 
-        return new ProductResource($product->fresh(['status', 'createdBy', 'updatedBy']));
+        return new ProductResource($product->fresh(['category', 'status', 'createdBy', 'updatedBy']));
     }
 
     public function show(string $id)
     {
-        $product = Product::with(['status', 'createdBy', 'updatedBy'])->findOrFail($id);
+        $product = Product::with(['category', 'status', 'createdBy', 'updatedBy'])->findOrFail($id);
         return new ProductResource($product);
     }
 
@@ -80,6 +82,7 @@ class ProductsController extends Controller
             'name'       => 'sometimes|required|string|max:255',
             'unit'       => 'nullable|string|max:255',
             'sec_prop'   => 'nullable|string|max:255',
+            'category_id'=> 'sometimes|exists:categories,id',
             'price'      => 'sometimes|required|numeric|min:0',
             'barcode'    => 'nullable|string|max:255',
             'image'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
@@ -87,7 +90,7 @@ class ProductsController extends Controller
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        $data = $request->only(['name', 'unit', 'sec_prop', 'price', 'barcode', 'status_id', 'updated_by']);
+        $data = $request->only(['name', 'unit', 'sec_prop', 'category_id', 'price', 'barcode', 'status_id', 'updated_by']);
         $user_id = $request->updated_by ?? $product->created_by;
 
         if ($request->hasFile('image')) {
@@ -107,7 +110,7 @@ class ProductsController extends Controller
 
         $product->update($data);
 
-        return new ProductResource($product->fresh(['status', 'createdBy', 'updatedBy']));
+        return new ProductResource($product->fresh(['category', 'status', 'createdBy', 'updatedBy']));
     }
 
     public function destroy(string $id)
