@@ -16,21 +16,21 @@ class CustomerTransaction extends Model
         'sale_id',
         'type',
         'amount',
+        'payment_id',
         'remark',
+        'pay_date',
         'created_by',
         'updated_by',
     ];
 
-    // Relationships
-
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
-    public function sale()
+    public function paymentMethod()
     {
-        return $this->belongsTo(Sale::class);
+        return $this->belongsTo(PaymentMethod::class, 'payment_id');
     }
 
     public function createdBy()
@@ -42,4 +42,5 @@ class CustomerTransaction extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
 }
