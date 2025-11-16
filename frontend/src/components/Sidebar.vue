@@ -122,6 +122,12 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
         icon: 'fas fa-clone',
         pathname: "/category",
         permission: {name: 'Category', action: "View"}
+      },
+      { 
+        name: 'Receivable', 
+        icon: 'fas fa-solid fa-wallet',
+        pathname: "/receivable",
+        permission: {name: 'Receivable', action: "View"}
       }
   ];
 

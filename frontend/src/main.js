@@ -47,6 +47,9 @@ import UpdatePaymentMethod from './views/Payment_Method/UpdatePaymentMethod.vue'
 import Category from './views/Category/Category.vue';
 import CreateCategory from './views/Category/CreateCategory.vue';
 import UpdateCategory from './views/Category/UpdateCategory.vue';
+import Receivable from './views/Receivable/Receivable.vue';
+import CreateReceivable from './views/Receivable/CreateReceivable.vue';
+import UpdateReceivable from './views/Receivable/UpdateReceivable.vue';
 import Sales from './views/Sales/Sales.vue';
 
 
@@ -91,9 +94,12 @@ const router = createRouter({
         {path: '/warehouse/update', name: 'Update Warehouse', component: UpdateWarehouse, meta: { requiresAuth: true, permission: { resource: 'Warehouse', action: 'Update' } }},
         {path: '/sales', name: 'Sales', component: Sales, meta: { requiresAuth: true, permission: { resource: 'Sales', action: 'View' } }},
         {path: '/sales', name: 'Update Sales', component: Sales, meta: { requiresAuth: true, permission: { resource: 'Sales', action: 'View' } }},
-        {path: '/category', name: 'Category', component: Category, meta: { requiresAuth: true, permission: { resource: 'Branch', action: 'View' } }},
+        {path: '/category', name: 'Category', component: Category, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'View' } }},
         {path: '/category/create', name: 'Create Category', component: CreateCategory, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'Create' } }},
         {path: '/category/update', name: 'Update Category', component: UpdateCategory, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'Update' } }},
+        {path: '/receivable', name: 'Receivable', component: Receivable, meta: { requiresAuth: true, permission: { resource: 'Receivable', action: 'View' } }},
+        {path: '/receivable/create', name: 'Create Receivable', component: CreateReceivable, meta: { requiresAuth: true, permission: { resource: 'Receivable', action: 'Create' } }},
+        {path: '/receivable/update', name: 'Update Receivable', component: UpdateReceivable, meta: { requiresAuth: true, permission: { resource: 'Receivable', action: 'Update' } }},
         { path: '/', redirect: '/login' }
     ]
 });
