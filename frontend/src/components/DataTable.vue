@@ -130,7 +130,7 @@ function confirmDelete() {
 
       <!-- Table -->
       <div class="flex-1 overflow-y-auto">
-        <table class="w-full">
+        <table class="w-full resize">
           <thead class="sticky top-0 z-10">
             <tr class="bg-gray-100">
               <th

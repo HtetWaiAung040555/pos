@@ -27,19 +27,20 @@
     onMounted(async () => {
         await useReceivable.fetchAllReceivable();
         receivableList.value = useReceivable.receivableList;
+        console.log(receivableList.value);
     });
 
     // Table headers
     const columns = [
         { key: 'id', label: 'ID' },
-        { key: 'customer.name', label: 'Name' },
+        { key: 'customer.name', label: 'Name', formatter: (row) => row.customer?.name },
         { key: 'type', label: 'Type' },
         { key: 'amount', label: 'Amount' },
-        { key: 'payment_method.name', label: 'Payment Method', formatter: (row) => row.payment_method.name },
+        { key: 'payment_method.name', label: 'Payment Method', formatter: (row) => row.payment_method?.name },
        
-        { key: 'created_by.name', label: 'Created By', formatter: (row) => row.created_by.name },
+        { key: 'created_by', label: 'Created By', },
         { key: 'created_at', label: 'Created At', formatter: (row) => moment(row.created_at).format('DD-MM-YY hh:mm') },
-        { key: 'updated_by.name', label: 'Updated By', formatter: (row) => row.updated_by.name },
+        { key: 'updated_by', label: 'Updated By', },
         { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
     ];
 

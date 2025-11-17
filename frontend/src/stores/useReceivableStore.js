@@ -17,7 +17,7 @@ export const useReceivableStore = defineStore('receivable', {
         async fetchAllReceivable() {
             this.loading = true
             try {
-                const response = await axios.get(`/receivables`);
+                const response = await axios.get(`/customers_transactions`);
                 this.receivableList = response.data.data;
             } catch (err) {
                 this.error = err.message;
@@ -28,7 +28,7 @@ export const useReceivableStore = defineStore('receivable', {
         async fetchReceivable(receivableId) {
             this.loading = true;
             try {
-                const response = await axios.get(`/receivables/${receivableId}`);
+                const response = await axios.get(`/customers_transactions/${receivableId}`);
                 this.receivableList = response.data.data;
             } catch (err) {
                 this.error = err.message;
@@ -39,7 +39,7 @@ export const useReceivableStore = defineStore('receivable', {
         async addReceivable(formData) {
             this.loading = true;
             try {
-                const response = await axios.post(`/receivables`, formData);
+                const response = await axios.post(`/customers_transactions`, formData);
                 this.receivableList = response.data.data;
             } catch (err) {
                 if (err.response && err.response.status === 422) {
@@ -52,7 +52,7 @@ export const useReceivableStore = defineStore('receivable', {
         async editReceivable(formData, receivableId) {
             this.loading = true;
             try {
-                const response = await axios.put(`/receivables/${receivableId}`, formData);
+                const response = await axios.put(`/customers_transactions/${receivableId}`, formData);
                 this.receivableList = response.data.data;
             } catch (err) {
                 if (err.response && err.response.status === 422) {
@@ -65,7 +65,7 @@ export const useReceivableStore = defineStore('receivable', {
         async deleteReceivable(receivableId) {
             this.deleteLoading = true;
             try {
-                const response = await axios.delete(`/receivables/${receivableId}`);
+                const response = await axios.delete(`/customers_transactions/${receivableId}`);
                 this.data = response;
             } catch (err) {
                 if (err.response && err.response.status === 422) {

@@ -53,7 +53,7 @@
         router.push(pathname);
     }
 
-    onMounted(async() => {
+    onMounted(async () => {
         userData.value = JSON.parse(localStorage.getItem('user'));
         await usePaymentMethod.fetchAllPaymentMethod();
         await useCustomer.fetchAllCustomer();
@@ -98,7 +98,7 @@
 <template>
     <div class="p-4">
         <!-- Page Title -->
-        <PageTitle title="Create Receivable">
+        <PageTitle title="Pay Credit">
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
                     <BaseButton icon="fa fa-chevron-left" label="Back" severity="secondary" @click="changeRoute('/receivable')"  />
@@ -132,7 +132,7 @@
                             :options="useCustomer.customerList" 
                             showClear
                             filter
-                            optionLabel="customer"
+                            optionLabel="name"
                             placeholder="Select a customer"
                             class="w-[300px] h-[35px] items-center" 
                         />
@@ -180,7 +180,7 @@
                             :options="usePaymentMethod.paymentMethodList" 
                             showClear
                             filter
-                            optionLabel="payment method"
+                            optionLabel="name"
                             placeholder="Select a payment method"
                             class="w-[300px] h-[35px] items-center" 
                         />

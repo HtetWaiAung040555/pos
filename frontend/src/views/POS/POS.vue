@@ -173,6 +173,8 @@ import moment from 'moment';
 async function holdSale() {
   if (!selectedProducts.value || selectedProducts.value.length === 0) return;
 
+  console.log(selectedCustomer.value);
+
   // Build payload expected by backend. Assumptions noted below.
   const payload = {
     customer_id: selectedCustomer.value?.id ?? null,
@@ -230,13 +232,13 @@ async function editHold(hold) {
     // Expect hold detail endpoint returns items with product info
     console.log(hold);
     // Map items into selectedProducts shape: { ...product, qty }
-    if (Array.isArray(data.items)) {
-      selectedProducts.value = data.items.map(i => {
+    if (Array.isArray(hold.details)) {
+      selectedProducts.value = hold.details.map(i => {
         // If backend includes full product data
         if (i.product) {
           return {
             ...i.product,
-            qty: i.qty,
+            qty: i.quantity,
             price: i.price ?? i.product.price
           }
         }
@@ -244,14 +246,18 @@ async function editHold(hold) {
         const found = productList.value.find(p => p.product.id === i.product_id) || {};
         return {
           ...(found.product || { id: i.product_id, name: i.name ?? 'Unknown' }),
-          qty: i.qty,
+          qty: i.quantity,
           price: i.price
         }
       });
     }
 
+    console.log(hold.customer);
+
     // Set customer if included
-    if (data.customer) selectedCustomer.value = data.customer;
+    if (hold.customer) selectedCustomer.value = JSON.stringify(hold);
+
+    console.log("Selected Customers: " + selectedCustomer.value);
 
     // Close hold list dialog
     visibleHoldList.value = false;
