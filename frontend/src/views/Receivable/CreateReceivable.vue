@@ -29,11 +29,10 @@
     const formData = ref(
       {
         customer_id: "",
-        type: "",
         amount: "",
         remark: "",
         payment_id: "",
-        pay_date: " ",
+        pay_date: new Date().toISOString().slice(0, 10),
         created_by: "",
         updated_by: ""
       }
@@ -72,8 +71,9 @@
 
         formData.value = {
             ...formData.value,
+            amount: Number(formData.value.amount),
             payment_id: selectedPaymentMethod.value.id,
-            customer_id_id: selectedCustomer.value.id,
+            customer_id: selectedCustomer.value.id,
             created_by: userData.value.id
         };
 
@@ -111,17 +111,7 @@
                 <!-- Form section subtitle -->
                 <SubTitle label="Basic Info" />
                 <div class="flex gap-x-4 mt-6">
-                    <!-- Customer Input -->
-                    <!-- <BaseInput
-                        size="sm"
-                        v-model="formData.name"
-                        label="Customer"
-                        placeholder="Name"
-                        width="300px"
-                        height="h-[35px]"
-                        disabled=""
-                    /> -->
-   
+                    <!-- Customer Input --> 
                     <div class="flex flex-col gap-y-1">
                         <BaseLabel 
                             label="Customer"
@@ -137,16 +127,6 @@
                             class="w-[300px] h-[35px] items-center" 
                         />
                     </div>
-                    <!-- Receivable Type Input -->
-                    <BaseInput
-                        size="sm"
-                        v-model="formData.type"
-                        label="Type"
-                        placeholder="Type"
-                        width="300px"
-                        height="h-[35px]"
-                        disabled=""
-                    />
                     <!-- Pay date Input -->
                     <BaseInput
                         size="sm"
@@ -156,7 +136,7 @@
                         width="300px"
                         height="h-[35px]"
                         type="date"
-                        disabled=""
+                        
                     />
                 </div>
                 <div class="flex gap-x-4 mt-4">

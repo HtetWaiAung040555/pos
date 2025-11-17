@@ -8,6 +8,7 @@ use App\Models\CustomerTransaction;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CustomerTransactionController extends Controller
 {
@@ -34,10 +35,11 @@ class CustomerTransactionController extends Controller
 
     public function store(Request $request)
     {
+        Log::info($request->all());
+
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'sale_id' => 'nullable|exists:sales,id',
-            'type' => 'required|in:sale,payment,refund,adjustment',
             'amount' => 'required|numeric|min:0',
             'payment_id' => 'nullable|exists:payment_methods,id',
             'remark' => 'nullable|string|max:2000',

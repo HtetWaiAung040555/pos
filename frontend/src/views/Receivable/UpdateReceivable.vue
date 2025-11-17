@@ -16,19 +16,24 @@
 
     import { useReceivableStore } from '@/stores/useReceivableStore';
     import { usePaymentMethodStore } from '@/stores/usePaymentMethodStore';
+    import { useCustomerStore } from '@/stores/useCustomerStore';
 
     const router = useRouter();
     const route = useRoute();
     const toast = useToast();
     const useReceivable = useReceivableStore();
     const usePaymentMethod = usePaymentMethodStore();
+    const useCustomer = useCustomerStore();
 
-    const formData = ref({});
+    const formData = ref({}); 
+
     const userData = ref({});
     const selectedPaymentMethod = ref('');
+    const selectedCustomer = ref('');
 
     const errorMsg = ref({
-        paymentMethod: ""
+        paymentMethod: "",
+        customer: ""
     });
 
     // Change route function
@@ -42,7 +47,12 @@
         userData.value = JSON.parse(localStorage.getItem('user'));
     
         await usePaymentMethod.fetchAllPaymentMethod();
-        selectedPaymentMethod.value = usePaymentMethod.paymentMethodList.filter(el => el.id === formData.value.paymentMethod.id)[0];
+        selectedPaymentMethod.value = usePaymentMethod.paymentMethodList.find(el => el.id === formData.value.payment_method.id);
+
+        await useCustomer.fetchAllCustomer();
+        selectedCustomer.value = useCustomer.customerList.find(el => el.id === formData.value.customer.id);
+
+        console.log("formData:", formData.value);
     });
 
     // Update function
@@ -53,10 +63,15 @@
                 customer: ""
             }
             return
-        } else if ("") {}
+        } else if (!selectedCustomer.value) {
+            errorMsg.value = {
+                paymentMethod: "",
+                customer: errMsgList.customer
+            }
+        }
 
         let updatedData = {
-            type: formData.value.type,
+            customer_id: selectedCustomer.value.id,
             amount: formData.value.amount,
             payment_id: selectedPaymentMethod.value.id,
             remark: formData.value.remark,
@@ -98,15 +113,22 @@
                 <!-- Form section subtitle -->
                 <SubTitle label="Basic Info" />
                 <div class="flex gap-x-4 mt-6">
-                    <!-- Receivable Type Input -->
-                    <BaseInput
-                        size="sm"
-                        v-model="formData.type"
-                        label="Type"
-                        placeholder="Type"
-                        width="300px"
-                        height="h-[35px]"                   
-                    />
+                    <!-- Customer Input --> 
+                    <div class="flex flex-col gap-y-1">
+                        <BaseLabel 
+                            label="Customer"
+                            :isRequire="true"
+                        />
+                        <Select 
+                            v-model="selectedCustomer" 
+                            :options="useCustomer.customerList" 
+                            showClear
+                            filter
+                            optionLabel="name"
+                            placeholder="Select a customer"
+                            class="w-[300px] h-[35px] items-center" 
+                        />
+                    </div>
                     <!-- Pay date Input -->
                     <BaseInput
                         size="sm"
@@ -140,7 +162,7 @@
                             :options="usePaymentMethod.paymentMethodList" 
                             showClear
                             filter
-                            optionLabel="Payment Method"
+                            optionLabel="name"
                             placeholder="Select a payment method"
                             class="w-[300px] h-[35px] items-center" 
                         />
