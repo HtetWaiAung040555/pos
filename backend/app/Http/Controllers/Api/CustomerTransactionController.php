@@ -55,7 +55,6 @@ class CustomerTransactionController extends Controller
             // 1. Create transaction
             $transaction = CustomerTransaction::create([
                 'customer_id' => $request->customer_id,
-                'sale_id' => $request->sale_id,
                 'type' => 'payment',
                 'amount' => $request->amount,
                 'payment_id' => $request->payment_id,
@@ -94,7 +93,6 @@ class CustomerTransactionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'type' => 'sometimes|in:sale,payment,refund,adjustment',
             'amount' => 'sometimes|numeric|min:0',
             'payment_id' => 'sometimes|exists:payment_methods,id',
             'remark' => 'nullable|string|max:2000',
@@ -108,14 +106,7 @@ class CustomerTransactionController extends Controller
         try {
 
             // 1. Update fields
-            $transaction->fill($request->only([
-                'type',
-                'amount',
-                'payment_id',
-                'remark',
-                'pay_date'
-            ]));
-
+            $transaction->fill($request->only(['amount','payment_id','remark','pay_date']));
             $transaction->updated_by = $request->updated_by;
             $transaction->save();
 
@@ -169,23 +160,12 @@ class CustomerTransactionController extends Controller
     {
         $customer = Customer::findOrFail($customerId);
 
-        $sales = CustomerTransaction::where('customer_id', $customerId)
-            ->where('type', 'sale')->sum('amount');
+        // Sum of all payments from customer_transactions
+        $paid = CustomerTransaction::where('customer_id', $customerId)
+            ->where('type', 'payment')
+            ->sum('amount');
 
-        $payments = CustomerTransaction::where('customer_id', $customerId)
-            ->where('type', 'payment')->sum('amount');
-
-        $refunds = CustomerTransaction::where('customer_id', $customerId)
-            ->where('type', 'refund')->sum('amount');
-
-        // Total sale amount
-        $customer->total = $sales;
-
-        // How much customer owes
-        $customer->payable = $sales - $payments - $refunds;
-
-        // How much customer has paid
-        $customer->paid_amount = $payments;
+        $customer->payable = $customer->total - $paid;
 
         $customer->save();
     }

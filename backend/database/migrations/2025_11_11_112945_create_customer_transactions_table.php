@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('customer_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('customer_id');
-            $table->foreign('customer_id')->references('id')->on('customers');
-            $table->string('sale_id');
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->string('sale_id')->nullable();
             $table->foreign('sale_id')->references('id')->on('sales')->onDelete('cascade');
-            $table->enum('type', ['sale','payment','refund','adjustment']);
+            $table->enum('type', ['sale','payment','refund','adjustment'])->nullable();
             $table->decimal('amount', 15,2);
             $table->text('remark')->nullable();
             $table->unsignedBigInteger('created_by');
