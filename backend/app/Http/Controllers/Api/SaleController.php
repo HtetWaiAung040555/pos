@@ -202,13 +202,64 @@ class SaleController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+        DB::beginTransaction();
+
         try {
-            Sale::findOrFail($id)->delete();
-            return response()->json(['message' => 'Sale deleted successfully'], 200);
+            // Load sale + details
+            $sale = Sale::with('details')->findOrFail($id);
+
+            // Find void status ID
+            $voidStatus = \App\Models\Status::where('name', 'void')->first();
+            // if (!$voidStatus) {
+            //     return response()->json(['error' => 'Void status not found'], 404);
+            // }
+
+            // 1. Update sale status
+            $sale->status_id = $voidStatus->id;
+            $sale->void_at = now();
+            $sale->void_by = $request->void_by;
+            $sale->save();
+
+            // 2. Restore stock to inventory
+            foreach ($sale->details as $detail) {
+
+                $inventory = Inventory::where('product_id', $detail->product_id)
+                                    ->where('warehouse_id', $sale->warehouse_id)
+                                    ->first();
+
+                if ($inventory) {
+                    $inventory->increment('qty', $detail->quantity);
+                }
+
+                // 3. Insert stock transaction
+                StockTransaction::create([
+                    'inventory_id' => $inventory->id ?? null,
+                    'reference_id' => $sale->id,
+                    'reference_type' => 'sale_void',
+                    'quantity_change' => $detail->quantity,
+                    'type' => 'in',
+                    'created_by' => $sale->void_by,
+                    'updated_by' => $sale->void_by,
+                ]);
+            }
+
+            // 4. Remove customer transactions related to this sale
+            CustomerTransaction::where('sale_id', $sale->id)->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Sale voided successfully, stock returned, void info saved.'
+            ], 200);
+
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Sale cannot be deleted', 'details' => $e->getMessage()], 400);
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Failed to void sale',
+                'details' => $e->getMessage()
+            ], 500);
         }
     }
 }
