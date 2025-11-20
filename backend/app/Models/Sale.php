@@ -13,6 +13,7 @@ class Sale extends Model
     protected $table = 'sales';
     protected $primaryKey = 'id';
     public $incrementing = false;
+
     protected $fillable = [
         'invoice_no',
         'customer_id',
@@ -24,11 +25,14 @@ class Sale extends Model
         'remark',
         'sale_date',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'void_at',
+        'void_by',
     ];
 
     protected $casts = [
         'sale_date' => 'datetime',
+        'void_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -36,23 +40,16 @@ class Sale extends Model
         parent::boot();
 
         static::creating(function ($sale) {
-            // Generate date-based prefix like "081125"
             $dateCode = Carbon::now()->format('dmy');
 
-            // Find last ID starting with today's prefix
             $lastSale = self::where('id', 'like', "S-{$dateCode}%")
                 ->orderBy('id', 'desc')
                 ->first();
 
-            // Determine next counter
-            if ($lastSale) {
-                $lastNumber = intval(substr($lastSale->id, -5));
-                $nextNumber = $lastNumber + 1;
-            } else {
-                $nextNumber = 1;
-            }
+            $nextNumber = $lastSale
+                ? intval(substr($lastSale->id, -5)) + 1
+                : 1;
 
-            // Build new ID (e.g., S-08112500001)
             $sale->id = 'S-' . $dateCode . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
         });
     }
@@ -67,20 +64,28 @@ class Sale extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function paymentMethod() 
+    public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_id');
     }
 
-    public function status() {
+    public function status()
+    {
         return $this->belongsTo(Status::class);
     }
 
-    public function createdBy() { 
-        return $this->belongsTo(User::class, 'created_by'); 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function updatedBy() { 
-        return $this->belongsTo(User::class, 'updated_by'); 
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function voidBy()
+    {
+        return $this->belongsTo(User::class, 'void_by');
     }
 }
