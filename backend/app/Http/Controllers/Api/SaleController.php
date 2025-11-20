@@ -12,11 +12,13 @@ use App\Models\StockTransaction;
 use App\Models\CustomerTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SaleController extends Controller
 {
     public function index(Request $request)
     {
+        
         $query = Sale::with(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']);
 
         if ($request->filled('customer_id')) {
@@ -34,7 +36,7 @@ class SaleController extends Controller
         } elseif ($request->filled('end_date')) {
             $query->whereDate('sale_date', '<=', $request->end_date);
         }
-
+        
         return SaleResource::collection($query->get());
     }
 
@@ -149,6 +151,8 @@ class SaleController extends Controller
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
+        Log::info("Sales Data:", $request->all());
+
         $sale = Sale::with('status')->findOrFail($id); // Load sale with status relation
 
         DB::beginTransaction();
@@ -163,28 +167,29 @@ class SaleController extends Controller
                 'sale_date' => $request->sale_date,
                 'updated_by' => $request->updated_by,
             ]);
-
-
-            // 2. Create CustomerTransaction only if status changed
-            CustomerTransaction::create([
-                'customer_id' => $sale->customer_id,
-                'sale_id' => $sale->id,
-                'type' => 'sale',
-                'amount' => $sale->paid_amount,
-                'created_by' => $sale->updated_by,
-                'updated_by' => $sale->updated_by,
-            ]);
             
+            if ($request -> status) {
+                // 2. Create CustomerTransaction only if status changed
+                CustomerTransaction::create([
+                    'customer_id' => $sale->customer_id,
+                    'sale_id' => $sale->id,
+                    'type' => 'sale',
+                    'amount' => $sale->paid_amount,
+                    'created_by' => $sale->updated_by,
+                    'updated_by' => $sale->updated_by,
+                ]);
+                
 
-            // 3. Update customer balances
-            $customer = $sale->customer;
-            if (strtolower($sale->status->name) === 'complete') {
-                $customer->paid_amount += $sale->total_amount;
-            }else{
-                $customer->payable += $sale->total_amount;
+                // 3. Update customer balances
+                $customer = $sale->customer;
+                if (strtolower($request->status) === 'complete') {
+                    $customer->paid_amount += $sale->total_amount;
+                }else if(strtolower($request->status) === 'unpaid'){
+                    $customer->payable += $sale->total_amount;
+                }
+                $customer->total += $sale->total_amount;
+                $customer->save();
             }
-            $customer->total += $sale->total_amount;
-            $customer->save();
 
             DB::commit();
 

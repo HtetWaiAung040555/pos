@@ -18,7 +18,7 @@ class InventoriesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'       => 'required|string|max:255',
+            'name'       => 'nullable|string|max:255',
             'qty'        => 'required|integer|min:0',
             'product_id' => 'required|exists:products,id',
             'warehouse_id'  => 'nullable|exists:warehouses,id',

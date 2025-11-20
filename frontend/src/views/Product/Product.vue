@@ -26,6 +26,7 @@
     onMounted(async () => {
         await useProduct.fetchAllProduct();
         dataList.value = useProduct.productList;
+        console.log(dataList.value);
     });
 
     // Table headers
@@ -37,6 +38,7 @@
         { key: 'name', label: 'Name' },
         { key: 'barcode', label: 'Barcode' },
         { key: 'unit', label: 'Unit' },
+        { key: 'category_id.name', label: 'Category', formatter: (row) => row.category_id.name },
         { key: 'sec_prop', label: 'Property' },
         { key: 'price', label: 'Price' },
         { key: 'status', label: 'Status', formatter: (row) => {

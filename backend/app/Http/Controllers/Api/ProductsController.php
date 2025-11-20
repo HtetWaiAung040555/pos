@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class ProductsController extends Controller
 {
@@ -20,7 +21,10 @@ class ProductsController extends Controller
     {
         $request->merge([
             'barcode' => $request->barcode ?: null,
+            'category_id' => $request->category_id ?: null,
         ]);
+
+        Log::info("data", $request->all());
 
         $request->validate([
             'name'          => 'required|string|max:255',
@@ -40,7 +44,7 @@ class ProductsController extends Controller
             'name'       => $request->name,
             'unit'       => $request->unit,
             'sec_prop'   => $request->sec_prop ?? null,
-            'category_id'=> $request->category_id,
+            'category_id'=> $request->category_id ?? null,
             'price'      => $request->price,
             'barcode'    => $request->barcode,
             'status_id'  => $request->status_id,

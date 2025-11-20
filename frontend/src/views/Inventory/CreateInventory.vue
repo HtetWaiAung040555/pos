@@ -56,15 +56,7 @@
 
     // Add stock function
     async function formSubmit() {
-        if (formData.value.name === "") {
-            errorMsg.value = {
-                name: errMsgList.name,
-                warehouse: "",
-                product: "",
-                qty: ""
-            };
-            return
-        } else if (formData.value.qty <= 0) {
+        if (formData.value.qty <= 0) {
             errorMsg.value = {
                 name: "",
                 warehouse: "",
@@ -137,8 +129,6 @@
                         placeholder="Name"
                         width="300px"
                         height="h-[35px]"
-                        :isRequire="true"
-                        :error="errorMsg.name"
                     />
                     <!-- Qty input -->
                     <BaseInput

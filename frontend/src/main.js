@@ -51,6 +51,7 @@ import Receivable from './views/Receivable/Receivable.vue';
 import CreateReceivable from './views/Receivable/CreateReceivable.vue';
 import UpdateReceivable from './views/Receivable/UpdateReceivable.vue';
 import Sales from './views/Sales/Sales.vue';
+import UpdateCustomer from './views/Customer/UpdateCustomer.vue';
 
 
 
@@ -84,7 +85,7 @@ const router = createRouter({
         {path: '/inventory/update', name: 'Update Inventory', component: UpdateInventory, meta: { requiresAuth: true, permission: { resource: 'Inventory', action: 'Update' } }},
         {path: '/customer', name: 'Customer', component: Customer, meta: { requiresAuth: true, permission: { resource: 'Customer', action: 'View' } }},
         {path: '/customer/create', name: 'Create Customer', component: CreateCustomer, meta: { requiresAuth: true, permission: { resource: 'Customer', action: 'Create' } }},
-        {path: '/customer/update', name: 'Update Customer', component: CreateCustomer, meta: { requiresAuth: true, permission: { resource: 'Customer', action: 'Update' } }},
+        {path: '/customer/update', name: 'Update Customer', component: UpdateCustomer, meta: { requiresAuth: true, permission: { resource: 'Customer', action: 'Update' } }},
         {path: '/payment/create', name: 'Create Payment', component: CreatePayment, meta: { requiresAuth: true, permission: { resource: 'POS', action: 'View' } }},
         {path: '/payment_method', name: 'Payment Method', component: PaymentMethod, meta: { requiresAuth: true, permission: { resource: 'Payment method', action: 'View' } }},
         {path: '/payment_method/create', name: 'Create Payment Method', component: CreatePaymentMethod, meta: { requiresAuth: true, permission: { resource: 'Payment method', action: 'Create' } }},

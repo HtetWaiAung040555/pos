@@ -31,6 +31,7 @@
     taxRate: 3,
     payment_id: 1,
     status_id: '',
+    status: '',
   });
 
   onMounted(async() => {
@@ -42,6 +43,7 @@
     await useStatus.fetchAllStatus();
     userData.value = JSON.parse(localStorage.getItem('user'));
     data.value.status_id = useStatus.statusList.find(el => el.name === 'Complete').id;
+    data.value.status = useStatus.statusList.find(el => el.name === 'Complete').name;
     console.log(salesData.value);
   });
 
@@ -73,6 +75,7 @@
       due_amount: changeReturn.value,
       remark: data.value.note,
       status_id: data.value.status_id,
+      status: data.value.status,
       updated_by: userData.value.id
     }
     console.log(payload);
@@ -87,7 +90,7 @@
     }
     if (useSales.salesList) {
       toast.add({ severity: 'success', summary: 'Success Message', detail: 'Sales created successfully.', life: 3000 });
-      router.push('/sales');
+      router.push('/pos');
     }
   }
 
@@ -109,10 +112,14 @@
   function changePaymentMethod(e) {
     if (!e.target.value) return
     if (e.target.value === '2') {
-      data.value.status_id = useStatus.statusList.find(el => el.name === 'Unpaid').id;
+      let statusData = useStatus.statusList.find(el => el.name === 'Unpaid');
+      data.value.status_id = statusData.id;
+      data.value.status = statusData.name;
       return
     } else {
-      data.value.status_id = useStatus.statusList.find(el => el.name === 'Complete').id;
+      let statusData = useStatus.statusList.find(el => el.name === 'Complete');
+      data.value.status_id = statusData.id;
+      data.value.status = statusData.name;
       return
     }
   }

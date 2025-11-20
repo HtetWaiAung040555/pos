@@ -42,6 +42,7 @@ import moment from 'moment';
   const visibleHoldList = ref(false);
   const holdList = ref([]);
   const loadingHolds = ref(false);
+  const selectedHold = ref('');
 
   onMounted( async() => {
       await useStatus.fetchAllStatus();
@@ -173,8 +174,6 @@ import moment from 'moment';
 async function holdSale() {
   if (!selectedProducts.value || selectedProducts.value.length === 0) return;
 
-  console.log(selectedCustomer.value);
-
   // Build payload expected by backend. Assumptions noted below.
   const payload = {
     customer_id: selectedCustomer.value?.id ?? null,
@@ -211,7 +210,6 @@ async function fetchHoldList() {
   console.log(status_id);
   try {
     await useSales.fetchSalesByStatus(status_id);
-    console.log(useSales.salesList);
     holdList.value = useSales.salesList;
   } catch (err) {
     console.error('Failed to fetch hold list', err);
@@ -229,9 +227,10 @@ async function openHoldDialog() {
 // Load hold into current cart for editing/resuming
 async function editHold(hold) {
   try {
-    // Expect hold detail endpoint returns items with product info
-    console.log(hold);
     // Map items into selectedProducts shape: { ...product, qty }
+
+    selectedHold.value = hold;
+
     if (Array.isArray(hold.details)) {
       selectedProducts.value = hold.details.map(i => {
         // If backend includes full product data
@@ -252,10 +251,8 @@ async function editHold(hold) {
       });
     }
 
-    console.log(hold.customer);
-
     // Set customer if included
-    if (hold.customer) selectedCustomer.value = JSON.stringify(hold);
+    if (hold.customer) selectedCustomer.value = useCustomer.customerList.filter(el => el.id === hold.customer.id)[0];
 
     console.log("Selected Customers: " + selectedCustomer.value);
 
@@ -278,35 +275,58 @@ async function deleteHold(hold) {
 }
 
 async function onPayClick() {
-  const payload = {
-    customer_id: selectedCustomer.value?.id ?? null,
-    paid_amount: 0,
-    warehouse_id: userData.value.branch.warehouse_id,
-    products: selectedProducts.value.map(p => ({
-      product_id: p.id,
-      quantity: p.qty,
-      price: p.price
-    })),
-    payment_id: '1',
-    sale_date: moment().format("YYYY/MM/DD HH:mm:ss"),
-    status_id: useStatus.statusList.find(el => el.name === 'Pending').id,
-    created_by: JSON.parse(localStorage.getItem('user')).id,
-  };
-  await useSales.addSales(payload);
-  console.log(useSales.salesList);
-  if(useSales.error) {
-    Object.values(useSales.error).forEach((err) => {
-        err.forEach((msg) => {
-            toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });
-        })
-    })
-    return
+  if (selectedHold.value) {
+    console.log(selectedHold.value);
+    const payload = {
+      paid_amount: 0,
+      payment_id: 1,
+      sale_date: moment().format("YYYY/MM/DD HH:mm:ss"),
+      status_id: useStatus.statusList.find(el => el.name === 'Pending').id,
+      updated_by: JSON.parse(localStorage.getItem('user')).id
+    }
+    await useSales.editSales(selectedHold.value.id, payload);
+    if(useSales.error) {
+      Object.values(useSales.error).forEach((err) => {
+          err.forEach((msg) => {
+              toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });
+          })
+      })
+      return
+    }
+    if (useSales.salesList) {
+      toast.add({ severity: 'success', summary: 'Success Message', detail: 'Sales created successfully.', life: 3000 });
+      router.push({path: '/payment/create', query: {id: useSales.salesList.id}});
+    }
+  } else {
+    const payload = {
+      customer_id: selectedCustomer.value?.id ?? null,
+      paid_amount: 0,
+      warehouse_id: userData.value.branch.warehouse_id,
+      products: selectedProducts.value.map(p => ({
+        product_id: p.id,
+        quantity: p.qty,
+        price: p.price
+      })),
+      payment_id: 1,
+      sale_date: moment().format("YYYY/MM/DD HH:mm:ss"),
+      status_id: useStatus.statusList.find(el => el.name === 'Pending').id,
+      created_by: JSON.parse(localStorage.getItem('user')).id,
+    };
+    await useSales.addSales(payload);
+    console.log(useSales.salesList);
+    if(useSales.error) {
+      Object.values(useSales.error).forEach((err) => {
+          err.forEach((msg) => {
+              toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });
+          })
+      })
+      return
+    }
+    if (useSales.salesList) {
+      toast.add({ severity: 'success', summary: 'Success Message', detail: 'Sales created successfully.', life: 3000 });
+      router.push({path: '/payment/create', query: {id: useSales.salesList.id}});
+    }
   }
-  if (useSales.salesList) {
-    toast.add({ severity: 'success', summary: 'Success Message', detail: 'Sales created successfully.', life: 3000 });
-    router.push({path: '/payment/create', query: {id: useSales.salesList.id}});
-  }
-
 }
 
 </script>

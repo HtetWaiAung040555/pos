@@ -28,35 +28,38 @@
     const selectedPayment = ref('');
     const searchValue = ref('');
 
-        onMounted(async () => {
-                    // default date-time range: start of current month at 00:00 to now
-                    filteredData.value.startDateTimeLocal = moment().startOf('month').format('YYYY-MM-DDTHH:mm');
-                    filteredData.value.endDateTimeLocal = moment().format('YYYY-MM-DDTHH:mm');
+    onMounted(async () => {
+        // default date-time range: start of current month at 00:00 to now
+        filteredData.value.startDateTimeLocal = moment().startOf('month').format('YYYY-MM-DDTHH:mm');
+        filteredData.value.endDateTimeLocal = moment().format('YYYY-MM-DDTHH:mm');
 
-                    await fetchSalesByDate();
+        await fetchSalesByDate();
+    });
+
+    async function fetchSalesByDate() {
+        // convert local datetime-local strings to backend friendly format (YYYY-MM-DD HH:mm:ss)
+        const start = filteredData.value.startDateTimeLocal
+            ? moment(filteredData.value.startDateTimeLocal).format('YYYY-MM-DD HH:mm:ss')
+            : null;
+        const end = filteredData.value.endDateTimeLocal
+            ? moment(filteredData.value.endDateTimeLocal).format('YYYY-MM-DD HH:mm:ss')
+            : null;
+
+        // pass plain object to store method (server should accept datetime strings)
+        console.log({
+            start_date: start,
+            end_date: end
+        })
+        await useSales.fetchAllSales({
+            start_date: start,
+            end_date: end
         });
-
-            async function fetchSalesByDate() {
-                // convert local datetime-local strings to backend friendly format (YYYY-MM-DD HH:mm:ss)
-                const start = filteredData.value.startDateTimeLocal
-                    ? moment(filteredData.value.startDateTimeLocal).format('YYYY-MM-DD HH:mm:ss')
-                    : null;
-                const end = filteredData.value.endDateTimeLocal
-                    ? moment(filteredData.value.endDateTimeLocal).format('YYYY-MM-DD HH:mm:ss')
-                    : null;
-
-                // pass plain object to store method (server should accept datetime strings)
-                await useSales.fetchAllSales({
-                    start_date: start,
-                    end_date: end
-                });
-            salesList.value = useSales.salesList || [];
-            // reset client-side filters when new date-range data fetched (optional)
-            selectedStatus.value = '';
-            selectedPayment.value = '';
-            searchValue.value = '';
-            console.log('Fetched sales for', filteredData.value.startDateTimeLocal, filteredData.value.endDateTimeLocal, salesList.value.length);
-        }
+        salesList.value = useSales.salesList || [];
+        // reset client-side filters when new date-range data fetched (optional)
+        selectedStatus.value = '';
+        selectedPayment.value = '';
+        searchValue.value = '';
+    }
 
     const columns = [
         { key: 'id', label: 'Invoice No.' },
@@ -71,56 +74,55 @@
         { key: 'updated_at', label: 'Updated At', formatter: (row) => moment(row.updated_at).format('DD-MM-YY hh:mm') },
     ];
 
-        // Derived options from fetched data for client-side filters
-        const statusOptions = computed(() => {
-            const map = new Map();
-            (salesList.value || []).forEach(s => {
-                if (s.status && s.status.id) map.set(s.status.id, s.status.name);
+    // Derived options from fetched data for client-side filters
+    const statusOptions = computed(() => {
+        const map = new Map();
+        (salesList.value || []).forEach(s => {
+            if (s.status && s.status.id) map.set(s.status.id, s.status.name);
+        });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    });
+
+    const paymentOptions = computed(() => {
+        const map = new Map();
+        (salesList.value || []).forEach(s => {
+            if (s.payment_method && s.payment_method.id) map.set(s.payment_method.id, s.payment_method.name);
+        });
+        return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+    });
+
+    // Final list shown in table after client-side filtering
+    const displayedSales = computed(() => {
+        let list = (salesList.value || []).slice();
+
+        // filter by status
+        if (selectedStatus.value) {
+            list = list.filter(s => String(s.status?.id) === String(selectedStatus.value));
+        }
+
+        // filter by payment method
+        if (selectedPayment.value) {
+            list = list.filter(s => String(s.payment_method?.id) === String(selectedPayment.value));
+        }
+
+        // search across invoice id, customer name
+        if (searchValue.value && searchValue.value.trim() !== '') {
+            const q = searchValue.value.toLowerCase().trim();
+            list = list.filter(s => {
+                const cust = s.customer?.name || '';
+                const id = s.id ? String(s.id) : '';
+                return cust.toLowerCase().includes(q) || id.includes(q);
             });
-            return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
-        });
+        }
 
-        const paymentOptions = computed(() => {
-            const map = new Map();
-            (salesList.value || []).forEach(s => {
-                if (s.payment_method && s.payment_method.id) map.set(s.payment_method.id, s.payment_method.name);
-            });
-            return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
-        });
+        console.log(list);
 
-        // Final list shown in table after client-side filtering
-        const displayedSales = computed(() => {
-            let list = (salesList.value || []).slice();
-
-            // filter by status
-            if (selectedStatus.value) {
-                list = list.filter(s => String(s.status?.id) === String(selectedStatus.value));
-            }
-
-            // filter by payment method
-            if (selectedPayment.value) {
-                list = list.filter(s => String(s.payment_method?.id) === String(selectedPayment.value));
-            }
-
-            // search across invoice id, customer name
-            if (searchValue.value && searchValue.value.trim() !== '') {
-                const q = searchValue.value.toLowerCase().trim();
-                list = list.filter(s => {
-                    const cust = s.customer?.name || '';
-                    const id = s.id ? String(s.id) : '';
-                    return cust.toLowerCase().includes(q) || id.includes(q);
-                });
-            }
-
-            console.log(list);
-
-            return list;
-        });
+        return list;
+    });
 
     function changeRoute(pathname) {
         router.push(pathname);
     }
-
 
     // Sales delete function
     async function deleteHandle(id) {

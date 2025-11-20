@@ -12,16 +12,20 @@
     import BaseLabel from '@/components/BaseLabel.vue';
     import { errMsgList } from '@/utils/const';
     import { useProductStore } from '@/stores/useProductStore';
+    import { useCategoryStore } from '@/stores/useCategoryStore';
+    import { Select } from 'primevue';
     
     const router = useRouter();
     const toast = useToast();
     const useProduct = useProductStore();
+    const useCategory = useCategoryStore();
 
     const formData = ref(
       {
         name: "",
         unit: "",
         sec_prop: "",
+        category_id: "",
         price: 0,
         barcode: "",
         image: "",
@@ -36,8 +40,10 @@
         price: "",
         unit: "",
         sec_prop: "",
+        category_id: ""
     });
     const uploadImage = ref('');
+    const selectedCategory = ref('');
 
     // Change route function
     function changeRoute(pathname) {
@@ -46,6 +52,7 @@
 
     onMounted(async() => {
         userData.value = JSON.parse(localStorage.getItem('user'));
+        await useCategory.fetchAllCategory();
     });
 
     function onImageSelected(event) {
@@ -61,7 +68,7 @@
     }
 
     // Create product function
-    async function formSubmit() {
+    async function formSubmit(isNew) {
         if (formData.value.name === "") {
             errorMsg.value = {
                 name: errMsgList.name,
@@ -78,27 +85,12 @@
                 sec_prop: "",
             };
             return
-        } else if (formData.value.unit === "") {
-            errorMsg.value = {
-                name: "",
-                price: "",
-                unit: errMsgList.unit,
-                sec_prop: "",
-            };
-            return
-        } else if (formData.value.sec_prop === "") {
-            errorMsg.value = {
-                name: "",
-                price: "",
-                unit: "",
-                sec_prop: errMsgList.sec_prop,
-            };
-            return
         }
         const fd = new FormData();
         fd.append("name", formData.value.name);
         fd.append("unit", formData.value.unit);
         fd.append("sec_prop", formData.value.sec_prop);
+        fd.append("category_id", selectedCategory.value.id? selectedCategory.value.id : '');
         fd.append("price", formData.value.price);
         fd.append("barcode", formData.value.barcode);
         fd.append("status_id", status.value? "1" : "2");
@@ -121,6 +113,23 @@
         }
         if (useProduct.productList) {
             toast.add({ severity: 'success', summary: 'Success Message', detail: 'Product created successfully.', life: 3000 });
+            if (isNew) {
+                formData.value = {
+                    name: "",
+                    unit: "",
+                    sec_prop: "",
+                    category_id: "",
+                    price: 0,
+                    barcode: "",
+                    image: "",
+                    status_id: "",
+                    created_by: "",
+                };
+                selectedCategory.value = "";
+                uploadImage.value = "";
+                router.push('/product/create');
+                return
+            }
             router.push('/product');
         }
     }
@@ -168,7 +177,7 @@
                     </div>
                 </div>
                 <div class="flex gap-x-4 mt-4">
-                    <!-- User Name Input -->
+                    <!-- Name Input -->
                     <BaseInput
                         size="sm"
                         v-model="formData.name"
@@ -179,6 +188,21 @@
                         :isRequire="true"
                         :error="errorMsg.name"
                     />
+                    <!-- Category Select -->
+                    <div class="flex flex-col gap-y-1">
+                        <BaseLabel 
+                            label="Category"
+                        />
+                        <Select 
+                            v-model="selectedCategory" 
+                            :options="useCategory.categoryList" 
+                            showClear
+                            filter
+                            optionLabel="name"
+                            placeholder="Select category"
+                            class="w-[300px] h-[35px] items-center" 
+                        />
+                    </div>
                     <!-- Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
                         <BaseLabel label="Status" />
@@ -203,8 +227,6 @@
                         placeholder="Pcs, Pack, etc..."
                         width="300px"
                         height="h-[35px]"
-                        :isRequire="true"
-                        :error="errorMsg.unit"
                     />
                 </div>
                 <div class="flex gap-x-4 mt-4">
@@ -216,8 +238,6 @@
                         placeholder="Red, Green, Blue, ..."
                         width="300px"
                         height="h-[35px]"
-                        :isRequire="true"
-                        :error="errorMsg.sec_prop"
                     />
                     <!-- Price -->
                     <BaseInput
@@ -238,14 +258,18 @@
                         variant="outlined"
                         :isLoading="useProduct.loading" :icon="useProduct.loading? 'fa fa-spinner' : 'fa fa-file-arrow-up'" 
                         severity="primary" 
-                        @click="formSubmit" 
+                        @click="() => {
+                            formSubmit(true);
+                        }" 
                         :disabled="useProduct.loading"  
                     />
                     <BaseButton 
                         label="Save" 
                         :isLoading="useProduct.loading" :icon="useProduct.loading? 'fa fa-spinner' : 'fa fa-floppy-disk'" 
                         severity="primary" 
-                        @click="formSubmit" 
+                        @click="() => {
+                            formSubmit(false);
+                        }" 
                         :disabled="useProduct.loading"  
                     />
                 </div>

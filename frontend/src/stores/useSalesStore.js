@@ -15,7 +15,7 @@ export const useSaleStore = defineStore('sales', {
             this.loading = true;
             try {
                 console.log(filteredData);
-                const response = await axios.get(`/sales?start_date=${filteredData.start_date}&end_date=${filteredData.end_date}&customer_id=${filteredData.customer_id}&status_id=${filteredData.status_id}`);
+                const response = await axios.get(`/sales?start_date=${filteredData.start_date}&end_date=${filteredData.end_date}&${filteredData.customer_id? customer_id=filteredData.customer_id : ""}&${filteredData.status_id? status_id=filteredData.status_id: ""}`);
                 console.log(response.data.data);
                 this.salesList = response.data.data;
             } catch (err) {

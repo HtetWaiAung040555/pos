@@ -13,9 +13,9 @@
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import BaseLabel from '@/components/BaseLabel.vue';
     import { errMsgList } from '@/utils/const';
-import { useWarehouseStore } from '@/stores/useWarehouseStore';
-import { Select } from 'primevue';
-import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
+    import { useWarehouseStore } from '@/stores/useWarehouseStore';
+    import { Select } from 'primevue';
+    import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
     
     const router = useRouter();
     const toast = useToast();
