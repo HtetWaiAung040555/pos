@@ -21,6 +21,11 @@ class CustomerTransactionResource extends JsonResource
                 'name' => $this->paymentMethod->name,
             ] : null,
 
+            'status' => [
+                'id' => $this->status->id ?? null,
+                'name' => $this->status->name ?? null,
+            ],
+
             'customer' => $this->customer ? [
                 'id'        => $this->customer->id,
                 'name'      => $this->customer->name,

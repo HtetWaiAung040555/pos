@@ -171,26 +171,20 @@ class SaleController extends Controller
                 'customer_id' => $sale->customer_id,
                 'sale_id' => $sale->id,
                 'type' => 'sale',
-                'amount' => $sale->paid_amount,
+                'amount' => -($sale->total_amount),
+                'payment_id' => $sale->payment_id,
+                'status_id' => 7,
+                'pay_date' => $sale->sale_date,
                 'created_by' => $sale->updated_by,
-                'updated_by' => $sale->updated_by,
+                'updated_by' => $sale->updated_by
             ]);
             
 
             // 3. Update customer balances
             $customer = $sale->customer;
-            // if (strtolower($sale->status->name) === 'complete') {
-            //     $customer->paid_amount += $sale->total_amount;
-            // }else{
-            //     $customer->payable += $sale->total_amount;
-            // }
-            // $customer->total += $sale->total_amount;
-            Log::info($sale->payment_id);
-
             if ($sale->payment_id == 2 || $sale->payment_id == 3) {
                 $customer->balance -= $sale->total_amount;
             }
-
             
             $customer->save();
 
