@@ -21,6 +21,7 @@ class CustomerResource extends JsonResource
             ],
 
             'is_default' => $this->is_default,
+            'balance' => $this->balance,
 
             'created_by' => [
                 'id' => $this->createdBy->id ?? null,

@@ -183,18 +183,9 @@ class SaleController extends Controller
 
             // 3. Update customer balances
             $customer = $sale->customer;
-            // if (strtolower($sale->status->name) === 'complete') {
-            //     $customer->paid_amount += $sale->total_amount;
-            // }else{
-            //     $customer->payable += $sale->total_amount;
-            // }
-            // $customer->total += $sale->total_amount;
-            Log::info($sale->payment_id);
-
             if ($sale->payment_id == 2 || $sale->payment_id == 3) {
                 $customer->balance -= $sale->total_amount;
             }
-
             
             $customer->save();
 

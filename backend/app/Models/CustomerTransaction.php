@@ -17,6 +17,7 @@ class CustomerTransaction extends Model
         'type',
         'amount',
         'payment_id',
+        'status_id',
         'remark',
         'pay_date',
         'created_by',
@@ -31,6 +32,11 @@ class CustomerTransaction extends Model
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_id');
+    }
+
+    public function Status()
+    {
+        return $this->belongsTo(Status::class, 'status_id');
     }
 
     public function createdBy()
