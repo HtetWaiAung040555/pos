@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('branches', function (Blueprint $table) {
@@ -16,6 +13,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone');
             $table->string('location');
+            $table->unsignedBigInteger('warehouse_id')->nullable();
+            $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('set null');
             $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
@@ -23,9 +22,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('branches');

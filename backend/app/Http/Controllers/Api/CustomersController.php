@@ -35,9 +35,7 @@ class CustomersController extends Controller
             'address' => $request->address,
             'status_id' => $request->status_id,
             'is_default' => $request->is_default ?? false,
-            'payable' => 0,
-            'receivable' => 0, 
-            'total' => 0,
+            'balance' => $request->balance ?? 0,
             'created_by' => $request->created_by,
             'updated_by' => $request->updated_by ?? $request->created_by,
         ]);

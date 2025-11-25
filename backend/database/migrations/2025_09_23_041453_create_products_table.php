@@ -6,16 +6,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('unit');
-            $table->string('sec_prop');
+            $table->string('sec_prop')->nullable();
+            $table->foreignId('category_id')->nullable()->constrained('categories')->restrictOnDelete();
             $table->decimal('price',11,2);
             $table->string('image')->nullable();
             $table->string('barcode')->nullable()->unique();
@@ -26,9 +24,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('products');

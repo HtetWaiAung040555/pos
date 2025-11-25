@@ -154,13 +154,11 @@ class CustomerTransactionController extends Controller
         }
     }
 
-    // Auto recalculates customer payable/paid/total
-
+    // Customer Balance
     private function updateCustomerBalance($customerId)
     {
         $customer = Customer::findOrFail($customerId);
 
-        // Sum of all payments from customer_transactions
         $paid = CustomerTransaction::where('customer_id', $customerId)
             ->where('type', 'payment')
             ->sum('amount');
