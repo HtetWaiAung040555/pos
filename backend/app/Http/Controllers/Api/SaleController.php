@@ -13,7 +13,6 @@ use App\Models\CustomerTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class SaleController extends Controller
 {
@@ -152,8 +151,6 @@ class SaleController extends Controller
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        Log::info("Sales Data:", $request->all());
-
         $sale = Sale::with('status')->findOrFail($id); // Load sale with status relation
 
         DB::beginTransaction();
@@ -168,18 +165,21 @@ class SaleController extends Controller
                 'sale_date' => $request->sale_date,
                 'updated_by' => $request->updated_by,
             ]);
+
+
+            // 2. Create CustomerTransaction only if status changed
+            CustomerTransaction::create([
+                'customer_id' => $sale->customer_id,
+                'sale_id' => $sale->id,
+                'type' => 'sale',
+                'amount' => -($sale->total_amount),
+                'payment_id' => $sale->payment_id,
+                'status_id' => 7,
+                'pay_date' => $sale->sale_date,
+                'created_by' => $sale->updated_by,
+                'updated_by' => $sale->updated_by
+            ]);
             
-            if ($request -> status) {
-                // 2. Create CustomerTransaction only if status changed
-                CustomerTransaction::create([
-                    'customer_id' => $sale->customer_id,
-                    'sale_id' => $sale->id,
-                    'type' => 'sale',
-                    'amount' => $sale->paid_amount,
-                    'created_by' => $sale->updated_by,
-                    'updated_by' => $sale->updated_by,
-                ]);
-                
 
             // 3. Update customer balances
             $customer = $sale->customer;

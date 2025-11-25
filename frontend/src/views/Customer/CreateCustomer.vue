@@ -45,8 +45,18 @@ function changeRoute(pathname) {
 
 onMounted(async () => {
     userData.value = JSON.parse(localStorage.getItem('user'));
-    await useCustomer.fetchLastCustomerId();
-    console.log(useCustomer.lastId);
+    try {
+        await useCustomer.fetchAllCustomer();
+    } catch (err) {
+        alert('Failed to fetch customer list on mount', err);
+    }
+
+    // Fetch last id as a fallback
+    try {
+        await useCustomer.fetchLastCustomerId();
+    } catch (err) {
+        alert('Failed to fetch last customer id on mount', err);
+    }
     // generate initial auto code
     generateCustomerCode();
 });
@@ -60,47 +70,55 @@ watch(() => formData.value.id, async (newVal) => {
     try {
         qrDataUrl.value = await QRCode.toDataURL(newVal, { width: 300 });
     } catch (err) {
-        console.error('Failed to generate QR', err);
         qrDataUrl.value = '';
     }
 });
 
 // 1) Auto-generate customer code (e.g., FMC-0001)
 function generateCustomerCode() {
-    // Default values when there is no lastId
+    // Default configuration
     const defaultPrefix = 'KBAM';
     const defaultSep = '-';
 
-    const lastRaw = useCustomer.lastId;
-    console.log('Last ID:', lastRaw);
-    let lastSerial = 0;
+    const customers = useCustomer.customerList || [];
+    const lastRaw = useCustomer.lastId || '';
+
+    let maxSerial = 0;
     let pad = 4; // default serial padding
     let prefix = defaultPrefix;
     let sep = defaultSep;
 
-    if (lastRaw) {
-        // Try to extract trailing digits and use their length as padding
-        const m = lastRaw.match(/(\d+)$/);
+    // Build regex to match prefix variants like KBAM-0001 or KBAM0001 or KBAM_0001
+    const regex = new RegExp(`^(${prefix})([-_]?)(0*)(\\d+)$`, 'i');
+
+    // Scan customer list for entries that match our prefix and extract the numeric part
+    customers.forEach(c => {
+        const idVal = (c.id || '').toString();
+        const m = idVal.match(regex);
         if (m) {
-            lastSerial = parseInt(m[1], 10) || 0;
-            pad = m[1].length;
-            // prefix part is everything before the digits
-            let p = lastRaw.slice(0, lastRaw.length - m[1].length).trim();
-            if (p.endsWith('-') || p.endsWith('_')) {
-                sep = p.slice(-1);
-                prefix = p.slice(0, -1);
-            } else if (p.length > 0) {
-                // No explicit separator, keep p as prefix and use default sep
-                prefix = p;
+            const leadingZeros = m[3] || '';
+            const numStr = (m[4] || '').replace(/^0+/, '') || '0';
+            const num = parseInt(numStr, 10) || 0;
+            const currentPad = Math.max(leadingZeros.length + numStr.length, numStr.length);
+            if (num > maxSerial) {
+                maxSerial = num;
+                pad = Math.max(pad, leadingZeros.length + numStr.length);
             }
-        } else if (!isNaN(Number(lastRaw))) {
-            // lastRaw is numeric string like "123"
-            lastSerial = Number(lastRaw);
-            pad = Math.max(4, String(lastSerial).length);
+        } 
+    });
+
+    // If no customers matched our prefix, fall back to lastRaw only if it matches the prefix
+    if (maxSerial === 0 && lastRaw) {
+        const m2 = lastRaw.match(regex);
+        if (m2) {
+            const leadingZeros = m2[3] || '';
+            const numStr = (m2[4] || '').replace(/^0+/, '') || '0';
+            maxSerial = parseInt(numStr, 10) || 0;
+            pad = Math.max(pad, leadingZeros.length + numStr.length);
         }
     }
 
-    const next = lastSerial + 1;
+    const next = maxSerial + 1;
     const serial = String(next).padStart(pad, '0');
     formData.value.id = `${prefix}${sep}${serial}`;
 }
@@ -177,7 +195,7 @@ async function formSubmit() {
         try {
             qrDataUrl.value = await QRCode.toDataURL(formData.value.id, { width: 200 });
         } catch (err) {
-            console.error('Failed to generate QR before submit', err);
+            alert('Failed to generate QR before submit', err);
         }
     }
     await useCustomer.addCustomer(formData.value);
@@ -237,6 +255,18 @@ async function formSubmit() {
                             <BaseButton label="Generate" severity="secondary" @click="generateCustomerCode" />
                             <BaseButton label="Print QR" severity="primary" @click="printQr" :disabled="!qrDataUrl" />
                         </div>
+                    </div>
+                </div>
+                <div class="flex gap-x-2 mt-6">
+                    <div class="flex flex-col">
+                        <BaseInput
+                            size="sm"
+                            v-model="formData.id"
+                            label="Code"
+                            placeholder="Code (leave empty to auto-generate)"
+                            width="300px"
+                            height="h-[35px]"
+                        />
                     </div>
                 </div>
                 <div class="flex gap-x-4 mt-6">

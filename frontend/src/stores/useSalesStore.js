@@ -73,10 +73,10 @@ export const useSaleStore = defineStore('sales', {
                 this.loading = false;
             }
         },
-        async deleteSales(id) {
+        async deleteSales(data, id) {
             this.deleteLoading = true;
             try {
-                const response = await axios.delete(`/sales/${id}`);
+                const response = await axios.delete(`/sales/${id}`, { void_by: data.void_by });
                 this.data = response;
             } catch (err) {
                 if (err.response && err.response.status === 422) {

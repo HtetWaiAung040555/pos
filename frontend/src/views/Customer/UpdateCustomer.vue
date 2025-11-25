@@ -7,7 +7,8 @@
     import { useRoute, useRouter } from 'vue-router';
     import BaseInput from '@/components/BaseInput.vue';
     import BaseTextarea from '@/components/BaseTextarea.vue';
-    import { onMounted, ref } from 'vue';
+    import { onMounted, ref, watch } from 'vue';
+    import QRCode from 'qrcode';
     import { useToast } from 'primevue/usetoast';
     import BaseSwitch from '@/components/BaseSwitch.vue';
     import BaseLabel from '@/components/BaseLabel.vue';
@@ -21,6 +22,7 @@
     const useCustomer = useCustomerStore();
 
     const formData = ref({})
+    const qrDataUrl = ref('');
     const customerStatus = ref(true);
     const userData = ref({});
     const errorMsg = ref({
@@ -37,6 +39,25 @@
         formData.value = useCustomer.customerList;
         customerStatus.value = formData.value.status.id === 1 ? true : false;
         userData.value = JSON.parse(localStorage.getItem('user'));
+
+        // generate QR from returned id
+        try {
+            if (formData.value.id) {
+                qrDataUrl.value = await QRCode.toDataURL(formData.value.id, { width: 300 });
+            }
+        } catch (err) {
+            qrDataUrl.value = '';
+        }
+    });
+
+    // keep QR in sync if id somehow changes
+    watch(() => formData.value.id, async (newId) => {
+        if (!newId) { qrDataUrl.value = ''; return; }
+        try {
+            qrDataUrl.value = await QRCode.toDataURL(newId, { width: 300 });
+        } catch (err) {
+            qrDataUrl.value = '';
+        }
     });
 
     // Create branch function
@@ -86,6 +107,15 @@
             <template #cardElements>
                 <!-- Form section subtitle -->
                 <SubTitle label="Basic Info" />
+                <div class="flex gap-x-2 mt-6">
+                    <div class="flex flex-col items-center gap-y-2">
+                        <div class="w-[140px] h-[140px] bg-white flex items-center justify-center border">
+                            <img v-if="qrDataUrl" :src="qrDataUrl" alt="QR Code" class="max-w-full max-h-full" />
+                            <div v-else class="text-xs text-gray-400">QR will appear here</div>
+                        </div>
+                        <BaseLabel v-if="formData.id" :label="formData.id" class="text-sm" />
+                    </div>
+                </div>
                 <div class="flex gap-x-4 mt-6">
                     <!-- Customer Name Input -->
                     <BaseInput

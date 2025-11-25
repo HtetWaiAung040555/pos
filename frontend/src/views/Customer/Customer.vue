@@ -32,6 +32,7 @@
     const columns = [
         { key: 'id', label: 'ID' },
         { key: 'name', label: 'Name' },
+        { key: 'balance', label: 'Balance' },
         { key: 'phone', label: 'Phone' },
         { key: 'address', label: 'Address' },
         { key: 'created_by', label: 'Created By', formatter: (row) => row.created_by.name },

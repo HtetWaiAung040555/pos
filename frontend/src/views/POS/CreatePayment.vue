@@ -31,20 +31,16 @@
     taxRate: 3,
     payment_id: 1,
     status_id: '',
-    status: '',
   });
 
   onMounted(async() => {
     await useSales.fetchSales(route.query.id);
-    console.log("api" + useSales.salesList);
     salesData.value = useSales.salesList;
     data.value.payAmount = salesData.value.total_amount;
     await usePaymentMethod.fetchAllPaymentMethod();
     await useStatus.fetchAllStatus();
     userData.value = JSON.parse(localStorage.getItem('user'));
     data.value.status_id = useStatus.statusList.find(el => el.name === 'Complete').id;
-    data.value.status = useStatus.statusList.find(el => el.name === 'Complete').name;
-    console.log(salesData.value);
   });
 
   const subtotal = computed(() => {
@@ -75,10 +71,8 @@
       due_amount: changeReturn.value,
       remark: data.value.note,
       status_id: data.value.status_id,
-      status: data.value.status,
       updated_by: userData.value.id
     }
-    console.log(payload);
     await useSales.editSales(salesData.value.id, payload);
     if(useSales.error) {
       Object.values(useSales.error).forEach((err) => {
@@ -204,43 +198,30 @@
       <div
         class="flex-[1.2] grid grid-cols-2 gap-4 bg-white p-6 rounded-sm border border-gray-300 shadow-sm"
       >
-        <div class="flex flex-col">
-          <BaseLabel label="Received Amount :" />
-          <BaseInput
-            size="sm"
-            v-model="data.payAmount"
-            type="number"
-            width="350px"
-            height="h-[35px]"
-            
-          />
-        </div>
-
-        <div class="flex flex-col">
-          <BaseLabel label="Paying Amount:" />
-          <BaseInput
-            size="sm"
-            v-model="salesData.total_amount"
-            width="350px"
-            height="h-[35px]"
-            disabled
-          />
-        </div>
-
-        <div class="flex flex-col">
-          <BaseLabel label="Change Return :" />
-          <BaseInput size="sm" 
-            v-model="changeReturn" 
-            width="350px" 
-            height="h-[35px]"
-            disabled 
-          />
-        </div>
-
-        <div class="flex flex-col">
+        <BaseInput
+          size="sm"
+          v-model="data.payAmount"
+          type="number"
+          label="Received Amount:"
+          height="h-[35px]"
+        />
+        <BaseInput
+          size="sm"
+          v-model="salesData.total_amount"
+          label="Paying Amount:"
+          height="h-[35px]"
+          disabled
+        />
+        <BaseInput size="sm" 
+          v-model="changeReturn" 
+          label="Change Return:"
+          height="h-[35px]"
+          disabled 
+        />
+        <div class="flex flex-col gap-1">
           <BaseLabel label="Payment Type:" />
           <select
-            class="text-md border border-gray-500 rounded-sm p-2 text-black w-[350px] h-[35px]"
+            class="text-md border border-gray-500 rounded-sm p-2 text-black w-full h-[35px]"
             v-model="data.payment_id"
             @change="changePaymentMethod"
           >
@@ -249,6 +230,24 @@
               {{ pm.name }}
             </option>
           </select>
+        </div>
+        <BaseInput
+          size="sm"
+          v-model="salesData.customer.id"
+          label="Customer ID:"
+          height="h-[35px]"
+          disabled
+        />
+        <div class="flex gap-x-1 items-end">
+          <BaseInput size="sm" 
+            v-model="salesData.customer.balance" 
+            label="Customer Balance:"
+            height="h-[35px]"
+            disabled 
+          />
+          <BaseButton
+            icon="fa fa-plus"
+          />
         </div>
 
         <div class="flex flex-col col-span-2">

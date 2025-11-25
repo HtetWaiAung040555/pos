@@ -6,7 +6,6 @@
   import { useInventoryStore } from '@/stores/useInventoryStore';
   import { Dialog, Select, useToast } from 'primevue';
   import { computed, nextTick, onMounted, ref, watch } from 'vue';
-  import axios from 'axios';
   import { useStatusStore } from '@/stores/useStatusStore';
   import { useSaleStore } from '@/stores/useSalesStore';
 import { useRouter } from 'vue-router';
@@ -265,12 +264,18 @@ async function editHold(hold) {
 
 async function deleteHold(hold) {
   if (!confirm('Delete this held sale? This may be irreversible depending on backend settings.')) return;
-  try {
-    await axios.delete(`/sales/holds/${hold.id}`);
-    // Refresh list
-    await fetchHoldList();
-  } catch (err) {
-    console.error('Failed to delete hold', err);
+  const payload = {
+    void_by: JSON.parse(localStorage.getItem('user')).id
+  }
+  await useSales.deleteSales(payload, hold.id);
+  if(useSales.error) {
+    toast.add({ severity: 'error', summary: 'Error Message', detail: useSales.error, life: 3000 });
+    return
+  }
+  if (useSales.data.status === 200) {
+    toast.add({ severity: 'success', summary: 'Success Message', detail: 'Inventory deleted successfully.', life: 3000 });
+    await useSales.fetchHoldList();
+    dataList.value = useSales.customerList;
   }
 }
 
