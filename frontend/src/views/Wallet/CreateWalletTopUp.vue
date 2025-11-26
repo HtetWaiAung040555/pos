@@ -6,14 +6,15 @@
   import BaseLabel from '@/components/BaseLabel.vue';
   import BaseTextarea from '@/components/BaseTextarea.vue';
   import BaseButton from '@/components/BaseButton.vue';
+  import { errMsgList } from '@/utils/const';
   import { useToast } from 'primevue';
   import { Select } from 'primevue';
+  import BaseErrorLabel from '@/components/BaseErrorLabel.vue';
   import { useWalletStore } from '@/stores/useWalletStore';
   import { useCustomerStore } from '@/stores/useCustomerStore';
   import { usePaymentMethodStore } from '@/stores/usePaymentMethodStore';
 
   const router = useRouter();
-  const route = useRoute();
   const toast = useToast();
 
   const useWallet = useWalletStore();
@@ -114,9 +115,6 @@
       printSlip();
   }
 
-  async function formCancel() {
-      console.log('Cancel clicked');
-  }
 
   function printSlip() {
     const slip = document.getElementById('slip-section');

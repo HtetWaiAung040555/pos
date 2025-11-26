@@ -51,6 +51,7 @@ import Sales from './views/Sales/Sales.vue';
 import UpdateCustomer from './views/Customer/UpdateCustomer.vue';
 import Wallet from './views/Wallet/Wallet.vue';
 import CreateWalletTopUp from './views/Wallet/CreateWalletTopUp.vue';
+import UpdateWalletTopUp from './views/Wallet/UpdateWalletTopUp.vue';
 
 
 
@@ -99,7 +100,7 @@ const router = createRouter({
         {path: '/category/update', name: 'Update Category', component: UpdateCategory, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'Update' } }},
         {path: '/wallet', name: 'Wallet', component: Wallet, meta: { requiresAuth: true, permission: { resource: 'Wallet', action: 'View' } }},
         {path: '/wallet/createTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'WalletTopUp', action: 'Create' } }},
-        {path: '/wallet/updateTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'WalletTopUp', action: 'Create' } }},
+        {path: '/wallet/updateTopUp', name: 'Update Wallet Top Up', component: UpdateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'WalletTopUp', action: 'Update' } }},
         { path: '/', redirect: '/login' }
     ]
 });
