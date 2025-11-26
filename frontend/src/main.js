@@ -51,6 +51,7 @@ import Sales from './views/Sales/Sales.vue';
 import UpdateCustomer from './views/Customer/UpdateCustomer.vue';
 import Wallet from './views/Wallet/Wallet.vue';
 import CreateWalletTopUp from './views/Wallet/CreateWalletTopUp.vue';
+import UpdateWalletTopUp from './views/Wallet/UpdateWalletTopUp.vue';
 
 
 

@@ -17,9 +17,7 @@
     const toast = useToast();
     const filter = useFilterStore();
     const usePermission = usePermissionStore();
-
     const useWallet = useWalletStore();
-
     const searchValue = ref('');
     const startDate = ref('');
     const endDate = ref('');
@@ -73,7 +71,6 @@
             walletList.value = useWallet.walletList;
         }
     }
-
 </script>
 
 <template>
@@ -97,16 +94,13 @@
             :columns="columns"
             :rows="filteredRows"
             :pageSize="5"
-             
+            :editPath="'Update Wallet Top Up'"
             :isLoading="useWallet.loading"
             @delete="deleteHandle"
             :defaultSort="{key: 'created_at', order: 'desc'}"
-          
+            :isEdit="!usePermission.can('WalletTopUp', 'Update')"
+            :isDelete="!usePermission.can('WalletTopUp', 'Delete')" 
         >
-
-          <!-- :isEdit="!usePermission.can('WalletTopUp', 'Update')"
-            :isDelete="!usePermission.can('WalletTopUp', 'Delete')" -->
-
             <!-- Filter Section -->
             <template #filters>
                 <div class="flex gap-2">
