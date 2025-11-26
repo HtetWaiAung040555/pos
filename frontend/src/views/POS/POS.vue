@@ -312,7 +312,7 @@ async function onPayClick() {
         quantity: p.qty,
         price: p.price
       })),
-      payment_id: 1,
+      payment_id: selectedCustomer.value?.is_default ? 1 : 3,
       sale_date: moment().format("YYYY/MM/DD HH:mm:ss"),
       status_id: useStatus.statusList.find(el => el.name === 'Pending').id,
       created_by: JSON.parse(localStorage.getItem('user')).id,

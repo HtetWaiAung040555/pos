@@ -83,7 +83,7 @@
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
                     <BaseButton 
-                        v-if="usePermission.can('WalletTopUp', 'Create')"
+                        v-if="usePermission.can('Wallet topUp', 'Create')"
                         icon="fa fa-circle-plus" 
                         label="Create" 
                         severity="primary" 

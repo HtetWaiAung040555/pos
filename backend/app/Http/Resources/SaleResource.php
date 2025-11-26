@@ -20,6 +20,7 @@ class SaleResource extends JsonResource
             'due_amount'    => $this->due_amount,
             'remark'        => $this->remark,
             'sale_date'     => $this->sale_date,
+            'payment_id'    => $this->payment_id,
 
             // Sale details + product info
             'details'       => SaleDetailResource::collection($this->whenLoaded('details')),

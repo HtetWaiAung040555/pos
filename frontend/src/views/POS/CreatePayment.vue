@@ -12,6 +12,7 @@
   import { usePaymentMethodStore } from '@/stores/usePaymentMethodStore';
   import { Dialog, useToast } from 'primevue';
   import SubTitle from '@/components/SubTitle.vue';
+import { useWalletStore } from '@/stores/useWalletStore';
 
   const router = useRouter();
   const route = useRoute();
@@ -19,16 +20,16 @@
   const useSales = useSaleStore();
   const useStatus = useStatusStore();
   const usePaymentMethod = usePaymentMethodStore();
+  const useWallet = useWalletStore();
 
-  const salesData = ref({ customer: { id: '', balance: 0 }, details: [], total_amount: 0 });
+  const salesData = ref({ customer: { id: '', balance: 0 }, details: [], total_amount: 0, payment_id: 1 });
   const userData = ref({});
   const data = ref({
     payAmount: 0,
     note: "",
-    date: moment().format("DD/MM/YY HH:mm:ss"),
+    date: Date.now(),
     currency: 'Ks. ',
     taxRate: 3,
-    paymentId: 1,
     statusId: '',
     walletAmt: 0,
     walletPaymentId: 1,
@@ -72,8 +73,8 @@
 
   async function formSubmit() {
     const payload = {
-      sale_date: data.value.date,
-      payment_id: data.value.paymentId,
+      sale_date: moment(data.value.date).format("YYYY/MM/DD HH:mm:ss"),
+      payment_id: salesData.value.payment_id,
       paid_amount: parseFloat(data.value.payAmount),
       due_amount: changeReturn.value,
       remark: data.value.note,
@@ -123,7 +124,7 @@
     }
   }
 
-  function addWallet() {
+  async function addWallet() {
     if (data.value.walletAmt <= 0) {
       errorMsg.value = {
         amount: "Top-up amount must be greater than zero",
@@ -134,7 +135,25 @@
       customer_id: salesData.value.customer.id,
       amount: parseFloat(data.value.walletAmt),
       payment_id: data.value.walletPaymentId,
+      remark: data.value.walletAmt,
+      pay_date: moment(data.value.date).format("YYYY/MM/DD HH:mm:ss"),
       created_by: userData.value.id
+    }
+    await useWallet.addWallet(payload);
+    if(useWallet.error) {
+      Object.values(useWallet.error).forEach((err) => {
+          err.forEach((msg) => {
+              toast.add({ severity: 'error', summary: 'Error Message', detail: msg, life: 3000 });
+          })
+      })
+      return
+    }
+    if (useWallet.walletList) {
+      toast.add({ severity: 'success', summary: 'Success Message', detail: 'Wallet top-up successfully.', life: 3000 });
+      openWalletModal.value = false;
+      data.value.walletAmt = 0;
+      await useSales.fetchSales(route.query.id);
+      salesData.value = useSales.salesList || salesData.value;
     }
   }
 
@@ -246,7 +265,7 @@
           <BaseLabel label="Payment Type:" />
           <select
             class="text-md border border-gray-500 rounded-sm p-2 text-black w-full h-[35px]"
-            v-model="data.paymentId"
+            v-model="salesData.payment_id"
             @change="changePaymentMethod"
           >
             <option value="1" v-if="usePaymentMethod.loading">Loading. . .</option>
@@ -257,6 +276,7 @@
         </div>
         <!-- Customer ID -->
         <BaseInput
+          v-if="salesData.payment_id === 3"
           size="sm"
           v-model="salesData.customer.id"
           label="Customer ID:"
@@ -264,7 +284,7 @@
           disabled
         />
         <!-- Customer Balance Display -->
-        <div class="flex gap-x-1 items-end">
+        <div v-if="salesData.payment_id === 3" class="flex gap-x-1 items-end">
           <BaseInput size="sm" 
             v-model="salesData.customer.balance" 
             type="number"
@@ -349,7 +369,7 @@
           </div>
           <div style="text-align: left;">
             <div><span style="font-weight: bold;">Cashier:</span> {{ userData.name }}</div>
-            <div><span style="font-weight: bold;">Date:</span> {{ data.date }}</div>
+            <div><span style="font-weight: bold;">Date:</span> {{ moment(data.date).format('DD/MM/YY HH:mm:ss') }}</div>
           </div>
         </div>
 
@@ -437,7 +457,63 @@
             <span>{{ data.currency + Number(subtotal).toLocaleString() }}</span>
             <!-- <span>{{ data.currency + (subtotal + tax).toLocaleString() }}</span> -->
           </div>
+          <div
+            v-if="salesData.payment_id === 1"
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-top: 4px;
+            "
+          >
+            <span>Pay Amt</span>
+            <span>{{ data.currency + Number(data.payAmount).toLocaleString() }}</span>
+          </div>
+          <div
+            v-if="salesData.payment_id === 1"
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-top: 4px;
+            "
+          >
+            <span>Change Amt</span>
+            <span>{{ data.currency + Number(changeReturn).toLocaleString() }}</span>
+          </div>
+          <div
+            v-if="salesData.payment_id === 3"
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-top: 4px;
+            "
+          >
+            <span>Current Balance</span>
+            <span>{{ data.currency + Number(salesData.customer.balance).toLocaleString() }}</span>
+          </div>
+          <div
+            v-if="salesData.payment_id === 3"
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-top: 4px;
+            "
+          >
+            <span>Buy Amount</span>
+            <span>{{ data.currency + Number(subtotal).toLocaleString() }}</span>
+          </div>
+          <div
+            v-if="salesData.payment_id === 3"
+            style="
+              display: flex;
+              justify-content: space-between;
+              padding-top: 4px;
+            "
+          >
+            <span>Remaining Balance</span>
+            <span>{{ data.currency + Number(salesData.customer.balance - subtotal).toLocaleString() }}</span>
+          </div>
         </div>
+        
 
         <!-- Footer -->
         <footer
@@ -457,7 +533,7 @@
     </div>
 
     <!-- Wallet Top-up Modal -->
-    <Dialog v-model:visible="openWalletModal" :style="{ width: '700px' }" :modal="true" :draggable="true" :position="'center'">
+    <Dialog v-model:visible="openWalletModal" :modal="true" :draggable="true" :position="'center'">
       <template #container="{ closeCallback }">
         <div class="flex flex-col gap-y-4 p-4">
           <div class="flex justify-between items-center">
@@ -469,6 +545,7 @@
             />
           </div>
           <div class="grid grid-cols-2 gap-4">
+            <!-- Customer Id for Wallet -->
             <BaseInput
               size="sm"
               v-model="salesData.customer.id"
@@ -476,6 +553,15 @@
               height="h-[35px]"
               disabled
             />
+            <!-- Top-up date -->
+            <BaseInput
+              size="sm"
+              :modelValue="moment(data.date).format('DD/MM/YY HH:mm:ss')"
+              label="Datetime:"
+              height="h-[35px]"
+              disabled
+            />
+            <!-- Top-up Amount -->
             <BaseInput
               size="sm"
               type="number"
@@ -486,7 +572,7 @@
               :error="errorMsg.amount" 
             />
             <!-- Select Payment Method for Wallet -->
-            <div class="flex flex-col gap-1 col-span-2">
+            <div class="flex flex-col gap-1">
               <BaseLabel label="Payment Method:" />
               <select
                 class="text-md border border-gray-500 rounded-sm p-2 text-black w-full h-[35px]"
@@ -499,6 +585,12 @@
                 </option>
               </select>
             </div>
+            <BaseTextarea
+              class="col-span-2"
+              v-model="data.walletRemark"
+              label="Remark"
+              autoResize
+            />
             <div class="col-span-2 flex justify-end items-center">
               <BaseButton label="Add Wallet" @click="addWallet" />
             </div>

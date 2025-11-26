@@ -97,9 +97,9 @@ const router = createRouter({
         {path: '/category', name: 'Category', component: Category, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'View' } }},
         {path: '/category/create', name: 'Create Category', component: CreateCategory, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'Create' } }},
         {path: '/category/update', name: 'Update Category', component: UpdateCategory, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'Update' } }},
-        {path: '/wallet', name: 'Wallet', component: Wallet, meta: { requiresAuth: true, permission: { resource: 'Wallet', action: 'View' } }},
-        {path: '/wallet/createTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'WalletTopUp', action: 'Create' } }},
-        {path: '/wallet/updateTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'WalletTopUp', action: 'Create' } }},
+        {path: '/wallet', name: 'Wallet', component: Wallet, meta: { requiresAuth: true, permission: { resource: 'Wallet topup', action: 'View' } }},
+        {path: '/wallet/createTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'Wallet topup', action: 'Create' } }},
+        {path: '/wallet/updateTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'Wallet topup', action: 'Create' } }},
         { path: '/', redirect: '/login' }
     ]
 });
