@@ -47,11 +47,10 @@ import UpdatePaymentMethod from './views/Payment_Method/UpdatePaymentMethod.vue'
 import Category from './views/Category/Category.vue';
 import CreateCategory from './views/Category/CreateCategory.vue';
 import UpdateCategory from './views/Category/UpdateCategory.vue';
-import Receivable from './views/Receivable/Receivable.vue';
-import CreateReceivable from './views/Receivable/CreateReceivable.vue';
-import UpdateReceivable from './views/Receivable/UpdateReceivable.vue';
 import Sales from './views/Sales/Sales.vue';
 import UpdateCustomer from './views/Customer/UpdateCustomer.vue';
+import Wallet from './views/Wallet/Wallet.vue';
+import CreateWalletTopUp from './views/Wallet/CreateWalletTopUp.vue';
 
 
 
@@ -98,9 +97,9 @@ const router = createRouter({
         {path: '/category', name: 'Category', component: Category, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'View' } }},
         {path: '/category/create', name: 'Create Category', component: CreateCategory, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'Create' } }},
         {path: '/category/update', name: 'Update Category', component: UpdateCategory, meta: { requiresAuth: true, permission: { resource: 'Category', action: 'Update' } }},
-        {path: '/receivable', name: 'Receivable', component: Receivable, meta: { requiresAuth: true, permission: { resource: 'Receivable', action: 'View' } }},
-        {path: '/receivable/create', name: 'Create Receivable', component: CreateReceivable, meta: { requiresAuth: true, permission: { resource: 'Receivable', action: 'Create' } }},
-        {path: '/receivable/update', name: 'Update Receivable', component: UpdateReceivable, meta: { requiresAuth: true, permission: { resource: 'Receivable', action: 'Update' } }},
+        {path: '/wallet', name: 'Wallet', component: Wallet, meta: { requiresAuth: true, permission: { resource: 'Wallet', action: 'View' } }},
+        {path: '/wallet/createTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'WalletTopUp', action: 'Create' } }},
+        {path: '/wallet/updateTopUp', name: 'Create Wallet Top Up', component: CreateWalletTopUp, meta: { requiresAuth: true, permission: { resource: 'WalletTopUp', action: 'Create' } }},
         { path: '/', redirect: '/login' }
     ]
 });

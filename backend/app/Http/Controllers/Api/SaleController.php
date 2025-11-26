@@ -10,7 +10,6 @@ use App\Models\Sale;
 use App\Models\SaleDetail;
 use App\Models\StockTransaction;
 use App\Models\CustomerTransaction;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +17,6 @@ class SaleController extends Controller
 {
     public function index(Request $request)
     {
-        
         $query = Sale::with(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']);
 
         if ($request->filled('customer_id')) {
@@ -36,7 +34,7 @@ class SaleController extends Controller
         } elseif ($request->filled('end_date')) {
             $query->whereDate('sale_date', '<=', $request->end_date);
         }
-        
+
         return SaleResource::collection($query->get());
     }
 
