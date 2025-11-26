@@ -88,6 +88,7 @@ class CustomerTransactionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'customer_id' => 'sometimes',
             'amount' => 'sometimes|numeric|min:0',
             'payment_id' => 'sometimes|exists:payment_methods,id',
             'remark' => 'nullable|string|max:2000',
@@ -97,17 +98,23 @@ class CustomerTransactionController extends Controller
 
         $transaction = CustomerTransaction::where('type', 'top-up')->findOrFail($id);
 
-        $old_amount = $transaction->amount;
+        $oldCustomer = Customer::findOrFail($transaction->customer_id);
+
+        Log::info($oldCustomer->all());
+
+        $oldCustomer->balance -= $transaction->amount;
+        $oldCustomer->save();
 
         DB::beginTransaction();
         try {
-            $transaction->fill($request->only(['amount','payment_id','remark','pay_date']));
+            $transaction->fill($request->only(['customer_id','amount','payment_id','remark','pay_date']));
             $transaction->updated_by = $request->updated_by;
             $transaction->save();
 
             $customer = Customer::findOrFail($transaction->customer_id);
 
-            $customer->balance -= $old_amount;
+            Log::info($customer->all());
+
             $customer->balance += $transaction->amount;
             $customer->save();
 
@@ -152,11 +159,11 @@ class CustomerTransactionController extends Controller
     }
 
     // Update customer balance based on top-up transactions
-    private function updateCustomerBalance($customerId, $amount)
-    {
-        $customer = Customer::findOrFail($customerId);
+    // private function updateCustomerBalance($customerId, $amount)
+    // {
+    //     $customer = Customer::findOrFail($customerId);
 
-        $customer->balance += $amount;
-        $customer->save();
-    }
+    //     $customer->balance += $amount;
+    //     $customer->save();
+    // }
 }
