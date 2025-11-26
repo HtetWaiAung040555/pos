@@ -9,6 +9,31 @@ class SaleResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id'            => $this->id,
+            'customer'      => new CustomerResource($this->whenLoaded('customer')),
+            'status'        => new StatusResource($this->whenLoaded('status')),
+            'paymentMethod' => new PaymentMethodResource($this->whenLoaded('paymentMethod')),
+
+            'total_amount'  => $this->total_amount,
+            'paid_amount'   => $this->paid_amount,
+            'due_amount'    => $this->due_amount,
+            'remark'        => $this->remark,
+            'sale_date'     => $this->sale_date,
+
+            // Sale details + product info
+            'details'       => SaleDetailResource::collection($this->whenLoaded('details')),
+
+            // Created & Updated by
+            'created_by'    => new UserResource($this->whenLoaded('createdBy')),
+            'updated_by'    => new UserResource($this->whenLoaded('updatedBy')),
+
+            // Void Info
+            'void_at'       => $this->void_at,
+            'void_by'       => new UserResource($this->whenLoaded('voidBy')), 
+
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
+        ];
     }
 }

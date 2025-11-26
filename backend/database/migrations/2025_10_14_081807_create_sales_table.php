@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('sales', function (Blueprint $table) {
@@ -20,16 +17,17 @@ return new class extends Migration
             $table->decimal('due_amount',11,2);
             $table->foreignId('payment_id')->constrained('payment_methods')->restrictOnDelete();
             $table->foreignId('status_id')->constrained('statuses')->restrictOnDelete();
+            $table->text('remark')->nullable();
             $table->dateTime('sale_date');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
+            $table->unsignedBigInteger('void_by')->nullable();
+            $table->foreign('void_by')->references('id')->on('users')->nullOnDelete();
+            $table->timestamp('void_at')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('sales');

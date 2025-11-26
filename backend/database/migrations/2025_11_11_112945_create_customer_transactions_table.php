@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('customer_transactions', function (Blueprint $table) {
@@ -19,16 +16,15 @@ return new class extends Migration
             $table->foreign('sale_id')->references('id')->on('sales')->onDelete('cascade');
             $table->enum('type', ['sale','payment','refund','adjustment'])->nullable();
             $table->decimal('amount', 15,2);
+            $table->foreignId('payment_id')->nullable()->constrained('payment_methods')->nullOnDelete();
             $table->text('remark')->nullable();
+            $table->date('pay_date')->nullable();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('customer_transactions');

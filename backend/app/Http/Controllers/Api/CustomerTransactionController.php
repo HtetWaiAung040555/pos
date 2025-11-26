@@ -20,14 +20,6 @@ class CustomerTransactionController extends Controller
             $query->where('customer_id', $request->customer_id);
         }
 
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        if ($request->filled('payment_id')) {
-            $query->where('payment_id', $request->payment_id);
-        }
-
         return CustomerTransactionResource::collection(
             $query->orderBy('id', 'desc')->get()
         );
@@ -39,7 +31,6 @@ class CustomerTransactionController extends Controller
 
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'sale_id' => 'nullable|exists:sales,id',
             'amount' => 'required|numeric|min:0',
             'payment_id' => 'nullable|exists:payment_methods,id',
             'remark' => 'nullable|string|max:2000',
@@ -49,23 +40,24 @@ class CustomerTransactionController extends Controller
         ]);
 
         DB::beginTransaction();
-
         try {
-
-            // 1. Create transaction
             $transaction = CustomerTransaction::create([
                 'customer_id' => $request->customer_id,
-                'type' => 'payment',
+                'type' => 'top-up',
                 'amount' => $request->amount,
                 'payment_id' => $request->payment_id,
+                'status_id' => 7,
                 'remark' => $request->remark,
                 'pay_date' => $request->pay_date,
                 'created_by' => $request->created_by,
                 'updated_by' => $request->updated_by ?? $request->created_by,
             ]);
 
-            // 2. Update customer balance
-            $this->updateCustomerBalance($transaction->customer_id);
+
+            $customer = Customer::findOrFail($transaction->customer_id);
+
+            $customer->balance += $transaction->amount;
+            $customer->save();
 
             DB::commit();
 
@@ -73,10 +65,12 @@ class CustomerTransactionController extends Controller
                 $transaction->load(['customer', 'paymentMethod', 'createdBy', 'updatedBy'])
             );
 
+            Log::info($request);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'error' => 'Failed to create transaction',
+                'error' => 'Failed to create balance transaction',
                 'details' => $e->getMessage()
             ], 500);
         }
@@ -85,6 +79,7 @@ class CustomerTransactionController extends Controller
     public function show($id)
     {
         $transaction = CustomerTransaction::with(['customer', 'paymentMethod', 'createdBy', 'updatedBy'])
+            ->where('type', 'top-up')
             ->findOrFail($id);
 
         return new CustomerTransactionResource($transaction);
@@ -100,18 +95,21 @@ class CustomerTransactionController extends Controller
             'updated_by' => 'required|exists:users,id',
         ]);
 
-        $transaction = CustomerTransaction::findOrFail($id);
+        $transaction = CustomerTransaction::where('type', 'top-up')->findOrFail($id);
+
+        $old_amount = $transaction->amount;
 
         DB::beginTransaction();
         try {
-
-            // 1. Update fields
             $transaction->fill($request->only(['amount','payment_id','remark','pay_date']));
             $transaction->updated_by = $request->updated_by;
             $transaction->save();
 
-            // 2. Recalculate customer balance
-            $this->updateCustomerBalance($transaction->customer_id);
+            $customer = Customer::findOrFail($transaction->customer_id);
+
+            $customer->balance -= $old_amount;
+            $customer->balance += $transaction->amount;
+            $customer->save();
 
             DB::commit();
 
@@ -122,7 +120,7 @@ class CustomerTransactionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'error' => 'Failed to update transaction',
+                'error' => 'Failed to update balance transaction',
                 'details' => $e->getMessage()
             ], 500);
         }
@@ -130,43 +128,35 @@ class CustomerTransactionController extends Controller
 
     public function destroy($id)
     {
-        $transaction = CustomerTransaction::findOrFail($id);
+        $transaction = CustomerTransaction::where('type', 'top-up')->findOrFail($id);
         $customerId = $transaction->customer_id;
 
         DB::beginTransaction();
         try {
-
             $transaction->delete();
 
-            // Recalculate customer balance after delete
-            $this->updateCustomerBalance($customerId);
+            // Update balance after delete
+            // $this->updateCustomerBalance($customerId);
 
             DB::commit();
 
-            return response()->json(['message' => 'Transaction deleted successfully']);
+            return response()->json(['message' => 'Balance transaction deleted successfully']);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'error' => 'Cannot delete transaction',
+                'error' => 'Cannot delete balance transaction',
                 'details' => $e->getMessage()
             ], 400);
         }
     }
 
-    // Auto recalculates customer payable/paid/total
-
-    private function updateCustomerBalance($customerId)
+    // Update customer balance based on top-up transactions
+    private function updateCustomerBalance($customerId, $amount)
     {
         $customer = Customer::findOrFail($customerId);
 
-        // Sum of all payments from customer_transactions
-        $paid = CustomerTransaction::where('customer_id', $customerId)
-            ->where('type', 'payment')
-            ->sum('amount');
-
-        $customer->payable = $customer->total - $paid;
-
+        $customer->balance += $amount;
         $customer->save();
     }
 }

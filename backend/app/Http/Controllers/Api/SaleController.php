@@ -12,13 +12,11 @@ use App\Models\StockTransaction;
 use App\Models\CustomerTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class SaleController extends Controller
 {
     public function index(Request $request)
     {
-        
         $query = Sale::with(['customer', 'status', 'paymentMethod', 'details.product', 'createdBy', 'updatedBy']);
 
         if ($request->filled('customer_id')) {
@@ -36,7 +34,7 @@ class SaleController extends Controller
         } elseif ($request->filled('end_date')) {
             $query->whereDate('sale_date', '<=', $request->end_date);
         }
-        
+
         return SaleResource::collection($query->get());
     }
 
@@ -151,8 +149,6 @@ class SaleController extends Controller
             'updated_by' => 'nullable|exists:users,id',
         ]);
 
-        Log::info("Sales Data:", $request->all());
-
         $sale = Sale::with('status')->findOrFail($id); // Load sale with status relation
 
         DB::beginTransaction();
@@ -167,29 +163,29 @@ class SaleController extends Controller
                 'sale_date' => $request->sale_date,
                 'updated_by' => $request->updated_by,
             ]);
-            
-            if ($request -> status) {
-                // 2. Create CustomerTransaction only if status changed
-                CustomerTransaction::create([
-                    'customer_id' => $sale->customer_id,
-                    'sale_id' => $sale->id,
-                    'type' => 'sale',
-                    'amount' => $sale->paid_amount,
-                    'created_by' => $sale->updated_by,
-                    'updated_by' => $sale->updated_by,
-                ]);
-                
 
-                // 3. Update customer balances
-                $customer = $sale->customer;
-                if (strtolower($request->status) === 'complete') {
-                    $customer->paid_amount += $sale->total_amount;
-                }else if(strtolower($request->status) === 'unpaid'){
-                    $customer->payable += $sale->total_amount;
-                }
-                $customer->total += $sale->total_amount;
-                $customer->save();
+
+            // 2. Create CustomerTransaction only if status changed
+            CustomerTransaction::create([
+                'customer_id' => $sale->customer_id,
+                'sale_id' => $sale->id,
+                'type' => 'sale',
+                'amount' => -($sale->total_amount),
+                'payment_id' => $sale->payment_id,
+                'status_id' => 7,
+                'pay_date' => $sale->sale_date,
+                'created_by' => $sale->updated_by,
+                'updated_by' => $sale->updated_by
+            ]);
+            
+
+            // 3. Update customer balances
+            $customer = $sale->customer;
+            if ($sale->payment_id == 2 || $sale->payment_id == 3) {
+                $customer->balance -= $sale->total_amount;
             }
+            
+            $customer->save();
 
             DB::commit();
 
@@ -207,13 +203,64 @@ class SaleController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+        DB::beginTransaction();
+
         try {
-            Sale::findOrFail($id)->delete();
-            return response()->json(['message' => 'Sale deleted successfully'], 200);
+            // Load sale + details
+            $sale = Sale::with('details')->findOrFail($id);
+
+            // Find void status ID
+            $voidStatus = \App\Models\Status::where('name', 'void')->first();
+            // if (!$voidStatus) {
+            //     return response()->json(['error' => 'Void status not found'], 404);
+            // }
+
+            // 1. Update sale status
+            $sale->status_id = $voidStatus->id;
+            $sale->void_at = now();
+            $sale->void_by = $request->void_by;
+            $sale->save();
+
+            // 2. Restore stock to inventory
+            foreach ($sale->details as $detail) {
+
+                $inventory = Inventory::where('product_id', $detail->product_id)
+                                    ->where('warehouse_id', $sale->warehouse_id)
+                                    ->first();
+
+                if ($inventory) {
+                    $inventory->increment('qty', $detail->quantity);
+                }
+
+                // 3. Insert stock transaction
+                StockTransaction::create([
+                    'inventory_id' => $inventory->id ?? null,
+                    'reference_id' => $sale->id,
+                    'reference_type' => 'sale_void',
+                    'quantity_change' => $detail->quantity,
+                    'type' => 'in',
+                    'created_by' => $sale->void_by,
+                    'updated_by' => $sale->void_by,
+                ]);
+            }
+
+            // 4. Remove customer transactions related to this sale
+            CustomerTransaction::where('sale_id', $sale->id)->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Sale voided successfully, stock returned, void info saved.'
+            ], 200);
+
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Sale cannot be deleted', 'details' => $e->getMessage()], 400);
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Failed to void sale',
+                'details' => $e->getMessage()
+            ], 500);
         }
     }
 }
