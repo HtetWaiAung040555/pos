@@ -8,8 +8,8 @@
   import { computed, nextTick, onMounted, ref, watch } from 'vue';
   import { useStatusStore } from '@/stores/useStatusStore';
   import { useSaleStore } from '@/stores/useSalesStore';
-import { useRouter } from 'vue-router';
-import moment from 'moment';
+  import { useRouter } from 'vue-router';
+  import moment from 'moment';
 
   const toast = useToast();
   const router = useRouter();

@@ -271,8 +271,15 @@ async function formSubmit() {
                 </div>
                 <div class="flex gap-x-4 mt-6">
                     <!-- Customer Name Input -->
-                    <BaseInput size="sm" v-model="formData.name" label="Name" placeholder="Name" width="300px"
-                        height="h-[35px]" :isRequire="true" :error="errorMsg.name" />
+                    <BaseInput 
+                        size="sm" 
+                        v-model="formData.name" 
+                        label="Name" 
+                        placeholder="Name" 
+                        width="300px"
+                        height="h-[35px]" :isRequire="true"
+                        :error="errorMsg.name" 
+                    />
                     <!-- Customer Status -->
                     <div class="flex flex-col gap-y-1 w-[200px]">
                         <BaseLabel label="Status" />

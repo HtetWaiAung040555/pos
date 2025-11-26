@@ -10,7 +10,8 @@
   import { useSaleStore } from '@/stores/useSalesStore';
   import { useStatusStore } from '@/stores/useStatusStore';
   import { usePaymentMethodStore } from '@/stores/usePaymentMethodStore';
-  import { useToast } from 'primevue';
+  import { Dialog, useToast } from 'primevue';
+  import SubTitle from '@/components/SubTitle.vue';
 
   const router = useRouter();
   const route = useRoute();
@@ -19,28 +20,34 @@
   const useStatus = useStatusStore();
   const usePaymentMethod = usePaymentMethodStore();
 
-  const salesData = ref({});
+  const salesData = ref({ customer: { id: '', balance: 0 }, details: [], total_amount: 0 });
   const userData = ref({});
-
   const data = ref({
-    // Payment Form
     payAmount: 0,
     note: "",
-    date: moment().format("YYYY/MM/DD HH:mm:ss"),
+    date: moment().format("DD/MM/YY HH:mm:ss"),
     currency: 'Ks. ',
     taxRate: 3,
-    payment_id: 1,
-    status_id: '',
+    paymentId: 1,
+    statusId: '',
+    walletAmt: 0,
+    walletPaymentId: 1,
+    walletRemark: '',
+  });
+  const openWalletModal = ref(false);
+  const errorMsg = ref({
+    amount: "",
   });
 
   onMounted(async() => {
     await useSales.fetchSales(route.query.id);
-    salesData.value = useSales.salesList;
-    data.value.payAmount = salesData.value.total_amount;
+    salesData.value = useSales.salesList || salesData.value;
+    data.value.payAmount = salesData.value.total_amount || data.value.payAmount;
     await usePaymentMethod.fetchAllPaymentMethod();
     await useStatus.fetchAllStatus();
     userData.value = JSON.parse(localStorage.getItem('user'));
-    data.value.status_id = useStatus.statusList.find(el => el.name === 'Complete').id;
+    data.value.statusId = useStatus.statusList.find(el => el.name === 'Complete').id;
+    console.log(salesData.value);
   });
 
   const subtotal = computed(() => {
@@ -66,11 +73,11 @@
   async function formSubmit() {
     const payload = {
       sale_date: data.value.date,
-      payment_id: data.value.payment_id,
+      payment_id: data.value.paymentId,
       paid_amount: parseFloat(data.value.payAmount),
       due_amount: changeReturn.value,
       remark: data.value.note,
-      status_id: data.value.status_id,
+      status_id: data.value.statusId,
       updated_by: userData.value.id
     }
     await useSales.editSales(salesData.value.id, payload);
@@ -107,14 +114,27 @@
     if (!e.target.value) return
     if (e.target.value === '2') {
       let statusData = useStatus.statusList.find(el => el.name === 'Unpaid');
-      data.value.status_id = statusData.id;
-      data.value.status = statusData.name;
+      data.value.statusId = statusData.id;
       return
     } else {
       let statusData = useStatus.statusList.find(el => el.name === 'Complete');
-      data.value.status_id = statusData.id;
-      data.value.status = statusData.name;
+      data.value.statusId = statusData.id;
       return
+    }
+  }
+
+  function addWallet() {
+    if (data.value.walletAmt <= 0) {
+      errorMsg.value = {
+        amount: "Top-up amount must be greater than zero",
+      };
+      return
+    }
+    let payload = {
+      customer_id: salesData.value.customer.id,
+      amount: parseFloat(data.value.walletAmt),
+      payment_id: data.value.walletPaymentId,
+      created_by: userData.value.id
     }
   }
 
@@ -198,6 +218,7 @@
       <div
         class="flex-[1.2] grid grid-cols-2 gap-4 bg-white p-6 rounded-sm border border-gray-300 shadow-sm"
       >
+      <!-- Pay Amount Display -->
         <BaseInput
           size="sm"
           v-model="data.payAmount"
@@ -205,6 +226,7 @@
           label="Received Amount:"
           height="h-[35px]"
         />
+        <!-- Total Amount Display -->
         <BaseInput
           size="sm"
           v-model="salesData.total_amount"
@@ -212,17 +234,19 @@
           height="h-[35px]"
           disabled
         />
+        <!-- Change Amount -->
         <BaseInput size="sm" 
           v-model="changeReturn" 
           label="Change Return:"
           height="h-[35px]"
           disabled 
         />
+        <!-- Select Payment Method -->
         <div class="flex flex-col gap-1">
           <BaseLabel label="Payment Type:" />
           <select
             class="text-md border border-gray-500 rounded-sm p-2 text-black w-full h-[35px]"
-            v-model="data.payment_id"
+            v-model="data.paymentId"
             @change="changePaymentMethod"
           >
             <option value="1" v-if="usePaymentMethod.loading">Loading. . .</option>
@@ -231,6 +255,7 @@
             </option>
           </select>
         </div>
+        <!-- Customer ID -->
         <BaseInput
           size="sm"
           v-model="salesData.customer.id"
@@ -238,18 +263,22 @@
           height="h-[35px]"
           disabled
         />
+        <!-- Customer Balance Display -->
         <div class="flex gap-x-1 items-end">
           <BaseInput size="sm" 
             v-model="salesData.customer.balance" 
+            type="number"
             label="Customer Balance:"
             height="h-[35px]"
             disabled 
           />
           <BaseButton
             icon="fa fa-plus"
+            @click="openWalletModal = true"
           />
         </div>
 
+        <!-- Remarks Input -->
         <div class="flex flex-col col-span-2">
           <BaseLabel label="Note:" />
           <BaseTextarea
@@ -260,11 +289,12 @@
           />
         </div>
 
+        <!-- Status Input -->
         <div class="flex flex-col col-span-2">
           <BaseLabel label="Payment Status:" />
           <select
             class="text-md border border-gray-500 rounded-sm p-2 text-black w-full h-[35px]"
-            v-model="data.status_id"
+            v-model="data.statusId"
           >
             <option 
               v-for="status in useStatus.statusList.filter(el => el.name === 'Complete' || el.name === 'Unpaid')"
@@ -275,7 +305,7 @@
           </select>
         </div>
 
-
+        <!-- Submit Button Group -->
         <div class="flex gap-3 mt-5">
             <BaseButton label="Submit" @click="formSubmit" />
             <BaseButton label="Submit & Print" @click="formSubmitAndPrint" />
@@ -284,7 +314,7 @@
 
       </div>
 
-    <!-- Start of Slip Section-->
+      <!-- Start of Slip Section-->
       <div class="flex-[1.8] max-w-md w-full mx-auto p-6 bg-white shadow-lg border border-gray-300 rounded-sm text-sm font-mono text-black" id="slip-section" >
         <!-- Header -->
         <header 
@@ -319,7 +349,7 @@
           </div>
           <div style="text-align: left;">
             <div><span style="font-weight: bold;">Cashier:</span> {{ userData.name }}</div>
-            <div><span style="font-weight: bold;">Date:</span> {{ moment(data.date).format('DD/MM/YY HH:mm') }}</div>
+            <div><span style="font-weight: bold;">Date:</span> {{ data.date }}</div>
           </div>
         </div>
 
@@ -422,10 +452,60 @@
           <div>Keep this receipt for your records</div>
         </footer>
       </div>
+      <!-- End of Slip Section -->
 
-    <!-- End of Slip Section -->
     </div>
 
+    <!-- Wallet Top-up Modal -->
+    <Dialog v-model:visible="openWalletModal" :style="{ width: '700px' }" :modal="true" :draggable="true" :position="'center'">
+      <template #container="{ closeCallback }">
+        <div class="flex flex-col gap-y-4 p-4">
+          <div class="flex justify-between items-center">
+            <SubTitle label="Wallet Info" />
+            <BaseButton
+              severity="secondary"
+              @click="openWalletModal = false" 
+              icon="fa fa-x"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <BaseInput
+              size="sm"
+              v-model="salesData.customer.id"
+              label="Customer ID:"
+              height="h-[35px]"
+              disabled
+            />
+            <BaseInput
+              size="sm"
+              type="number"
+              v-model="data.walletAmt"
+              label="Top-up Amount:"
+              height="h-[35px]"
+              :isRequire="true" 
+              :error="errorMsg.amount" 
+            />
+            <!-- Select Payment Method for Wallet -->
+            <div class="flex flex-col gap-1 col-span-2">
+              <BaseLabel label="Payment Method:" />
+              <select
+                class="text-md border border-gray-500 rounded-sm p-2 text-black w-full h-[35px]"
+                v-model="data.walletPaymentId"
+                @change="changePaymentMethod"
+              >
+                <option value="1" v-if="usePaymentMethod.loading">Loading. . .</option>
+                <option v-for="pm in usePaymentMethod.paymentMethodList" :value="pm.id">
+                  {{ pm.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-span-2 flex justify-end items-center">
+              <BaseButton label="Add Wallet" @click="addWallet" />
+            </div>
+          </div>
+        </div>
+      </template>
+    </Dialog>
   </div>
 </template>
 
