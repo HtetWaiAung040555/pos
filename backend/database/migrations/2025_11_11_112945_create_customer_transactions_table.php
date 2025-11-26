@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->string('sale_id')->nullable();
             $table->foreign('sale_id')->references('id')->on('sales')->onDelete('cascade');
-            $table->enum('type', ['sale','payment','refund','adjustment'])->nullable();
+            $table->enum('type', ['sale','payment','refund','adjustment','top-up'])->nullable();
             $table->decimal('amount', 15,2);
             $table->foreignId('payment_id')->nullable()->constrained('payment_methods')->nullOnDelete();
             $table->text('remark')->nullable();
