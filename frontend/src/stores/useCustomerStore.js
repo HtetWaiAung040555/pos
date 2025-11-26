@@ -86,7 +86,20 @@ export const useCustomerStore = defineStore('customer', {
             } finally {
                 this.deleteLoading = false;
             }
+        },
+        async fetchSingleCustomer(id) {
+            this.loading = true;
+            try {
+                const response = await axios.get(`/customers/${id}`);
+                this.singleCustomer = response.data.data; 
+                return this.singleCustomer;
+            } catch (err) {
+                this.error = err.message;
+            } finally {
+                this.loading = false;
+            }
         }
+
     }
 
 });

@@ -124,10 +124,10 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
         permission: {name: 'Category', action: "View"}
       },
       { 
-        name: 'Receivable', 
+        name: 'Wallet', 
         icon: 'fas fa-solid fa-wallet',
-        pathname: "/receivable",
-        permission: {name: 'Receivable', action: "View"}
+        pathname: "/wallet",
+        permission: {name: 'Wallet', action: "View"}
       }
   ];
 
