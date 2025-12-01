@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Api\StatusesController;
 use App\Http\Controllers\Api\WarehousesController;
 use App\Http\Controllers\Api\CustomerTransactionController;
+use App\Http\Controllers\Api\PromotionsController;
+use App\Http\Controllers\Api\PromotionsProductsController;
 // use App\Http\Controllers\Api\RolesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +79,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('/payment_methods', PaymentMethodController::class);
 
     Route::apiResource('/customers_transactions', CustomerTransactionController::class);
+
+    Route::apiResource('/promotions', PromotionsController::class);
 
 });
 

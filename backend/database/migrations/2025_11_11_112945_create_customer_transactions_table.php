@@ -17,8 +17,9 @@ return new class extends Migration
             $table->enum('type', ['sale','payment','refund','adjustment','top-up'])->nullable();
             $table->decimal('amount', 15,2);
             $table->foreignId('payment_id')->nullable()->constrained('payment_methods')->nullOnDelete();
+            $table->foreignId('status_id')->nullable()->constrained('statuses')->nullOnDelete();
             $table->text('remark')->nullable();
-            $table->date('pay_date')->nullable();
+            $table->dateTime('pay_date')->nullable();
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
