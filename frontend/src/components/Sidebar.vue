@@ -127,7 +127,7 @@ import { usePermissionStore } from '@/stores/usePermissionStore';
         name: 'Wallet', 
         icon: 'fas fa-solid fa-wallet',
         pathname: "/wallet",
-        permission: {name: 'Wallet topup', action: "View"}
+        permission: {name: 'Wallet', action: "View"}
       }
   ];
 

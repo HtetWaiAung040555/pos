@@ -263,7 +263,7 @@ async function editHold(hold) {
 }
 
 async function deleteHold(hold) {
-  if (!confirm('Delete this held sale? This may be irreversible depending on backend settings.')) return;
+  if (!confirm('Delete this hold sale? This may be irreversible depending on backend settings.')) return;
   const payload = {
     void_by: JSON.parse(localStorage.getItem('user')).id
   }

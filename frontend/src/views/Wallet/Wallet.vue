@@ -26,6 +26,7 @@
     onMounted(async () => {
         await useWallet.fetchAllWallet();
         walletList.value = useWallet.walletList;
+        console.log(walletList.value);
     });
 
     // Table headers
@@ -34,7 +35,7 @@
         { key: 'customer.name', label: 'Name', formatter: (row) => row.customer?.name },
         { key: 'amount', label: 'Amount' },
         { key: 'payment_method.name', label: 'Payment Method', formatter: (row) => row.payment_method?.name },
-        { key: 'pay_date', label: 'Pay Date'},
+        { key: 'pay_date', label: 'Pay Date', formatter: (row) => moment(row.pay_date).format('DD-MM-YY hh:mm')},
         { key: 'sale_id', label: 'Sale' },
         { key: 'type', label: 'Type' },
         { key: 'created_by', label: 'Created By', },
@@ -80,7 +81,7 @@
             <template #titleButtons>
                 <div class="flex gap-x-2 items-center">
                     <BaseButton 
-                        v-if="usePermission.can('Wallet topUp', 'Create')"
+                        v-if="usePermission.can('Wallet', 'Create')"
                         icon="fa fa-circle-plus" 
                         label="Create" 
                         severity="primary" 
@@ -98,8 +99,8 @@
             :isLoading="useWallet.loading"
             @delete="deleteHandle"
             :defaultSort="{key: 'created_at', order: 'desc'}"
-            :isEdit="!usePermission.can('WalletTopUp', 'Update')"
-            :isDelete="!usePermission.can('WalletTopUp', 'Delete')" 
+            :isEdit="!usePermission.can('Wallet', 'Update')"
+            :isDelete="!usePermission.can('Wallet', 'Delete')" 
         >
             <!-- Filter Section -->
             <template #filters>

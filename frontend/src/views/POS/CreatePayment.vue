@@ -457,6 +457,7 @@ import { useWalletStore } from '@/stores/useWalletStore';
             <span>{{ data.currency + Number(subtotal).toLocaleString() }}</span>
             <!-- <span>{{ data.currency + (subtotal + tax).toLocaleString() }}</span> -->
           </div>
+          <!-- Pay Amount -->
           <div
             v-if="salesData.payment_id === 1"
             style="
@@ -465,9 +466,10 @@ import { useWalletStore } from '@/stores/useWalletStore';
               padding-top: 4px;
             "
           >
-            <span>Pay Amt</span>
+            <span>Pay Amt ({{ usePaymentMethod.paymentMethodList.find(el => el.id === salesData.payment_id).name }})</span>
             <span>{{ data.currency + Number(data.payAmount).toLocaleString() }}</span>
           </div>
+          <!-- Change Amount -->
           <div
             v-if="salesData.payment_id === 1"
             style="
@@ -479,6 +481,7 @@ import { useWalletStore } from '@/stores/useWalletStore';
             <span>Change Amt</span>
             <span>{{ data.currency + Number(changeReturn).toLocaleString() }}</span>
           </div>
+          <!-- Customer current balance -->
           <div
             v-if="salesData.payment_id === 3"
             style="
@@ -490,6 +493,7 @@ import { useWalletStore } from '@/stores/useWalletStore';
             <span>Current Balance</span>
             <span>{{ data.currency + Number(salesData.customer.balance).toLocaleString() }}</span>
           </div>
+          <!-- Customer buying amount -->
           <div
             v-if="salesData.payment_id === 3"
             style="
@@ -498,9 +502,10 @@ import { useWalletStore } from '@/stores/useWalletStore';
               padding-top: 4px;
             "
           >
-            <span>Buy Amount</span>
-            <span>{{ data.currency + Number(subtotal).toLocaleString() }}</span>
+            <span>Pay Amount ({{ usePaymentMethod.paymentMethodList.find(el => el.id === salesData.payment_id).name }})</span>
+            <span>{{ data.currency + '-' + Number(subtotal).toLocaleString() }}</span>
           </div>
+          <!-- Customer Remain Balance -->
           <div
             v-if="salesData.payment_id === 3"
             style="

@@ -30,7 +30,7 @@
     amount: "",
     payment_id: "",
     remark: "",
-    pay_date: new Date().toISOString().slice(0, 10),
+    pay_date: moment().format('YYYY-MM-DD HH:mm:ss'),
     created_by: "",
     updated_by: "",
     currency: 'Ks. '
@@ -180,7 +180,15 @@
 
 <template>
   <div class="p-4">
-    <h3 class="text-black text-xl font-bold border-b pb-2 mb-4">Top Up Wallet</h3>
+    <div class="flex justify-between items-center pb-2 mb-4">
+      <h3 class="text-black text-xl font-bold">Top Up Wallet</h3>
+      <BaseButton 
+        icon="fa fa-chevron-left" 
+        label="Back" 
+        severity="secondary" 
+        @click="changeRoute('/wallet')"
+      />
+    </div>
     <div class="flex gap-4 items-start">
       <!-- FORM -->
       <div class="flex-[1.2] grid grid-cols-2 gap-4 bg-white p-6 rounded-sm border border-gray-300 shadow-sm">
@@ -204,7 +212,7 @@
             placeholder="Pay Date"
             width="300px"
             height="h-[35px]"
-            type="date"
+            type="datetime-local"
         />
         <!-- Amount -->
         <div class="flex flex-col">
@@ -293,7 +301,7 @@
           </div>
           <!-- top up -->
           <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span>Top Up Amount :</span>
+            <span>Top Up Amount ({{ selectedPaymentMethod.name }}) :</span>
             <span style="font-weight: bold;">{{ data.currency + Number(data.amount).toLocaleString() }}</span>
           </div>
           <!-- after -->

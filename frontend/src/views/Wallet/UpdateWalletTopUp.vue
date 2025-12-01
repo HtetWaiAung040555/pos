@@ -20,7 +20,9 @@
     const useCustomer = useCustomerStore();
     const usePaymentMethod = usePaymentMethodStore();
 
-    const data = ref({});
+    const data = ref({
+      pay_date: '',
+    });
     const userData = ref({});
     const selectedCustomer = ref('');
     const selectedPaymentMethod = ref('');
@@ -37,13 +39,13 @@
         await useCustomer.fetchAllCustomer();
         
         data.value = useWallet.walletList;
-
+        data.value.pay_date = moment(useWallet.walletList.pay_date).format('YYYY-MM-DD HH:mm:ss');
         userData.value = JSON.parse(localStorage.getItem('user'));
         selectedPaymentMethod.value = usePaymentMethod.paymentMethodList.filter(el => el.id === data.value.payment_method.id)[0];
         selectedCustomer.value = useCustomer.customerList.filter(el => el.id === data.value.customer.id)[0];
     });
 
-    //WALLE BALANCE AMOUNT SLIP
+    //WALLET BALANCE AMOUNT SLIP
     const beforeBalance= ref(0);
     watch(selectedCustomer, async (newCustomer) => {
         beforeBalance.value = 0;
@@ -162,7 +164,15 @@
 
 <template>
   <div class="p-4">
-    <h3 class="text-black text-xl font-bold border-b pb-2 mb-4">Update Top Up Wallet</h3>
+    <div class="flex justify-between items-center pb-2 mb-4">
+      <h3 class="text-black text-xl font-bold">Update Top Up Wallet</h3>
+      <BaseButton 
+        icon="fa fa-chevron-left" 
+        label="Back" 
+        severity="secondary" 
+        @click="changeRoute('/wallet')"
+      />
+    </div>
     <div class="flex gap-4 items-start">
       <!-- FORM -->
       <div class="flex-[1.2] grid grid-cols-2 gap-4 bg-white p-6 rounded-sm border border-gray-300 shadow-sm">
@@ -186,7 +196,7 @@
             placeholder="Pay Date"
             width="300px"
             height="h-[35px]"
-            type="date"
+            type="datetime-local"
         />
         <!-- Amount -->
         <div class="flex flex-col">
@@ -274,7 +284,7 @@
           </div>
           <!-- top up -->
           <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span>Top Up Amount :</span>
+            <span>Top Up Amount {{ selectedPaymentMethod.name }} :</span>
             <span style="font-weight: bold;">{{ currency + Number(data.amount).toLocaleString() }}</span>
           </div>
           <!-- after -->
