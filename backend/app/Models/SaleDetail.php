@@ -16,7 +16,10 @@ class SaleDetail extends Model
         'product_id',
         'quantity',
         'price',
+        'discount_amount',
+        'discount_price',
         'total',
+        'promotion_id',
     ];
 
     public function sale()
@@ -27,6 +30,11 @@ class SaleDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function promotion()
+    {
+        return $this->belongsTo(Promotion::class);
     }
 
 }

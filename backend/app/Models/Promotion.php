@@ -5,28 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class Promotion extends Model
 {
     use HasFactory;
 
-    protected $table = 'products';
+    protected $table = 'promotions';
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'unit',
-        'sec_prop',
-        'category_id',
-        'price',
-        'image',
-        'barcode',
-        'status_id',
-        'created_by',
+        'description', 
+        'discount_type', 
+        'discount_value',
+        'start_at', 
+        'end_at', 
+        'status_id', 
+        'created_by', 
         'updated_by'
     ];
-
-    public function category() {
-        return $this->belongsTo(Category::class);
-    }
 
     public function status() {
         return $this->belongsTo(Status::class);
@@ -40,7 +35,7 @@ class Product extends Model
         return $this->belongsTo(User::class, 'updated_by'); 
     }
 
-    public function promotions() {
-        return $this->belongsToMany(Promotion::class, 'promotions_products', 'product_id', 'promotion_id');
+    public function products() {
+        return $this->belongsToMany(Product::class, 'promotions_products', 'promotion_id', 'product_id');
     }
 }
